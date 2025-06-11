@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Plantilla LINE-X Hispania Arquitectónica</title>
+  <style>
+    @page { size: A4 landscape; margin: 0; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      font-size: 12px;
+      box-sizing: border-box;
+      width: 100%;
+      height: 100%;
+    }
+
+
+    .imagenes-container, .footer {
+      width: 100%;
+    }
+
+    .imagenes-container {
+      display: flex;
+      height: 620px; /* altura fija controlada */
+    }
+
+
+    .imagen-grande {
+      flex: 1.2;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    .imagen-grande img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .imagenes-pequenas {
+      flex: 1.2;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+    }
+
+    .imagenes-pequenas img {
+      width: 49%;
+      height: 49%;
+      object-fit: contain;
+    }
+
+    .footer {
+      display: flex;
+      height: 130px;
+      overflow: hidden; /* Evita que contenido lo rompa */
+    }
+
+    .box {
+      border: 1px solid #000;
+      outline: 1px solid #000; /* simula doble borde */
+      outline-offset: -3px;     /* controla la separación entre ambos bordes */
+      display: flex;
+      flex-direction: column;
+      text-align: center;
+      min-width: 0;
+      overflow: hidden;
+    }
+
+
+    .logo {
+      width: 130px;
+      background-color: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .logo img {
+      width: 100%;
+      height: auto;
+      object-fit: contain;
+    }
+
+    .box.medium {
+      flex-grow: 1;
+      padding: 3px;
+    }
+
+    .cabecera {
+      font-weight: bold;
+      font-size: 11px;
+      border-bottom: 0.5px solid black;
+      margin-bottom: 3px;
+      padding-bottom: 2px;
+    }
+
+    .contenido-box {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .contenido-box div {
+      font-size: 11px;
+      margin-bottom: 2px;
+    }
+
+    #notas-container {
+      max-width: 180px;
+      white-space: normal;
+      word-wrap: break-word;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="imagenes-container">
+    <div class="imagen-grande">
+      {{IMAGEN_GRANDE}}
+    </div>
+    <div class="imagenes-pequenas">
+      {{IMAGENES_PEQ}}
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="logo">
+      <img src="{{LOGO}}" alt="Logo LINE-X" />
+    </div>
+
+    <div class="box medium">
+      <div class="cabecera">ORDEN FABRICACIÓN</div>
+      <div class="contenido-box">
+        <div>{{NOMBRE_CLIENTE}}</div>
+        <div>{{NOMBRE_PROYECTO}}</div>
+        <div><b>{{FIGURA}}</b></div>
+        <div>{{FECHA_INICIO}}</div>
+      </div>
+    </div>
+
+    <div class="box medium">
+      <div class="cabecera">MEDIDAS</div>
+      <div class="contenido-box">
+        <div id="medidas-box">{{MEDIDAS}}</div>
+        <div>PESO: {{PESO}}</div>
+      </div>
+    </div>
+
+    <div class="box medium">
+      <div class="cabecera">CANTIDAD</div>
+      <div class="contenido-box">
+        <div><b>{{CANTIDAD}}</b></div>
+      </div>
+    </div>
+
+    <div class="box medium">
+      <div class="cabecera">MATERIAL</div>
+      <div class="contenido-box">
+        <div>{{MATERIAL}}</div>
+      </div>
+    </div>
+
+    <div class="box medium">
+      <div class="cabecera">NOTAS</div>
+      <div class="contenido-box" id="notas-container">
+        <div id="notas-box">{{NOTAS}}</div>
+      </div>
+    </div>
+
+    <div class="box medium">
+      <div class="cabecera">APROBACIÓN</div>
+      <div class="contenido-box">
+        <div>Firma: ____________</div>
+        <div>Nombre: __________</div>
+        <div>Fecha: __ / __ / ____</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const UNIDADES = "{{UNIDADES}}";
+    const medidasDiv = document.getElementById("medidas-box");
+
+    if (medidasDiv && UNIDADES) {
+      const contenido = medidasDiv.textContent;
+      const nuevoContenido = contenido
+        .replace(/L:(\d+)/g, `<br>L: $1 ${UNIDADES}`)
+        .replace(/W:(\d+)/g, `<br>W: $1 ${UNIDADES}`)
+        .replace(/H:(\d+)/g, `<br>H: $1 ${UNIDADES}`);
+
+      medidasDiv.innerHTML = nuevoContenido.replace(/^<br>/, '');
+    }
+  </script>
+
+</body>
+</html>

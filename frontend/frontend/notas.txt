@@ -1,0 +1,5 @@
+ALTER TABLE proyectos DROP INDEX nombre_proyecto;
+ALTER TABLE proyectos ADD UNIQUE(nombre_proyecto, cliente_id);
+ 
+ PARA EL DEPLOY
+ 

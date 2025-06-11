@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plantilla LINE-X Hispania</title>
+  <style>
+    @page { size: A4 landscape; margin: 10mm; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; padding: 10px; }
+
+    /* Contenedor principal */
+    .imagenes-container {
+      display: flex;
+      border: 1px solid #000;
+      border-radius: 10px;
+      height: 550px;
+      padding: 5px;
+    }
+
+        .imagen-grande {
+      flex: 1.2;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 10px;
+      margin-right: 5px;
+      overflow: hidden;
+      background-color: white; /* marco gris claro */
+    }
+
+    .imagen-grande img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+
+    .imagenes-pequenas {
+      flex: 1.4;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 5px;
+    }
+
+    .imagenes-pequenas img {
+      width: 48%;
+      height: 48%;
+      padding: 4px;
+      border-radius: 5px;
+      background-color: white;
+      object-fit: contain;
+    }
+
+
+    .footer {
+      display: flex;
+      height: 130px;
+      width: 100%;
+      margin-top: 10px;
+    }
+
+    .box {
+      border: 1px solid #000;
+      border-radius: 8px;
+      margin-right: 2px;
+      padding: 5px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      font-size: 12px;
+    }
+
+    .logo {
+      width: 120px;
+      border: 1px solid #000;
+      border-radius: 8px;
+      background-color: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 2px;
+    }
+
+    .logo img {
+      width: 100%;
+      height: auto;
+      object-fit: contain;
+    }
+
+    .box.medium { 
+      flex-grow: 1.8; 
+      flex-direction: column; 
+      justify-content: space-around; 
+      align-items: flex-start; 
+      padding-left: 10px; 
+    }
+
+    .title {
+      font-weight: bold;
+      font-size: 13px;
+      margin-bottom: 3px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 📌 Contenedor de imágenes -->
+  <div class="imagenes-container">
+    <div class="imagen-grande">
+      {{IMAGEN_GRANDE}}
+    </div>
+    <div class="imagenes-pequenas">
+      {{IMAGENES_PEQ}}
+    </div>
+  </div>
+
+  <!-- 📌 Información general -->
+  <div class="footer">
+    <div class="logo">
+      <img src="{{LOGO}}" alt="Logo LINE-X" style="width: 100px; height: auto;">
+    </div>
+
+    <div class="box medium">
+      <div class="title">ORDEN FABRICACION</div>
+      <div>CLIENTE: {{NOMBRE_CLIENTE}}</div>
+      <div>PROYECTO: {{NOMBRE_PROYECTO}}</div>
+      <div>FIGURA: {{FIGURA}}</div>
+      <div>REFERENCIA: {{ORDEN}}</div>
+    </div>
+
+    <div class="box medium">
+      <div class="title">COORDINACIÓN</div>
+      <div>RESPONSABLE: {{RESPONSABLE}}</div>
+      <div>FECHA INICIO: {{FECHA_INICIO}}</div>
+      <div>FECHA FINAL: {{FECHA_FINAL}}</div>
+      <div>REVISADO: {{REVISADO}}</div>
+    </div>
+
+    <div class="box medium">
+      <div class="title">ESPECIFICACIONES</div>
+      <div>MEDIDAS: {{MEDIDAS}}</div>
+      <div>DETALLES: {{ACABADO}}</div>
+      <div>CANTIDAD: {{CANTIDAD}}</div>
+      <div>MATERIAL: {{MATERIAL}}</div>
+    </div>
+
+    <div class="box medium">
+      <div class="title">PRODUCCIÓN</div>
+      <div>FABRIC. PIEZA: {{FABRIC_PIEZA}}</div>
+      <div>POST-MEC: {{POST_MEC}}</div>
+      <div>PEGAR / LIJAR: {{PEGAR_LIJAR}}</div>
+      <div>ESCULPIR: {{ESCULPIR}}</div>
+      <div>ESTRUCTURA: {{ESTRUCTURA}}</div>
+    </div>
+
+    <div class="box medium">
+      <div class="title">ACABADO</div>
+      <div>LINEX: {{LINEX}}</div>
+      <div>FIBRA: {{FIBRA}}</div>
+      <div>MORTERO: {{MORTERO}}</div>
+      <div>APAREJO: {{APAREJO}}</div>
+      <div>PINTURA: {{PINTURA}}</div>
+    </div>
+  </div>
+
+</body>
+</html>
