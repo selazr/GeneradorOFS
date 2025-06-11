@@ -4,6 +4,7 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import { useNavigate } from "react-router-dom";
 import { Modal, Button } from "react-bootstrap";
 import { useDropzone } from "react-dropzone";
+import "../styles/Ordenes.css";
 
 
 
@@ -58,6 +59,42 @@ const Ordenes = () => {
     peso: "",
     notas: ""
   });
+
+  const generalFields = [
+    "nombre_proyecto",
+    "nombre_cliente",
+    "codigo_proyecto",
+    "responsable",
+    "figura",
+    "material",
+    "acabado",
+    "cantidad",
+    "unidad_medida",
+    "fecha_fin",
+    "peso",
+    "notas"
+  ];
+
+  const medidaFields = ["medida_v", "medida_w", "medida_h"];
+
+  const procesoFields = [
+    "fabric_pieza",
+    "post_mec",
+    "pegar_lijar",
+    "esculpir",
+    "line_x",
+    "fibra",
+    "mortero",
+    "aparejo",
+    "pintura",
+    "estructura",
+    "revisado"
+  ];
+
+  const formatLabel = (key) =>
+    key
+      .replace(/_/g, " ")
+      .replace(/\b\w/g, (l) => l.toUpperCase());
 
   useEffect(() => {
     if (!token) {
@@ -219,11 +256,11 @@ const Ordenes = () => {
     
   };
   return (
-    
-    <div className="container-fluid">
+
+    <div className="ordenes-wrapper container-fluid">
       <div className="row">
         {/* Sidebar */}
-        <div className="col-md-3 bg-dark text-white p-3 rounded" style={{ minHeight: "auto", maxHeight: "80vh", overflowY: "auto" }}>
+        <div className="col-md-3 ordenes-sidebar">
   <h4 className="text-center">📂 Tus órdenes por cliente</h4>
   <button 
     className="btn btn-light text-dark w-100 mb-3" 
@@ -318,7 +355,7 @@ const Ordenes = () => {
 
 
         {/* Formulario Mejorado */}
-        <div className="col p-4">
+        <div className="col ordenes-form-card">
           <div className="card shadow p-4">
             {/* Título centrado */}
             <h4 className="mb-4 text-center">
@@ -326,93 +363,123 @@ const Ordenes = () => {
             </h4>
 
             <form onSubmit={handleSubmit}>
-            <div className="row">
-  {Object.keys(form).map((key) => (
-    <div className="col-md-6 mb-3" key={key}>
-      <label className="form-label">{key.replace("_", " ").toUpperCase()}</label>
+              <div className="row">
+                {generalFields.map((key) => (
+                  <div className="col-md-6 mb-3" key={key}>
+                    <label className="form-label">{formatLabel(key)}</label>
+                    {key === "codigo_proyecto" ? (
+                      <input
+                        type="text"
+                        className="form-control bg-light"
+                        name={key}
+                        value={form[key]}
+                        readOnly
+                      />
+                    ) : key === "unidad_medida" ? (
+                      <select
+                        className="form-control"
+                        name={key}
+                        value={form[key]}
+                        onChange={handleChange}
+                        required
+                      >
+                        <option value="">Selecciona una opción</option>
+                        <option value="mm">Milímetros (mm)</option>
+                        <option value="cm">Centímetros (cm)</option>
+                        <option value="m">Metros (m)</option>
+                      </select>
+                    ) : (
+                      <input
+                        type={key.includes("fecha") ? "date" : key === "cantidad" ? "number" : "text"}
+                        className="form-control"
+                        name={key}
+                        value={form[key]}
+                        onChange={handleChange}
+                        required
+                      />
+                    )}
+                  </div>
+                ))}
+              </div>
 
-      {[
-        "fabric_pieza",
-        "post_mec",
-        "pegar_lijar",
-        "esculpir",
-        "line_x",
-        "fibra",
-        "mortero",
-        "aparejo",
-        "pintura",
-        "estructura",
-      ].includes(key) ? (
-        <div className="form-check form-switch">
-          <input
-            className="form-check-input"
-            type="checkbox"
-            id={key}
-            name={key}
-            checked={form[key] === "Sí"}
-            onChange={(e) => setForm({ ...form, [key]: e.target.checked ? "Sí" : "No" })}
-          />
-          <label className="form-check-label" htmlFor={key}>
-            {form[key] === "Sí" ? "Sí" : "No"}
-          </label>
-        </div>
-      ) : key === "codigo_proyecto" ? (
-        <input
-          type="text"
-          className="form-control bg-light"
-          name={key}
-          value={form[key]}
-          readOnly
-        />
-      ) : key === "unidad_medida" ? (
-        <select className="form-control" name={key} value={form[key]} onChange={handleChange} required>
-          <option value="">Selecciona una opción</option>
-          <option value="mm">Milímetros (mm)</option>
-          <option value="cm">Centímetros (cm)</option>
-          <option value="m">Metros (m)</option>
-        </select>
-      ) : (
-        <input
-          type={key.includes("fecha") ? "date" : key === "cantidad" ? "number" : "text"}
-          className="form-control"
-          name={key}
-          value={form[key]}
-          onChange={handleChange}
-          required
-        />
-      )}
-    </div>
-  ))}
-</div>
-              {/* Botones centrados */}
+              <h6 className="section-title">Medidas</h6>
+              <div className="row">
+                {medidaFields.map((key) => (
+                  <div className="col-md-4 mb-3" key={key}>
+                    <label className="form-label">{formatLabel(key)}</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      name={key}
+                      value={form[key]}
+                      onChange={handleChange}
+                      required
+                    />
+                  </div>
+                ))}
+              </div>
+
+              <h6 className="section-title">Procesos</h6>
+              <div className="row">
+                {procesoFields.map((key) => (
+                  <div className="col-md-4 mb-3" key={key}>
+                    <label className="form-label">{formatLabel(key)}</label>
+                    <div className="form-check form-switch">
+                      <input
+                        className="form-check-input"
+                        type="checkbox"
+                        id={key}
+                        name={key}
+                        checked={form[key] === "Sí"}
+                        onChange={(e) =>
+                          setForm({ ...form, [key]: e.target.checked ? "Sí" : "No" })
+                        }
+                      />
+                      <label className="form-check-label" htmlFor={key}>
+                        {form[key] === "Sí" ? "Sí" : "No"}
+                      </label>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
               <div className="d-flex justify-content-center mt-3 flex-wrap">
                 <button className="btn btn-success me-2" type="submit">
                   {ordenSeleccionada ? "Actualizar" : "Crear"}
                 </button>
-                
                 {ordenSeleccionada && (
                   <>
-                    <button className="btn btn-danger me-2" type="button" onClick={handleDelete}>
+                    <button
+                      className="btn btn-danger me-2"
+                      type="button"
+                      onClick={handleDelete}
+                    >
                       Eliminar
                     </button>
-                    <form onSubmit={handleSubmit}>
                     <Button className="btn btn-secondary me-2" onClick={() => setShowModal(true)}>
                       Añadir imágenes
                     </Button>
-                      <button className="btn btn-primary me-2" type="button" onClick={() => handleDownloadPDF(ordenSeleccionada.id)}>
-                        OF
-                      </button>
-                    </form>
-                    <button className="btn btn-primary me-2" type="button" onClick={() => handleDownloadPDF(ordenSeleccionada.id, true)}>
+                    <button
+                      className="btn btn-primary me-2"
+                      type="button"
+                      onClick={() => handleDownloadPDF(ordenSeleccionada.id)}
+                    >
+                      OF
+                    </button>
+                    <button
+                      className="btn btn-primary me-2"
+                      type="button"
+                      onClick={() => handleDownloadPDF(ordenSeleccionada.id, true)}
+                    >
                       OF Cliente
                     </button>
-
                     <button className="btn btn-primary" type="button">
                       OT
                     </button>
                   </>
                 )}
               </div>
+            </form>
               <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
   <Modal.Header closeButton>
     <Modal.Title>Seleccionar Imágenes</Modal.Title>
@@ -474,7 +541,6 @@ const Ordenes = () => {
     </Button>
   </Modal.Footer>
 </Modal>
-            </form>
           </div>
         </div>
       </div>
