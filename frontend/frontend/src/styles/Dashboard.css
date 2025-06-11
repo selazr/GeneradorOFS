@@ -16,6 +16,19 @@
   font-family: 'Segoe UI', sans-serif;
   box-shadow: 4px 0 10px rgba(0, 0, 0, 0.1);
   z-index: 1000;
+  transition: width 0.3s ease, padding 0.3s ease;
+}
+
+.sidebar.collapsed {
+  width: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.sidebar.collapsed .logo,
+.sidebar.collapsed h4,
+.sidebar.collapsed ul {
+  display: none;
 }
 
 .sidebar .logo {
@@ -50,6 +63,15 @@
   background: #f4f6f9;
   min-height: 100vh;
   font-family: 'Segoe UI', sans-serif;
+  transition: margin-left 0.3s ease;
+}
+
+.main-content.collapsed {
+  margin-left: 0;
+}
+
+.main-content.expanded {
+  margin-left: 240px;
 }
 
 /* Navbar */
