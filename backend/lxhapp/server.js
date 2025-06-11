@@ -4,6 +4,7 @@ const pool = require('./db'); // Conexión a MySQL
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
+const path = require('path');
 const userRoutes = require('./routes/userRoutes');
 const ordenesRoutes = require('./routes/ordenes');
 const pdfRoutes = require("./routes/pdf"); // PDF
@@ -17,6 +18,7 @@ app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
 
 app.use(express.json());
 app.use(cors()); // CORS habilitado antes de rutas
+app.use('/avatars', express.static(path.join(__dirname, 'uploads', 'avatars')));
 
 // 📌 **Rutas**
 app.use('/usuarios', userRoutes);
@@ -33,8 +35,8 @@ app.post('/register', async (req, res) => {
 
     try {
         const hashedPassword = await bcrypt.hash(password, 10);
-        await pool.query('INSERT INTO usuarios (nombre, email, password, rol) VALUES (?, ?, ?, ?)', 
-            [nombre, email, hashedPassword, rol]);
+        await pool.query('INSERT INTO usuarios (nombre, email, password, rol, avatar) VALUES (?, ?, ?, ?, ?)',
+            [nombre, email, hashedPassword, rol, null]);
 
         res.json({ mensaje: 'Usuario registrado con éxito' });
     } catch (error) {
@@ -67,8 +69,8 @@ app.post('/login', async (req, res) => {
             { expiresIn: '8h' }
         );
 
-        // 🔥 Ahora enviamos el "nombre" en la respuesta JSON
-        res.json({ mensaje: 'Login exitoso', token, rol: usuario.rol, nombre: usuario.nombre });
+        // 🔥 Ahora enviamos el "nombre" y el avatar en la respuesta JSON
+        res.json({ mensaje: 'Login exitoso', token, rol: usuario.rol, nombre: usuario.nombre, avatar: usuario.avatar });
     } catch (error) {
         console.error(error);
         res.status(500).json({ mensaje: 'Error en el servidor' });

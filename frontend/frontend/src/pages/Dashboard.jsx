@@ -4,10 +4,15 @@ import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/Dashboard.css";
 import Ordenes from "../apps/Ordenes";
+import { Modal, Button } from "react-bootstrap";
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const [mensaje, setMensaje] = useState("");
+  const [perfil, setPerfil] = useState(null);
+  const [showPerfil, setShowPerfil] = useState(false);
+  const [showEditar, setShowEditar] = useState(false);
+  const [editData, setEditData] = useState({ nombre: "", email: "", password: "", avatar: null });
   const [appSeleccionada, setAppSeleccionada] = useState("Inicio");
   const [menuAbierto, setMenuAbierto] = useState(false);
   const dropdownRef = useRef(null);
@@ -25,7 +30,11 @@ const Dashboard = () => {
       .get(`http://localhost:3000/usuarios/${nombreUsuario}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
-      .then((response) => setMensaje(`Bienvenido ${response.data.nombre}`))
+      .then((response) => {
+        setMensaje(`Bienvenido ${response.data.nombre}`);
+        setPerfil(response.data);
+        setEditData({ nombre: response.data.nombre, email: response.data.email, password: "", avatar: null });
+      })
       .catch(() => {
         alert("Error al cargar la sesión");
         navigate("/login");
@@ -42,6 +51,38 @@ const Dashboard = () => {
   const handleClickOutside = (event) => {
     if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
       setMenuAbierto(false);
+    }
+  };
+
+  const handleEditChange = (e) => {
+    setEditData({ ...editData, [e.target.name]: e.target.value });
+  };
+
+  const handleAvatarChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onloadend = () => setEditData((prev) => ({ ...prev, avatar: reader.result }));
+    reader.readAsDataURL(file);
+  };
+
+  const handleUpdatePerfil = async (e) => {
+    e.preventDefault();
+    const token = localStorage.getItem("token");
+    try {
+      await axios.put(`http://localhost:3000/usuarios/${perfil.nombre}`, editData, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const res = await axios.get(`http://localhost:3000/usuarios/${editData.nombre}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setPerfil(res.data);
+      localStorage.setItem("username", res.data.nombre);
+      setMensaje(`Bienvenido ${res.data.nombre}`);
+      setShowEditar(false);
+    } catch (err) {
+      console.error(err);
+      alert("Error al actualizar perfil");
     }
   };
 
@@ -89,15 +130,15 @@ const Dashboard = () => {
           <span>{mensaje}</span>
           <div className="dropdown" ref={dropdownRef}>
             <img
-              src="/silueta.jpg"
+              src={perfil?.avatar ? `http://localhost:3000${perfil.avatar}` : "/silueta.jpg"}
               alt=""
               className="perfil-img dropdown-toggle"
               onClick={() => setMenuAbierto(!menuAbierto)}
             />
             {menuAbierto && (
               <div className="dropdown-menu show position-absolute end-0 mt-2" style={{ right: 0 }}>
-                <button className="dropdown-item" onClick={() => navigate("/perfil")}>Ver Perfil</button>
-                <button className="dropdown-item" onClick={() => navigate("/editar-perfil")}>Editar Perfil</button>
+                <button className="dropdown-item" onClick={() => setShowPerfil(true)}>Ver Perfil</button>
+                <button className="dropdown-item" onClick={() => setShowEditar(true)}>Editar Perfil</button>
                 <button className="dropdown-item text-danger" onClick={cerrarSesion}>Cerrar Sesión</button>
               </div>
             )}
@@ -123,6 +164,53 @@ const Dashboard = () => {
           )}
         </div>
       </div>
+      {/* Modales de perfil */}
+      <Modal show={showPerfil} onHide={() => setShowPerfil(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Perfil</Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="text-center">
+          {perfil && (
+            <>
+              <img
+                src={perfil.avatar ? `http://localhost:3000${perfil.avatar}` : "/silueta.jpg"}
+                alt="avatar"
+                className="rounded-circle mb-3"
+                style={{ width: "100px", height: "100px", objectFit: "cover" }}
+              />
+              <p><strong>Nombre:</strong> {perfil.nombre}</p>
+              <p><strong>Email:</strong> {perfil.email}</p>
+            </>
+          )}
+        </Modal.Body>
+      </Modal>
+
+      <Modal show={showEditar} onHide={() => setShowEditar(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Editar Perfil</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <form onSubmit={handleUpdatePerfil}>
+            <div className="mb-3">
+              <label className="form-label">Nombre</label>
+              <input className="form-control" name="nombre" value={editData.nombre} onChange={handleEditChange} />
+            </div>
+            <div className="mb-3">
+              <label className="form-label">Email</label>
+              <input className="form-control" name="email" value={editData.email} onChange={handleEditChange} />
+            </div>
+            <div className="mb-3">
+              <label className="form-label">Contraseña</label>
+              <input type="password" className="form-control" name="password" value={editData.password} onChange={handleEditChange} />
+            </div>
+            <div className="mb-3">
+              <label className="form-label">Avatar</label>
+              <input type="file" className="form-control" onChange={handleAvatarChange} />
+            </div>
+            <Button variant="primary" type="submit">Guardar</Button>
+          </form>
+        </Modal.Body>
+      </Modal>
     </div>
   );
 };
