@@ -5,7 +5,10 @@ const path = require("path");
 const fs = require("fs");
 
 const router = express.Router();
-const logoPath = "/home/esc/Descargas/Programas_Line-X/1.0.3/local/backend/templates/logo2.png";
+
+// Ruta a la carpeta de plantillas relativa al proyecto
+const templatesDir = path.join(__dirname, "..", "templates");
+const logoPath = path.join(templatesDir, "logo2.png");
 const logoBase64 = fs.readFileSync(logoPath).toString("base64");
 const logoSrc = `data:image/png;base64,${logoBase64}`;
 
@@ -34,8 +37,8 @@ router.post("/:id/pdf", async (req, res) => {
     const orden = ordenes[0];
 
     // **Seleccionar la plantilla correcta**
-    const plantillaNombre = cliente ? "plantilla2.html" : "plantilla.html";
-    const plantillaPath = path.join("/home/esc/Descargas/Programas_Line-X/1.0.3/local/backend/templates", plantillaNombre);
+  const plantillaNombre = cliente ? "plantilla2.html" : "plantilla.html";
+  const plantillaPath = path.join(templatesDir, plantillaNombre);
 
     // **Leer la plantilla HTML**
     let html = fs.readFileSync(plantillaPath, "utf8");
