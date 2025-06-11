@@ -31,14 +31,15 @@ router.put('/:username', verificarToken, async (req, res) => {
     const { nombre, email, password, avatar } = req.body;
 
     try {
-        const [rows] = await pool.query('SELECT * FROM usuarios WHERE nombre = ?', [username]);
+        // Buscar por nombre y verificar que corresponda al usuario autenticado
+        const [rows] = await pool.query(
+            'SELECT * FROM usuarios WHERE nombre = ? AND id = ?',
+            [username, req.usuario.id]
+        );
         if (rows.length === 0) {
-            return res.status(404).json({ mensaje: 'Usuario no encontrado' });
+            return res.status(404).json({ mensaje: 'Usuario no encontrado o no autorizado' });
         }
         const usuario = rows[0];
-        if (usuario.id !== req.usuario.id) {
-            return res.status(403).json({ mensaje: 'No autorizado' });
-        }
 
         const fields = [];
         const values = [];
