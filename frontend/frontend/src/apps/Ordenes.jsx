@@ -290,17 +290,7 @@ const Ordenes = () => {
             Crear orden
           </button>
 
-          <input
-            type="text"
-            className="form-control mb-3"
-            placeholder="Buscar OF"
-            value={busqueda}
-            onChange={(e) => setBusqueda(e.target.value)}
-          />
 
-          {/* Aquí va el nuevo árbol */}
-          <div className="accordion" id="ordenesAccordion">
-            {filteredOrdenesTree.map((cliente, i) => (
               <div className="accordion-item bg-dark border-0 text-white" key={i}>
         <h2 className="accordion-header" id={`heading-${cliente.cliente?.id || i}`}>
           <button
