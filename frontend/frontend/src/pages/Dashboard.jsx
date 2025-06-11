@@ -5,6 +5,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/Dashboard.css";
 import Ordenes from "../apps/Ordenes";
 import { Modal, Button } from "react-bootstrap";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -15,6 +16,7 @@ const Dashboard = () => {
   const [editData, setEditData] = useState({ nombre: "", email: "", password: "", avatar: null });
   const [appSeleccionada, setAppSeleccionada] = useState("Inicio");
   const [menuAbierto, setMenuAbierto] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const dropdownRef = useRef(null);
 
   useEffect(() => {
@@ -96,7 +98,7 @@ const Dashboard = () => {
   return (
     <div className="d-flex">
       {/* Sidebar (barra lateral) */}
-      <div className="sidebar bg-dark text-white p-4" style={{ minHeight: '100vh' }}>
+      <div className={`sidebar bg-dark text-white p-4 ${sidebarOpen ? '' : 'collapsed'}`} style={{ minHeight: '100vh' }}>
   <div className="text-center">
     <img src="/logo.png" alt="LXH" className="logo" style={{ maxWidth: '80%' }} />
   </div>
@@ -124,10 +126,15 @@ const Dashboard = () => {
 
 
       {/* Contenido principal */}
-      <div className="main-content flex-grow-1">
+      <div className={`main-content flex-grow-1 ${sidebarOpen ? 'expanded' : 'collapsed'}`}>
         {/* Navbar (barra superior) */}
         <nav className="navbar navbar-light bg-light p-3 d-flex justify-content-between">
-          <span>{mensaje}</span>
+          <div className="d-flex align-items-center">
+            <button className="btn btn-outline-secondary me-2" onClick={() => setSidebarOpen(!sidebarOpen)}>
+              {sidebarOpen ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
+            </button>
+            <span>{mensaje}</span>
+          </div>
           <div className="dropdown" ref={dropdownRef}>
             <img
               src={perfil?.avatar ? `http://localhost:3000${perfil.avatar}` : "/silueta.jpg"}
