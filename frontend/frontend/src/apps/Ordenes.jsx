@@ -18,6 +18,7 @@ const Ordenes = () => {
   const [imagenes, setImagenes] = useState([]); // Estado para almacenar imágenes en Base64
   const [showModal, setShowModal] = useState(false);
   const [imagenesModal, setImagenesModal] = useState({ grande: null, pequenas: [null, null, null, null] });
+  const [busqueda, setBusqueda] = useState("");
 
   const generarCodigoProyecto = () => {
     const letras = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -110,6 +111,21 @@ const Ordenes = () => {
   }, [token, navigate]);
 
   const [ordenesTree, setOrdenesTree] = useState([]);
+  const filteredOrdenesTree = ordenesTree
+    .map((cliente) => ({
+      ...cliente,
+      proyectos: cliente.proyectos
+        .map((proyecto) => ({
+          ...proyecto,
+          ordenes: proyecto.ordenes.filter(
+            (o) =>
+              o.figura.toLowerCase().includes(busqueda.toLowerCase()) ||
+              (o.codigo_proyecto || "").toLowerCase().includes(busqueda.toLowerCase())
+          ),
+        }))
+        .filter((p) => p.ordenes.length > 0),
+    }))
+    .filter((c) => c.proyectos.length > 0);
 
   useEffect(() => {
     axios
@@ -274,9 +290,17 @@ const Ordenes = () => {
             Crear orden
           </button>
 
+          <input
+            type="text"
+            className="form-control mb-3"
+            placeholder="Buscar OF"
+            value={busqueda}
+            onChange={(e) => setBusqueda(e.target.value)}
+          />
+
           {/* Aquí va el nuevo árbol */}
           <div className="accordion" id="ordenesAccordion">
-            {ordenesTree.map((cliente, i) => (
+            {filteredOrdenesTree.map((cliente, i) => (
               <div className="accordion-item bg-dark border-0 text-white" key={i}>
         <h2 className="accordion-header" id={`heading-${cliente.cliente?.id || i}`}>
           <button
@@ -539,6 +563,11 @@ const Ordenes = () => {
       onClick={() => {
         const todas = [imagenesModal.grande, ...imagenesModal.pequenas.filter(Boolean)];
         setImagenes(todas);
+        if (ordenSeleccionada) {
+          axios
+            .post(`http://localhost:3000/ordenes/${ordenSeleccionada.id}/imagenes`, { imagenes: todas })
+            .catch((err) => console.error('Error guardando imágenes', err));
+        }
         setShowModal(false);
       }}
     >
