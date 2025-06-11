@@ -9,6 +9,7 @@ import { FolderOpen, User, Folder, FileText } from "lucide-react";
 
 
 
+
 const Ordenes = () => {
   const navigate = useNavigate();
   const [ordenes, setOrdenes] = useState([]);
@@ -264,7 +265,8 @@ const Ordenes = () => {
         <div className="col-md-3 ordenes-sidebar">
   <h4 className="text-center d-flex align-items-center justify-content-center gap-2">
     <FolderOpen size={20} /> Tus órdenes por cliente
-  </h4>
+  <h4 className="text-center">📂 Tus órdenes por cliente</h4>
+
   <button 
     className="btn btn-light text-dark w-100 mb-3" 
     onClick={resetForm}
