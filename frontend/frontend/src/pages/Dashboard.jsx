@@ -1,133 +1,127 @@
-// Nuevo Dashboard moderno - Integrado con tus funcionalidades actuales
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { 
-  BarChart3, 
-  TrendingUp, 
-  Package, 
-  Clock, 
-  CheckCircle2, 
-  AlertCircle,
-  Calendar,
-  ChevronRight,
-  Search
-} from 'lucide-react';
-import "bootstrap-icons/font/bootstrap-icons.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/Dashboard.css";
+import Ordenes from "../apps/Ordenes";
 
 const Dashboard = () => {
-  const [totalOrdenes, setTotalOrdenes] = useState(0);
-  const [completadas, setCompletadas] = useState(0);
-  const [enProgreso, setEnProgreso] = useState(0);
-  const [pendientes, setPendientes] = useState(0);
-  const [ordenesRecientes, setOrdenesRecientes] = useState([]);
+  const navigate = useNavigate();
+  const [mensaje, setMensaje] = useState("");
+  const [appSeleccionada, setAppSeleccionada] = useState("Inicio");
+  const [menuAbierto, setMenuAbierto] = useState(false);
+  const dropdownRef = useRef(null);
 
   useEffect(() => {
-    axios.get("http://localhost:3000/ordenes/stats")
-      .then((response) => {
-        setTotalOrdenes(response.data.total);
-        setCompletadas(response.data.completadas);
-        setEnProgreso(response.data.enProgreso);
-        setPendientes(response.data.pendientes);
-        setOrdenesRecientes(response.data.ordenesRecientes);
+    const token = localStorage.getItem("token");
+    const nombreUsuario = localStorage.getItem("username");
+
+    if (!token || !nombreUsuario) {
+      navigate("/login");
+      return;
+    }
+
+    axios
+      .get(`http://localhost:3000/usuarios/${nombreUsuario}`, {
+        headers: { Authorization: `Bearer ${token}` },
       })
-      .catch((error) => console.error("Error al cargar estadísticas", error));
+      .then((response) => setMensaje(`Bienvenido ${response.data.nombre}`))
+      .catch(() => {
+        alert("Error al cargar la sesión");
+        navigate("/login");
+      });
+  }, [navigate]);
+
+  const cerrarSesion = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("rol");
+    localStorage.removeItem("username");
+    navigate("/login");
+  };
+
+  const handleClickOutside = (event) => {
+    if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      setMenuAbierto(false);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
   }, []);
 
   return (
-    <div className="dashboard space-y-6 p-4">
-      <h1 className="text-2xl font-bold text-gray-800">Dashboard</h1>
-      <p className="text-gray-500">Bienvenido de nuevo, aquí está el resumen de tus órdenes.</p>
+    <div className="d-flex">
+      {/* Sidebar (barra lateral) */}
+      <div className="sidebar bg-dark text-white p-4" style={{ minHeight: '100vh' }}>
+  <div className="text-center">
+    <img src="/logo.png" alt="LXH" className="logo" style={{ maxWidth: '80%' }} />
+  </div>
+  <h4 className="mt-4 text-center">Aplicaciones</h4>
+  <ul className="nav flex-column align-items-center">
+    <li className="nav-item">
+      <button
+        className="nav-link text-white btn btn-link w-100 text-center p-2"
+        onClick={() => setAppSeleccionada("ordenes")}
+        style={{
+          transition: 'background-color 0.3s, transform 0.2s',
+          border: 'none',
+          textAlign: 'center',
+        }}
+        onMouseEnter={(e) => e.target.style.backgroundColor = '#575757'}
+        onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+        onMouseDown={(e) => e.target.style.transform = 'scale(0.98)'}
+        onMouseUp={(e) => e.target.style.transform = 'scale(1)'}
+      >
+        Ordenes
+      </button>
+    </li>
+  </ul>
+</div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="stat-card">
-          <Package className="icon" />
-          <div>
-            <p>Total Órdenes</p>
-            <h3>{totalOrdenes}</h3>
-          </div>
-        </div>
 
-        <div className="stat-card">
-          <CheckCircle2 className="icon text-green-500" />
-          <div>
-            <p>Completadas</p>
-            <h3>{completadas}</h3>
-          </div>
-        </div>
-
-        <div className="stat-card">
-          <Clock className="icon text-yellow-500" />
-          <div>
-            <p>En Progreso</p>
-            <h3>{enProgreso}</h3>
-          </div>
-        </div>
-
-        <div className="stat-card">
-          <AlertCircle className="icon text-red-500" />
-          <div>
-            <p>Pendientes</p>
-            <h3>{pendientes}</h3>
-          </div>
-        </div>
-      </div>
-
-      {/* Recent Orders */}
-      <div className="card mt-4 p-4 shadow-sm bg-white rounded-lg">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-gray-800">Órdenes Recientes</h2>
-          <div className="relative">
-            <Search className="absolute left-3 top-2.5 text-gray-400" />
-            <input 
-              type="text" 
-              placeholder="Buscar orden..." 
-              className="pl-10 pr-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+      {/* Contenido principal */}
+      <div className="main-content flex-grow-1">
+        {/* Navbar (barra superior) */}
+        <nav className="navbar navbar-light bg-light p-3 d-flex justify-content-between">
+          <span>{mensaje}</span>
+          <div className="dropdown" ref={dropdownRef}>
+            <img
+              src="/silueta.jpg"
+              alt=""
+              className="perfil-img dropdown-toggle"
+              onClick={() => setMenuAbierto(!menuAbierto)}
             />
-          </div>
-        </div>
-
-        <table className="table-auto w-full text-left">
-          <thead>
-            <tr className="text-gray-600">
-              <th>ID</th>
-              <th>Nombre</th>
-              <th>Estado</th>
-              <th>Fecha</th>
-              <th>Acción</th>
-            </tr>
-          </thead>
-          <tbody>
-            {ordenesRecientes.length ? (
-              ordenesRecientes.map((orden, index) => (
-                <tr key={index} className="hover:bg-gray-50">
-                  <td>#{orden.id}</td>
-                  <td>{orden.nombre}</td>
-                  <td>
-                    <span className={`status-badge ${orden.estado.toLowerCase()}`}>
-                      {orden.estado}
-                    </span>
-                  </td>
-                  <td>{orden.fecha}</td>
-                  <td>
-                    <button className="text-blue-600 hover:text-blue-800 font-medium flex items-center">
-                      Ver detalles
-                      <ChevronRight className="h-4 w-4 ml-1" />
-                    </button>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="5" className="text-center text-gray-500 py-4">
-                  No hay órdenes recientes.
-                </td>
-              </tr>
+            {menuAbierto && (
+              <div className="dropdown-menu show position-absolute end-0 mt-2" style={{ right: 0 }}>
+                <button className="dropdown-item" onClick={() => navigate("/perfil")}>Ver Perfil</button>
+                <button className="dropdown-item" onClick={() => navigate("/editar-perfil")}>Editar Perfil</button>
+                <button className="dropdown-item text-danger" onClick={cerrarSesion}>Cerrar Sesión</button>
+              </div>
             )}
-          </tbody>
-        </table>
+          </div>
+        </nav>
+
+        {/* Área de la aplicación seleccionada */}
+        <div className="p-4">
+          {appSeleccionada === "ordenes" && <Ordenes />}
+          {appSeleccionada === "aplicacion2" && <h2>Aplicación 2</h2>}
+          {appSeleccionada === "aplicacion3" && <h2>Aplicación 3</h2>}
+          {appSeleccionada === "Inicio" && (
+      <div class="patch-notes">
+          <h2>Versión 1.0.1</h2>
+          <ul>
+            <li>Mejoras en el rendimiento del dashboard</li>
+            <li>Nuevo diseño de bienvenida</li>
+            <li>Corrección de errores menores</li>
+            <li>Implementacion y correcion de errores al lanzar OF</li>
+            <b><li>¡YA PUEDEN GENERAR OF CLIENTE!</li></b>
+          </ul>
+      </div>
+          )}
+        </div>
       </div>
     </div>
   );

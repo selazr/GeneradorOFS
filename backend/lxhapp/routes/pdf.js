@@ -6,11 +6,14 @@ const fs = require("fs");
 
 const router = express.Router();
 
-// Ruta a la carpeta de plantillas relativa al proyecto
-const templatesDir = path.join(__dirname, "..", "templates");
+// ✅ Ruta a la carpeta de plantillas (una carpeta arriba de lxhapp)
+const templatesDir = path.join(__dirname, "..", "..", "templates");
+
+// ✅ Ruta absoluta y correcta al logo
 const logoPath = path.join(templatesDir, "logo2.png");
 const logoBase64 = fs.readFileSync(logoPath).toString("base64");
 const logoSrc = `data:image/png;base64,${logoBase64}`;
+
 
 // Función para formatear la fecha en DD/MM/YYYY
 const formatFecha = (fecha) => {

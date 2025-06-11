@@ -218,9 +218,6 @@ const Ordenes = () => {
     }
     
   };
-  
-
-
   return (
     
     <div className="container-fluid">
