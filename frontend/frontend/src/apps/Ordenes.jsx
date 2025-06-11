@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import { useNavigate } from "react-router-dom";
-import { Modal, Button } from "react-bootstrap";
+import { Modal, Button, Spinner } from "react-bootstrap";
 import { useDropzone } from "react-dropzone";
 import "../styles/Ordenes.css";
 import { FolderOpen, User, Folder, FileText } from "lucide-react";
@@ -19,6 +19,7 @@ const Ordenes = () => {
   const [showModal, setShowModal] = useState(false);
   const [imagenesModal, setImagenesModal] = useState({ grande: null, pequenas: [null, null, null, null] });
   const [busqueda, setBusqueda] = useState("");
+  const [loadingPDF, setLoadingPDF] = useState(false);
 
   const generarCodigoProyecto = () => {
     const letras = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -58,6 +59,7 @@ const Ordenes = () => {
     pintura: "",
     estructura: "",
     revisado: "",
+    fecha_inicio: "",
     fecha_fin: "",
     peso: "",
     notas: ""
@@ -73,6 +75,7 @@ const Ordenes = () => {
     "acabado",
     "cantidad",
     "unidad_medida",
+    "fecha_inicio",
     "fecha_fin",
     "peso",
     "notas"
@@ -94,10 +97,12 @@ const Ordenes = () => {
     "revisado"
   ];
 
-  const formatLabel = (key) =>
-    key
+  const formatLabel = (key) => {
+    if (key === "medida_v") return "Medida L";
+    return key
       .replace(/_/g, " ")
       .replace(/\b\w/g, (l) => l.toUpperCase());
+  };
 
   useEffect(() => {
     if (!token) {
@@ -229,6 +234,7 @@ const Ordenes = () => {
       pintura: "",
       estructura: "",
       revisado: "",
+      fecha_inicio: "",
       fecha_fin: "",
       peso: "",
       notas: ""
@@ -242,10 +248,11 @@ const Ordenes = () => {
       alert("Faltan datos necesarios para generar el PDF");
       return;
     }
-  
+
     const url = `http://localhost:3000/ordenes/${id}/pdf${cliente ? "?cliente=true" : ""}`;
-  
+
     try {
+      setLoadingPDF(true);
       const response = await fetch(url, {
         method: "POST",
         headers: {
@@ -270,8 +277,10 @@ const Ordenes = () => {
     } catch (error) {
       console.error("Error al descargar el PDF:", error);
       alert("Error al descargar el PDF");
+    } finally {
+      setLoadingPDF(false);
     }
-    
+
   };
   return (
 
@@ -357,7 +366,6 @@ const Ordenes = () => {
                     usuario_id,
                     fecha_creacion,
                     fecha_actualizacion,
-                    fecha_inicio,
                     ...ordenEditable
                   } = orden;
                   setOrdenSeleccionada(orden);
@@ -491,15 +499,17 @@ const Ordenes = () => {
                       className="btn btn-primary me-2"
                       type="button"
                       onClick={() => handleDownloadPDF(ordenSeleccionada.id)}
+                      disabled={loadingPDF}
                     >
-                      OF
+                      {loadingPDF ? <Spinner size="sm" animation="border" /> : "OF"}
                     </button>
                     <button
                       className="btn btn-primary me-2"
                       type="button"
                       onClick={() => handleDownloadPDF(ordenSeleccionada.id, true)}
+                      disabled={loadingPDF}
                     >
-                      OF Cliente
+                      {loadingPDF ? <Spinner size="sm" animation="border" /> : "OF Cliente"}
                     </button>
                     <button className="btn btn-primary" type="button">
                       OT
