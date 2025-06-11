@@ -1,0 +1,52 @@
+.ordenes-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.ordenes-sidebar {
+  background: #343a40;
+  color: #fff;
+  max-height: 80vh;
+  overflow-y: auto;
+  border-radius: 0.5rem;
+  padding: 1rem;
+}
+
+.ordenes-sidebar .accordion-button {
+  background-color: #495057;
+  color: #fff;
+}
+
+.ordenes-sidebar .accordion-button.collapsed {
+  background-color: #343a40;
+}
+
+.ordenes-sidebar .accordion-button:focus {
+  box-shadow: none;
+}
+
+.ordenes-sidebar .list-group-item {
+  background-color: #343a40;
+}
+
+.ordenes-sidebar .list-group-item:hover {
+  background-color: #495057;
+}
+
+.ordenes-form-card {
+  padding: 1rem;
+}
+
+.ordenes-form-card .card {
+  border: none;
+  border-radius: 0.5rem;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.section-title {
+  border-bottom: 1px solid #dee2e6;
+  font-weight: 500;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.25rem;
+}
