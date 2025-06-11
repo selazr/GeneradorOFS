@@ -108,26 +108,26 @@ router.put('/:id', verificarToken, async (req, res) => {
     const {
         nombre_cliente, responsable, figura, medida_v, medida_w, medida_h,
         unidad_medida, material, acabado, cantidad, fabric_pieza, post_mec,
-        pegar_lijar, esculpir, line_x, fibra, mortero, aparejo, pintura, estructura, revisado, fecha_fin, notas, peso
+        pegar_lijar, esculpir, line_x, fibra, mortero, aparejo, pintura, estructura,
+        revisado, fecha_inicio, fecha_fin, notas, peso
     } = req.body;
 
     try {
         const [result] = await pool.query(
-            `UPDATE ordenes SET 
-                nombre_cliente = ?, responsable = ?, figura = ?, medida_v = ?, 
-                medida_w = ?, medida_h = ?, unidad_medida = ?, material = ?, acabado = ?, 
-                cantidad = ?, fabric_pieza = ?, post_mec = ?, pegar_lijar = ?, esculpir = ?, 
-                line_x = ?, fibra = ?, mortero = ?, aparejo = ?, pintura = ?, estructura = ?, 
-                revisado = ?, fecha_fin = ?, peso = ?, notas = ?
-                WHERE id = ? AND usuario_id = ?`
-                ,
+            `UPDATE ordenes SET
+                nombre_cliente = ?, responsable = ?, figura = ?, medida_v = ?,
+                medida_w = ?, medida_h = ?, unidad_medida = ?, material = ?, acabado = ?,
+                cantidad = ?, fabric_pieza = ?, post_mec = ?, pegar_lijar = ?, esculpir = ?,
+                line_x = ?, fibra = ?, mortero = ?, aparejo = ?, pintura = ?, estructura = ?,
+                revisado = ?, fecha_inicio = ?, fecha_fin = ?, peso = ?, notas = ?
+                WHERE id = ? AND usuario_id = ?`,
                 [
                     nombre_cliente, responsable, figura, medida_v, medida_w, medida_h, unidad_medida,
                     material, acabado, cantidad, fabric_pieza, post_mec, pegar_lijar, esculpir,
-                    line_x, fibra, mortero, aparejo, pintura, estructura, revisado, fecha_fin,
-                    peso, notas, id, usuario_id
+                    line_x, fibra, mortero, aparejo, pintura, estructura, revisado, fecha_inicio,
+                    fecha_fin, peso, notas, id, usuario_id
                 ]
-                  
+
         );
 
         if (result.affectedRows > 0) {
