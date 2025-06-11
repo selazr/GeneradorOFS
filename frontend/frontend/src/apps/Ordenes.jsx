@@ -263,21 +263,21 @@ const Ordenes = () => {
       <div className="row">
         {/* Sidebar */}
         <div className="col-md-3 ordenes-sidebar">
-  <h4 className="text-center d-flex align-items-center justify-content-center gap-2">
-    <FolderOpen size={20} /> Tus órdenes por cliente
-  <h4 className="text-center">📂 Tus órdenes por cliente</h4>
+          <h4 className="text-center d-flex align-items-center justify-content-center gap-2">
+            <FolderOpen size={20} /> Tus órdenes por cliente
+          </h4>
 
-  <button 
-    className="btn btn-light text-dark w-100 mb-3" 
-    onClick={resetForm}
-  >
-    Crear orden
-  </button>
+          <button
+            className="btn btn-light text-dark w-100 mb-3"
+            onClick={resetForm}
+          >
+            Crear orden
+          </button>
 
-  {/* Aquí va el nuevo árbol */}
-  <div className="accordion" id="ordenesAccordion">
-    {ordenesTree.map((cliente, i) => (
-      <div className="accordion-item bg-dark border-0 text-white" key={i}>
+          {/* Aquí va el nuevo árbol */}
+          <div className="accordion" id="ordenesAccordion">
+            {ordenesTree.map((cliente, i) => (
+              <div className="accordion-item bg-dark border-0 text-white" key={i}>
         <h2 className="accordion-header" id={`heading-${cliente.cliente?.id || i}`}>
           <button
             className="accordion-button bg-secondary text-white collapsed"
