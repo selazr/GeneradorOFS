@@ -12,6 +12,27 @@
   padding: 1rem;
 }
 
+.ordenes-sidebar .accordion-button {
+  background-color: #495057;
+  color: #fff;
+}
+
+.ordenes-sidebar .accordion-button.collapsed {
+  background-color: #343a40;
+}
+
+.ordenes-sidebar .accordion-button:focus {
+  box-shadow: none;
+}
+
+.ordenes-sidebar .list-group-item {
+  background-color: #343a40;
+}
+
+.ordenes-sidebar .list-group-item:hover {
+  background-color: #495057;
+}
+
 .ordenes-form-card {
   padding: 1rem;
 }

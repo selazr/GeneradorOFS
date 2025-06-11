@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { Modal, Button } from "react-bootstrap";
 import { useDropzone } from "react-dropzone";
 import "../styles/Ordenes.css";
+import { FolderOpen, User, Folder, FileText } from "lucide-react";
 
 
 
@@ -261,7 +262,9 @@ const Ordenes = () => {
       <div className="row">
         {/* Sidebar */}
         <div className="col-md-3 ordenes-sidebar">
-  <h4 className="text-center">📂 Tus órdenes por cliente</h4>
+  <h4 className="text-center d-flex align-items-center justify-content-center gap-2">
+    <FolderOpen size={20} /> Tus órdenes por cliente
+  </h4>
   <button 
     className="btn btn-light text-dark w-100 mb-3" 
     onClick={resetForm}
@@ -282,7 +285,7 @@ const Ordenes = () => {
             aria-expanded="false"
             aria-controls={`clienteCollapse-${cliente.cliente?.id || i}`}
             >
-            👤 {cliente.cliente?.nombre_cliente}
+            <User size={16} className="me-2" /> {cliente.cliente?.nombre_cliente}
           </button>
         </h2>
         <div
@@ -305,7 +308,7 @@ const Ordenes = () => {
           aria-controls={`collapseProyecto-${i}-${j}`}
           style={{ fontSize: "0.9rem" }}
         >
-          📁 {proyecto.proyecto?.nombre_proyecto}
+          <Folder size={16} className="me-2" /> {proyecto.proyecto?.nombre_proyecto}
         </button>
       </h2>
       <div
@@ -319,7 +322,7 @@ const Ordenes = () => {
             {proyecto.ordenes.map((orden, k) => (
               <li
                 key={k}
-                className={`list-group-item bg-dark text-white border-0 ps-4 ${
+                className={`list-group-item bg-dark text-white border-0 ps-4 d-flex align-items-center ${
                   ordenSeleccionada?.id === orden.id ? "active bg-primary" : ""
                 }`}
                 style={{ cursor: "pointer" }}
@@ -336,7 +339,7 @@ const Ordenes = () => {
                   setForm(ordenEditable);
                 }}
               >
-                🧾 {orden.figura}
+                <FileText size={16} className="me-2" /> {orden.figura}
               </li>
             ))}
           </ul>
