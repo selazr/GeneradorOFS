@@ -3,6 +3,8 @@ const router = express.Router();
 const pool = require('../db');
 const { verificarToken } = require('../middlewares/auth');
 const projectController = require('../controllers/project.controller');
+const fs = require('fs');
+const path = require('path');
 
 router.post('/', verificarToken, async (req, res) => {
     const usuario_id = req.usuario.id;
@@ -208,5 +210,31 @@ router.get('/detalle', verificarToken, async (req, res) => {
     }
 });
 router.get('/tree', projectController.getOrdenesTree);
+
+// Guardar imágenes para una orden
+router.post('/:id/imagenes', async (req, res) => {
+  const { id } = req.params;
+  const { imagenes } = req.body;
+  if (!imagenes || !Array.isArray(imagenes)) {
+    return res.status(400).json({ mensaje: 'No se enviaron imágenes' });
+  }
+  try {
+    const dir = path.join(__dirname, '..', 'uploads', id.toString());
+    await fs.promises.mkdir(dir, { recursive: true });
+    await Promise.all(
+      imagenes.map((img, idx) => {
+        const match = img.match(/^data:image\/(\w+);base64,/);
+        const ext = match ? match[1] : 'png';
+        const base64Data = img.replace(/^data:image\/\w+;base64,/, '');
+        const filePath = path.join(dir, `${idx}.${ext}`);
+        return fs.promises.writeFile(filePath, base64Data, 'base64');
+      })
+    );
+    res.json({ mensaje: 'Imágenes guardadas correctamente' });
+  } catch (error) {
+    console.error('Error guardando imágenes:', error);
+    res.status(500).json({ mensaje: 'Error al guardar imágenes' });
+  }
+});
 
 module.exports = router;

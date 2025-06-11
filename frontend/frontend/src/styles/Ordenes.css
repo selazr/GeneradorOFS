@@ -4,7 +4,7 @@
 }
 
 .ordenes-sidebar {
-  background: #343a40;
+  background: linear-gradient(135deg, #007bff, #6610f2);
   color: #fff;
   max-height: 80vh;
   overflow-y: auto;
