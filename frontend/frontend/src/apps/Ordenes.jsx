@@ -375,8 +375,19 @@ const Ordenes = () => {
                     fecha_actualizacion,
                     ...ordenEditable
                   } = orden;
+                  const editableCopy = { ...ordenEditable };
+                  if (editableCopy.fecha_inicio) {
+                    editableCopy.fecha_inicio = new Date(editableCopy.fecha_inicio)
+                      .toISOString()
+                      .slice(0, 10);
+                  }
+                  if (editableCopy.fecha_fin) {
+                    editableCopy.fecha_fin = new Date(editableCopy.fecha_fin)
+                      .toISOString()
+                      .slice(0, 10);
+                  }
                   setOrdenSeleccionada(orden);
-                  setForm(ordenEditable);
+                  setForm(editableCopy);
                 }}
               >
                 <FileText size={16} className="me-2" /> {orden.figura}
