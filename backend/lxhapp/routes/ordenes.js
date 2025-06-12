@@ -120,7 +120,7 @@ router.put('/:id', verificarToken, async (req, res) => {
                 cantidad = ?, fabric_pieza = ?, post_mec = ?, pegar_lijar = ?, esculpir = ?,
                 line_x = ?, fibra = ?, mortero = ?, aparejo = ?, pintura = ?, estructura = ?,
                 revisado = ?, fecha_inicio = ?, fecha_fin = ?, peso = ?, notas = ?
-                WHERE id = ? AND usuario_id = ?`,
+            WHERE id = ? AND usuario_id = ?`,
                 [
                     nombre_cliente, responsable, figura, medida_v, medida_w, medida_h, unidad_medida,
                     material, acabado, cantidad, fabric_pieza, post_mec, pegar_lijar, esculpir,
