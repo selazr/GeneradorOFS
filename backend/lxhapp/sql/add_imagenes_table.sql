@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS orden_imagenes (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  orden_id INT NOT NULL,
+  posicion INT NOT NULL,
+  imagen LONGBLOB NOT NULL,
+  FOREIGN KEY (orden_id) REFERENCES ordenes(id) ON DELETE CASCADE
+);

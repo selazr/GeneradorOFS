@@ -29,7 +29,7 @@ const formatFecha = (fecha) => {
 router.post("/:id/pdf", async (req, res) => {
   const { id } = req.params;
   const { cliente } = req.query; // 📌 Detectar si es PDF para el cliente
-  const { imagenes } = req.body;
+  let { imagenes } = req.body;
 
   try {
     // **Obtener datos de la orden desde MySQL**
@@ -38,6 +38,15 @@ router.post("/:id/pdf", async (req, res) => {
       return res.status(404).json({ mensaje: "Orden no encontrada" });
     }
     const orden = ordenes[0];
+
+    // Si no se recibieron imágenes, obtenerlas de la base de datos
+    if (!imagenes || imagenes.length === 0) {
+      const [imgRows] = await pool.query(
+        'SELECT posicion, imagen FROM orden_imagenes WHERE orden_id = ? ORDER BY posicion',
+        [id]
+      );
+      imagenes = imgRows.map(r => `data:image/png;base64,${r.imagen.toString('base64')}`);
+    }
 
     // **Seleccionar la plantilla correcta**
   const plantillaNombre = cliente ? "plantilla2.html" : "plantilla.html";

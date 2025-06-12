@@ -3,8 +3,6 @@ const router = express.Router();
 const pool = require('../db');
 const { verificarToken } = require('../middlewares/auth');
 const projectController = require('../controllers/project.controller');
-const fs = require('fs');
-const path = require('path');
 
 router.post('/', verificarToken, async (req, res) => {
     const usuario_id = req.usuario.id;
@@ -211,7 +209,7 @@ router.get('/detalle', verificarToken, async (req, res) => {
 });
 router.get('/tree', projectController.getOrdenesTree);
 
-// Guardar imágenes para una orden
+// Guardar imágenes en la base de datos
 router.post('/:id/imagenes', async (req, res) => {
   const { id } = req.params;
   const { imagenes } = req.body;
@@ -219,21 +217,38 @@ router.post('/:id/imagenes', async (req, res) => {
     return res.status(400).json({ mensaje: 'No se enviaron imágenes' });
   }
   try {
-    const dir = path.join(__dirname, '..', 'uploads', id.toString());
-    await fs.promises.mkdir(dir, { recursive: true });
+    // Eliminamos imágenes previas para esta orden
+    await pool.query('DELETE FROM orden_imagenes WHERE orden_id = ?', [id]);
     await Promise.all(
-      imagenes.map((img, idx) => {
-        const match = img.match(/^data:image\/(\w+);base64,/);
-        const ext = match ? match[1] : 'png';
+      imagenes.map(async (img, idx) => {
         const base64Data = img.replace(/^data:image\/\w+;base64,/, '');
-        const filePath = path.join(dir, `${idx}.${ext}`);
-        return fs.promises.writeFile(filePath, base64Data, 'base64');
+        const buffer = Buffer.from(base64Data, 'base64');
+        await pool.query(
+          'INSERT INTO orden_imagenes (orden_id, posicion, imagen) VALUES (?, ?, ?)',
+          [id, idx, buffer]
+        );
       })
     );
     res.json({ mensaje: 'Imágenes guardadas correctamente' });
   } catch (error) {
     console.error('Error guardando imágenes:', error);
     res.status(500).json({ mensaje: 'Error al guardar imágenes' });
+  }
+});
+
+// Obtener imágenes de una orden
+router.get('/:id/imagenes', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const [rows] = await pool.query(
+      'SELECT posicion, imagen FROM orden_imagenes WHERE orden_id = ? ORDER BY posicion',
+      [id]
+    );
+    const imgs = rows.map((r) => `data:image/png;base64,${r.imagen.toString('base64')}`);
+    res.json({ imagenes: imgs });
+  } catch (error) {
+    console.error('Error obteniendo imágenes:', error);
+    res.status(500).json({ mensaje: 'Error al obtener imágenes' });
   }
 });
 

@@ -20,3 +20,15 @@ npm start
 
 El backend necesita un archivo `.env` con la configuración de la base de datos y la clave `JWT_SECRET`.
 
+## Gestión de imágenes de las OF
+
+Las imágenes de cada orden se almacenan en la tabla `orden_imagenes`. Ejecuta el
+siguiente script para crearla:
+
+```bash
+mysql -u <usuario> -p <basedatos> < backend/lxhapp/sql/add_imagenes_table.sql
+```
+
+Usa las rutas `/ordenes/:id/imagenes` para guardar y obtener las imágenes en
+formato Base64.
+
