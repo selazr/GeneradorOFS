@@ -9,7 +9,7 @@ import {
   AlertCircle,
   Search,
 } from "lucide-react";
-import { Bar } from "react-chartjs-2";
+import { Line } from "react-chartjs-2";
 import Chart from "chart.js/auto";
 
 const getStatus = (orden) => {
@@ -66,6 +66,7 @@ const VerOFs = () => {
   const [seleccionada, setSeleccionada] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [loadingPDF, setLoadingPDF] = useState(false);
+  const [timeframe, setTimeframe] = useState("7d");
 
   useEffect(() => {
     if (!token) return;
@@ -102,65 +103,88 @@ const VerOFs = () => {
     pending: ordenes.filter((o) => getStatus(o) === "pending").length,
   };
 
-  const calcularActividad = (lista, esExterna = false) => {
-    const ahora = new Date();
-    const haceUnaSemana = new Date();
-    haceUnaSemana.setDate(ahora.getDate() - 7);
-    const haceUnMes = new Date();
-    haceUnMes.setMonth(ahora.getMonth() - 1);
-    const haceUnAno = new Date();
-    haceUnAno.setFullYear(ahora.getFullYear() - 1);
-
-    const obtenerFecha = (o) => {
-      if (esExterna) {
-        if (o.pdf_path) {
-          const m = o.pdf_path.match(/(\d+)-/);
-          if (m) return new Date(Number(m[1]));
-        }
-        return o.fecha_creacion ? new Date(o.fecha_creacion) : null;
+  const obtenerFechaOrden = (o, esExterna = false) => {
+    if (esExterna) {
+      if (o.fecha_creacion) return new Date(o.fecha_creacion);
+      if (o.pdf_path) {
+        const m = o.pdf_path.match(/(\d+)-/);
+        if (m) return new Date(Number(m[1]));
       }
-      return o.fecha_inicio
-        ? new Date(o.fecha_inicio)
-        : o.fecha_creacion
-          ? new Date(o.fecha_creacion)
-          : null;
-    };
-
-    const enRango = (f, limite) => f && f >= limite;
-
-    return {
-      semana: lista.filter((o) => enRango(obtenerFecha(o), haceUnaSemana))
-        .length,
-      mes: lista.filter((o) => enRango(obtenerFecha(o), haceUnMes)).length,
-      ano: lista.filter((o) => enRango(obtenerFecha(o), haceUnAno)).length,
-    };
+      return null;
+    }
+    if (o.fecha_inicio) return new Date(o.fecha_inicio);
+    return o.fecha_creacion ? new Date(o.fecha_creacion) : null;
   };
 
-  const actividadInterna = calcularActividad(ordenes);
-  const actividadExterna = calcularActividad(externas, true);
+  const buildDateInfo = (tf) => {
+    const now = new Date();
+    const labels = [];
+    const keys = [];
+    if (tf === "1yr") {
+      for (let i = 11; i >= 0; i--) {
+        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        labels.push(d.toLocaleString("default", { month: "short" }));
+        keys.push(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`);
+      }
+    } else {
+      const days = tf === "7d" ? 6 : 29;
+      for (let i = days; i >= 0; i--) {
+        const d = new Date(now);
+        d.setDate(now.getDate() - i);
+        labels.push(`${d.getDate()}/${d.getMonth() + 1}`);
+        keys.push(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`);
+      }
+    }
+    return { labels, keys };
+  };
+
+  const contarPorIntervalo = (lista, esExterna, keys, tf) => {
+    const mapa = {};
+    keys.forEach((k) => {
+      mapa[k] = 0;
+    });
+    lista.forEach((o) => {
+      const f = obtenerFechaOrden(o, esExterna);
+      if (!f) return;
+      const key = tf === "1yr"
+        ? `${f.getFullYear()}-${String(f.getMonth() + 1).padStart(2, "0")}`
+        : `${f.getFullYear()}-${String(f.getMonth() + 1).padStart(2, "0")}-${String(f.getDate()).padStart(2, "0")}`;
+      if (mapa[key] !== undefined) mapa[key] += 1;
+    });
+    return keys.map((k) => mapa[k]);
+  };
+
+  const { labels: chartLabels, keys: chartKeys } = buildDateInfo(timeframe);
+  const dataInternas = contarPorIntervalo(ordenes, false, chartKeys, timeframe);
+  const dataExternas = contarPorIntervalo(externas, true, chartKeys, timeframe);
 
   const chartData = {
-    labels: ["Semana", "Mes", "Año"],
+    labels: chartLabels,
     datasets: [
       {
         label: "Internas",
-        backgroundColor: "#0d6efd",
-        data: [
-          actividadInterna.semana,
-          actividadInterna.mes,
-          actividadInterna.ano,
-        ],
+        borderColor: "#0d6efd",
+        backgroundColor: "transparent",
+        tension: 0.4,
+        data: dataInternas,
       },
       {
         label: "Externas",
-        backgroundColor: "#dc3545",
-        data: [
-          actividadExterna.semana,
-          actividadExterna.mes,
-          actividadExterna.ano,
-        ],
+        borderColor: "#dc3545",
+        backgroundColor: "transparent",
+        tension: 0.4,
+        data: dataExternas,
       },
     ],
+  };
+
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: { intersect: false, mode: "index" },
+    scales: {
+      y: { beginAtZero: true },
+    },
   };
 
   const handleDownloadPDF = async (id) => {
@@ -399,7 +423,31 @@ const VerOFs = () => {
       <div className="card">
         <div className="card-body">
           <h6 className="mb-3 text-center">Órdenes creadas</h6>
-          <Bar data={chartData} />
+          <div className="d-flex justify-content-center mb-2">
+            <div className="btn-group btn-group-sm" role="group">
+              <button
+                className={`btn btn-outline-secondary${timeframe === "7d" ? " active" : ""}`}
+                onClick={() => setTimeframe("7d")}
+              >
+                7 días
+              </button>
+              <button
+                className={`btn btn-outline-secondary${timeframe === "1mo" ? " active" : ""}`}
+                onClick={() => setTimeframe("1mo")}
+              >
+                1 mes
+              </button>
+              <button
+                className={`btn btn-outline-secondary${timeframe === "1yr" ? " active" : ""}`}
+                onClick={() => setTimeframe("1yr")}
+              >
+                Este año
+              </button>
+            </div>
+          </div>
+          <div style={{ height: 300 }}>
+            <Line data={chartData} options={chartOptions} />
+          </div>
         </div>
       </div>
 
