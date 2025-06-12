@@ -18,6 +18,11 @@
   color: #fff;
 }
 
+.ordenes-sidebar .accordion-button.collapsed {
+  background-color: rgba(255, 255, 255, 0.15);
+  color: #fff;
+}
+
 .ordenes-sidebar .accordion-button:not(.collapsed) {
   background-color: rgba(255, 255, 255, 0.25);
 }
@@ -32,6 +37,11 @@
 
 .ordenes-sidebar .list-group-item:hover {
   background-color: rgba(255, 255, 255, 0.15);
+}
+
+.ordenes-sidebar .accordion-item,
+.ordenes-sidebar .accordion-body {
+  background-color: transparent;
 }
 
 
