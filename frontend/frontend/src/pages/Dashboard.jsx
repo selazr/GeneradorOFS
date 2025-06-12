@@ -17,7 +17,7 @@ const Dashboard = () => {
   const [showPerfil, setShowPerfil] = useState(false);
   const [showEditar, setShowEditar] = useState(false);
   const [editData, setEditData] = useState({ nombre: "", email: "", password: "", avatar: null });
-  const [appSeleccionada, setAppSeleccionada] = useState("Inicio");
+  const [appSeleccionada, setAppSeleccionada] = useState("estadisticas");
   const [menuAbierto, setMenuAbierto] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const dropdownRef = useRef(null);
@@ -109,7 +109,24 @@ const Dashboard = () => {
   <ul className="nav flex-column align-items-center">
     <li className="nav-item">
       <button
-        className="nav-link text-white btn btn-link w-100 text-center p-2"
+        className={`nav-link text-white btn btn-link w-100 text-center p-2 ${appSeleccionada === 'estadisticas' ? 'active' : ''}`}
+        onClick={() => setAppSeleccionada('estadisticas')}
+        style={{
+          transition: 'background-color 0.3s, transform 0.2s',
+          border: 'none',
+          textAlign: 'center',
+        }}
+        onMouseEnter={(e) => e.target.style.backgroundColor = '#575757'}
+        onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+        onMouseDown={(e) => e.target.style.transform = 'scale(0.98)'}
+        onMouseUp={(e) => e.target.style.transform = 'scale(1)'}
+      >
+        Estadísticas
+      </button>
+    </li>
+    <li className="nav-item">
+      <button
+        className={`nav-link text-white btn btn-link w-100 text-center p-2 ${appSeleccionada === 'ordenes' ? 'active' : ''}`}
         onClick={() => setAppSeleccionada("ordenes")}
         style={{
           transition: 'background-color 0.3s, transform 0.2s',
@@ -126,7 +143,7 @@ const Dashboard = () => {
     </li>
     <li className="nav-item">
       <button
-        className="nav-link text-white btn btn-link w-100 text-center p-2"
+        className={`nav-link text-white btn btn-link w-100 text-center p-2 ${appSeleccionada === 'externas' ? 'active' : ''}`}
         onClick={() => setAppSeleccionada("externas")}
         style={{
           transition: 'background-color 0.3s, transform 0.2s',
@@ -143,7 +160,7 @@ const Dashboard = () => {
     </li>
     <li className="nav-item">
       <button
-        className="nav-link text-white btn btn-link w-100 text-center p-2"
+        className={`nav-link text-white btn btn-link w-100 text-center p-2 ${appSeleccionada === 'verofs' ? 'active' : ''}`}
         onClick={() => setAppSeleccionada("verofs")}
         style={{
           transition: 'background-color 0.3s, transform 0.2s',
@@ -196,7 +213,7 @@ const Dashboard = () => {
           {appSeleccionada === "verofs" && <VerOFs />}
           {appSeleccionada === "aplicacion2" && <h2>Aplicación 2</h2>}
           {appSeleccionada === "aplicacion3" && <h2>Aplicación 3</h2>}
-          {appSeleccionada === "Inicio" && <Estadisticas />}
+          {appSeleccionada === "estadisticas" && <Estadisticas />}
         </div>
       </div>
       {/* Modales de perfil */}

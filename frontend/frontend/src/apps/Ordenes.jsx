@@ -316,10 +316,10 @@ const Ordenes = () => {
           {/* Aquí va el nuevo árbol */}
           <div className="accordion" id="ordenesAccordion">
             {filteredOrdenesTree.map((cliente, i) => (
-              <div className="accordion-item bg-dark border-0 text-white" key={i}>
+              <div className="accordion-item border-0 text-white" key={i}>
         <h2 className="accordion-header" id={`heading-${cliente.cliente?.id || i}`}>
           <button
-            className="accordion-button bg-secondary text-white collapsed"
+            className="accordion-button text-white collapsed"
             type="button"
             data-bs-toggle="collapse"
             data-bs-target={`#clienteCollapse-${cliente.cliente?.id || i}`}
@@ -338,10 +338,10 @@ const Ordenes = () => {
           <div className="accordion-body">
           <div className="accordion" id={`proyectosAccordion-${i}`}>
   {cliente.proyectos.map((proyecto, j) => (
-    <div className="accordion-item bg-dark text-white border-0" key={j}>
+    <div className="accordion-item border-0 text-white" key={j}>
       <h2 className="accordion-header" id={`headingProyecto-${i}-${j}`}>
         <button
-          className="accordion-button bg-dark text-warning collapsed"
+          className="accordion-button text-warning collapsed"
           type="button"
           data-bs-toggle="collapse"
           data-bs-target={`#collapseProyecto-${i}-${j}`}
@@ -363,7 +363,7 @@ const Ordenes = () => {
             {proyecto.ordenes.map((orden, k) => (
               <li
                 key={k}
-                className={`list-group-item bg-dark text-white border-0 ps-4 d-flex align-items-center ${
+                className={`list-group-item bg-transparent text-white border-0 ps-4 d-flex align-items-center ${
                   ordenSeleccionada?.id === orden.id ? "active bg-primary" : ""
                 }`}
                 style={{ cursor: "pointer" }}

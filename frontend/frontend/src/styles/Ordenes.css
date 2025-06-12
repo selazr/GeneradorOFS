@@ -12,13 +12,14 @@
   padding: 1rem;
 }
 
+
 .ordenes-sidebar .accordion-button {
-  background-color: #495057;
+  background-color: rgba(255, 255, 255, 0.15);
   color: #fff;
 }
 
-.ordenes-sidebar .accordion-button.collapsed {
-  background-color: #343a40;
+.ordenes-sidebar .accordion-button:not(.collapsed) {
+  background-color: rgba(255, 255, 255, 0.25);
 }
 
 .ordenes-sidebar .accordion-button:focus {
@@ -26,11 +27,11 @@
 }
 
 .ordenes-sidebar .list-group-item {
-  background-color: #343a40;
+  background-color: rgba(255, 255, 255, 0.05);
 }
 
 .ordenes-sidebar .list-group-item:hover {
-  background-color: #495057;
+  background-color: rgba(255, 255, 255, 0.15);
 }
 
 
