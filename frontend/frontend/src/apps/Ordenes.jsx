@@ -184,6 +184,7 @@ const Ordenes = () => {
           headers: { Authorization: `Bearer ${token}` },
         });
         alert("Orden actualizada con éxito");
+        setOrdenSeleccionada({ ...ordenSeleccionada, ...form });
       } else {
         const { data } = await axios.post("http://localhost:3000/ordenes", form, {
           headers: { Authorization: `Bearer ${token}` },
@@ -192,7 +193,9 @@ const Ordenes = () => {
         setOrdenes([...ordenes, { ...form, id: data.orden_id }]);
       }
       fetchOrdenesTree();
-      resetForm();
+      if (!ordenSeleccionada) {
+        resetForm();
+      }
     } catch (error) {
       console.error("Error al guardar la orden:", error);
     }
