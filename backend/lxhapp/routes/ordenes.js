@@ -211,6 +211,42 @@ router.get('/detalle', verificarToken, async (req, res) => {
 });
 router.get('/tree', projectController.getOrdenesTree);
 
+// Obtener estadísticas globales de órdenes
+router.get('/estadisticas', verificarToken, async (req, res) => {
+  try {
+    const [porUsuario] = await pool.query(
+      `SELECT u.nombre AS usuario, COUNT(*) AS total
+       FROM ordenes o
+       JOIN usuarios u ON o.usuario_id = u.id
+       GROUP BY o.usuario_id`
+    );
+
+    const [porMaterial] = await pool.query(
+      `SELECT COALESCE(material, 'Sin material') AS material,
+              COUNT(*) AS total
+       FROM ordenes
+       GROUP BY material`
+    );
+
+    const [pesoProyecto] = await pool.query(
+      `SELECT COALESCE(p.nombre_proyecto, 'Sin proyecto') AS proyecto,
+              SUM(COALESCE(o.peso, 0)) AS total_peso
+       FROM ordenes o
+       LEFT JOIN proyectos p ON o.proyecto_id = p.id
+       GROUP BY o.proyecto_id`
+    );
+
+    res.json({
+      ordenesPorUsuario: porUsuario,
+      ordenesPorMaterial: porMaterial,
+      pesoTotalPorProyecto: pesoProyecto
+    });
+  } catch (error) {
+    console.error('Error obteniendo estadísticas:', error);
+    res.status(500).json({ mensaje: 'Error al obtener estadísticas' });
+  }
+});
+
 // Guardar imágenes para una orden
 router.post('/:id/imagenes', async (req, res) => {
   const { id } = req.params;
