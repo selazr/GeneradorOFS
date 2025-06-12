@@ -8,6 +8,7 @@ const path = require('path');
 const userRoutes = require('./routes/userRoutes');
 const ordenesRoutes = require('./routes/ordenes');
 const pdfRoutes = require("./routes/pdf"); // PDF
+const ordenesExternasRoutes = require('./routes/ordenesExternas');
 const bodyParser = require("body-parser");
 
 const app = express();
@@ -24,6 +25,8 @@ app.use('/avatars', express.static(path.join(__dirname, 'uploads', 'avatars')));
 app.use('/usuarios', userRoutes);
 app.use('/ordenes', ordenesRoutes);
 app.use('/ordenes', pdfRoutes); // PDF
+app.use('/ordenes-externas', ordenesExternasRoutes);
+app.use('/externas', express.static(path.join(__dirname, 'uploads', 'externas')));
 
 // ✅ REGISTRO DE USUARIOS
 app.post('/register', async (req, res) => {

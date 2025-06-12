@@ -63,7 +63,7 @@ const Estadisticas = () => {
 
   return (
     <div className="stats-panel">
-      <h2 className="mb-4">Estadísticas de Órdenes</h2>
+      <h2 className="mb-4">Estadísticas de Órdenes Internas</h2>
       <p>Total de órdenes: {totalOrdenes}</p>
       <div className="row">
         <div className="col-md-6 mb-4">

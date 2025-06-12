@@ -4,6 +4,8 @@ import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/Dashboard.css";
 import Ordenes from "../apps/Ordenes";
+import OrdenesExternas from "../apps/OrdenesExternas";
+import VerOFs from "../apps/VerOFs";
 import Estadisticas from "../apps/Estadisticas";
 import { Modal, Button } from "react-bootstrap";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -119,7 +121,41 @@ const Dashboard = () => {
         onMouseDown={(e) => e.target.style.transform = 'scale(0.98)'}
         onMouseUp={(e) => e.target.style.transform = 'scale(1)'}
       >
-        Ordenes
+        Ordenes Internas
+      </button>
+    </li>
+    <li className="nav-item">
+      <button
+        className="nav-link text-white btn btn-link w-100 text-center p-2"
+        onClick={() => setAppSeleccionada("externas")}
+        style={{
+          transition: 'background-color 0.3s, transform 0.2s',
+          border: 'none',
+          textAlign: 'center',
+        }}
+        onMouseEnter={(e) => e.target.style.backgroundColor = '#575757'}
+        onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+        onMouseDown={(e) => e.target.style.transform = 'scale(0.98)'}
+        onMouseUp={(e) => e.target.style.transform = 'scale(1)'}
+      >
+        Ordenes Externas
+      </button>
+    </li>
+    <li className="nav-item">
+      <button
+        className="nav-link text-white btn btn-link w-100 text-center p-2"
+        onClick={() => setAppSeleccionada("verofs")}
+        style={{
+          transition: 'background-color 0.3s, transform 0.2s',
+          border: 'none',
+          textAlign: 'center',
+        }}
+        onMouseEnter={(e) => e.target.style.backgroundColor = '#575757'}
+        onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+        onMouseDown={(e) => e.target.style.transform = 'scale(0.98)'}
+        onMouseUp={(e) => e.target.style.transform = 'scale(1)'}
+      >
+        Ver OF's
       </button>
     </li>
   </ul>
@@ -156,6 +192,8 @@ const Dashboard = () => {
         {/* Área de la aplicación seleccionada */}
         <div className="p-4">
           {appSeleccionada === "ordenes" && <Ordenes />}
+          {appSeleccionada === "externas" && <OrdenesExternas />}
+          {appSeleccionada === "verofs" && <VerOFs />}
           {appSeleccionada === "aplicacion2" && <h2>Aplicación 2</h2>}
           {appSeleccionada === "aplicacion3" && <h2>Aplicación 3</h2>}
           {appSeleccionada === "Inicio" && <Estadisticas />}
