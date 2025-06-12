@@ -23,6 +23,7 @@
   width: 0;
   padding: 0;
   overflow: hidden;
+  display: none;
 }
 
 .sidebar.collapsed .logo,
@@ -132,6 +133,21 @@
 .patch-notes b li {
   color: #007bff;
   font-weight: bold;
+}
+
+/* Estadísticas */
+.stats-panel {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.stats-panel h2 {
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: #333;
 }
 
 /* Animación */
