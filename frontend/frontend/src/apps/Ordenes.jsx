@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+import Collapse from 'bootstrap/js/dist/collapse';
 import { useNavigate } from "react-router-dom";
 import { Modal, Button, Spinner } from "react-bootstrap";
 import { useDropzone } from "react-dropzone";
@@ -162,12 +162,12 @@ const Ordenes = () => {
     setTimeout(() => {
       const cliente = document.getElementById(`clienteCollapse-${clienteId}`);
       if (cliente) {
-        const c = window.bootstrap.Collapse.getOrCreateInstance(cliente);
+        const c = Collapse.getOrCreateInstance(cliente);
         c.show();
       }
       const proyecto = document.getElementById(`collapseProyecto-${proyectoId}`);
       if (proyecto) {
-        const p = window.bootstrap.Collapse.getOrCreateInstance(proyecto);
+        const p = Collapse.getOrCreateInstance(proyecto);
         p.show();
       }
       const li = document.getElementById(`orden-${ordenId}`);
