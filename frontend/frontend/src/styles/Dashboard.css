@@ -58,6 +58,11 @@
   transform: scale(1.03);
 }
 
+.sidebar .nav .nav-item .nav-link.active {
+  background: rgba(255, 255, 255, 0.3);
+  font-weight: 700;
+}
+
 /* Main Content */
 .main-content {
   margin-left: 240px;
