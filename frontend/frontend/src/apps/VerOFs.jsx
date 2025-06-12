@@ -7,7 +7,6 @@ import {
   CheckCircle2,
   Clock,
   AlertCircle,
-  ChevronRight,
   Search,
   BarChart3,
 } from 'lucide-react';
@@ -64,6 +63,7 @@ const VerOFs = () => {
   const [busqueda, setBusqueda] = useState('');
   const [seleccionada, setSeleccionada] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [loadingPDF, setLoadingPDF] = useState(false);
 
   useEffect(() => {
     if (!token) return;
@@ -92,6 +92,36 @@ const VerOFs = () => {
     completed: ordenes.filter((o) => getStatus(o) === 'completed').length,
     inProgress: ordenes.filter((o) => getStatus(o) === 'in-progress').length,
     pending: ordenes.filter((o) => getStatus(o) === 'pending').length,
+  };
+
+  const handleDownloadPDF = async (id) => {
+    if (!id || !token) return;
+    try {
+      setLoadingPDF(true);
+      const response = await fetch(`http://localhost:3000/ordenes/${id}/pdf`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ imagenes: [] }),
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.mensaje || 'Error al generar el PDF');
+      }
+      const blob = await response.blob();
+      const urlBlob = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = urlBlob;
+      a.download = `OF_${id}.pdf`;
+      a.click();
+      a.remove();
+    } catch (err) {
+      console.error('Error al descargar el PDF:', err);
+    } finally {
+      setLoadingPDF(false);
+    }
   };
 
   return (
@@ -160,45 +190,59 @@ const VerOFs = () => {
               <thead>
                 <tr className="text-muted small">
                   <th>ID</th>
+                  <th>Figura</th>
                   <th>Proyecto</th>
                   <th>Cliente</th>
+                  <th>Creado por</th>
                   <th>Estado</th>
                   <th>Fecha</th>
                   <th></th>
                 </tr>
               </thead>
               <tbody>
-                {filtradas.map((o, idx) => {
-                  const status = getStatus(o);
-                  return (
-                    <tr key={o.id} className="hover" style={{ cursor: 'pointer' }}>
-                      <td>#{o.id}</td>
-                      <td>{o.nombre_proyecto}</td>
-                      <td>{o.nombre_cliente}</td>
-                      <td>
-                        <span className={getStatusClass(status)}>
-                          {getStatusIcon(status)}
-                          {getStatusText(status)}
-                        </span>
-                      </td>
-                      <td>{o.fecha_fin ? new Date(o.fecha_fin).toLocaleDateString() : '-'}</td>
-                      <td>
-                        <Button
-                          variant="link"
-                          className="p-0"
-                          onClick={() => {
-                            setSeleccionada(o);
-                            setShowModal(true);
-                          }}
-                        >
-                          Ver detalles <ChevronRight size={14} />
-                        </Button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                  {filtradas.map((o) => {
+                    const status = getStatus(o);
+                    return (
+                      <tr key={o.id} className="hover" style={{ cursor: 'pointer' }}>
+                        <td>#{o.id}</td>
+                        <td>{o.figura}</td>
+                        <td>{o.nombre_proyecto}</td>
+                        <td>{o.nombre_cliente}</td>
+                        <td>{localStorage.getItem('username')}</td>
+                        <td>
+                          <span className={getStatusClass(status)}>
+                            {getStatusIcon(status)}
+                            {getStatusText(status)}
+                          </span>
+                        </td>
+                        <td>
+                          {o.fecha_creacion ? new Date(o.fecha_creacion).toLocaleDateString() : '-'}
+                        </td>
+                        <td className="d-flex gap-2">
+                          <Button
+                            variant="primary"
+                            size="sm"
+                            onClick={() => {
+                              setSeleccionada(o);
+                              setShowModal(true);
+                            }}
+                          >
+                            Ver detalles
+                          </Button>
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={() => handleDownloadPDF(o.id)}
+                            disabled={loadingPDF}
+                          >
+                            Descargar OF
+                          </Button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
           </div>
           {externas.length > 0 && (
             <>
@@ -259,9 +303,9 @@ const VerOFs = () => {
                 <strong>Creada:</strong>{' '}
                 {new Date(seleccionada.fecha_creacion).toLocaleString()}
               </p>
-              <p>
-                <strong>Pertenece a:</strong> {localStorage.getItem('username')}
-              </p>
+                <p>
+                  <strong>Creada por:</strong> {localStorage.getItem('username')}
+                </p>
             </div>
           )}
         </Modal.Body>
