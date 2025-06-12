@@ -116,6 +116,14 @@ const Ordenes = () => {
   }, [token, navigate]);
 
   const [ordenesTree, setOrdenesTree] = useState([]);
+
+  const fetchOrdenesTree = () => {
+    axios
+      .get("http://localhost:3000/ordenes/tree")
+      .then((res) => setOrdenesTree(res.data))
+      .catch((err) => console.error("Error al cargar árbol:", err));
+  };
+
   const filteredOrdenesTree = ordenesTree
     .map((cliente) => ({
       ...cliente,
@@ -133,10 +141,7 @@ const Ordenes = () => {
     .filter((c) => c.proyectos.length > 0);
 
   useEffect(() => {
-    axios
-      .get("http://localhost:3000/ordenes/tree")
-      .then((res) => setOrdenesTree(res.data))
-      .catch((err) => console.error("Error al cargar árbol:", err));
+    fetchOrdenesTree();
   }, []);
 
 
@@ -186,6 +191,7 @@ const Ordenes = () => {
         alert("Orden creada con éxito");
         setOrdenes([...ordenes, { ...form, id: data.orden_id }]);
       }
+      fetchOrdenesTree();
       resetForm();
     } catch (error) {
       console.error("Error al guardar la orden:", error);
@@ -197,12 +203,13 @@ const Ordenes = () => {
     const confirmacion = window.confirm("¿Seguro que deseas eliminar esta orden?");
     if (!confirmacion) return;
     
-    try {
+  try {
       await axios.delete(`http://localhost:3000/ordenes/${ordenSeleccionada.id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       alert("Orden eliminada con éxito");
       setOrdenes(ordenes.filter((orden) => orden.id !== ordenSeleccionada.id));
+      fetchOrdenesTree();
       resetForm();
     } catch (error) {
       console.error("Error al eliminar la orden:", error);

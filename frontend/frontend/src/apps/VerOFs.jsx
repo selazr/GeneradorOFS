@@ -62,6 +62,8 @@ const VerOFs = () => {
               <p><strong>Proyecto:</strong> {ofSeleccionada.nombre_proyecto}</p>
               <p><strong>Código:</strong> {ofSeleccionada.codigo_proyecto}</p>
               <p><strong>Responsable:</strong> {ofSeleccionada.responsable}</p>
+              <p><strong>Inicio:</strong> {ofSeleccionada.fecha_inicio ? new Date(ofSeleccionada.fecha_inicio).toLocaleDateString() : 'N/A'}</p>
+              <p><strong>Fin:</strong> {ofSeleccionada.fecha_fin ? new Date(ofSeleccionada.fecha_fin).toLocaleDateString() : 'N/A'}</p>
               <p><strong>Creada:</strong> {new Date(ofSeleccionada.fecha_creacion).toLocaleString()}</p>
               <p><strong>Pertenece a:</strong> {localStorage.getItem('username')}</p>
             </div>
