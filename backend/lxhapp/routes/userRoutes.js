@@ -12,13 +12,20 @@ router.get('/:username', verificarToken, async (req, res) => {
     const { username } = req.params;  // Obtener el nombre de usuario desde la URL
 
     try {
-        const [rows] = await pool.query('SELECT id, email, nombre, avatar FROM usuarios WHERE nombre = ?', [username]);
-
+        // Buscar por nombre y verificar que corresponda al usuario autenticado
+        const [rows] = await pool.query(
+            'SELECT * FROM usuarios WHERE nombre = ? AND id = ?',
+            [username, req.usuario.id]
+        );
         if (rows.length === 0) {
             return res.status(404).json({ mensaje: 'Usuario no encontrado' });
         }
+        const user = rows[0];
+        if (!user.avatar) {
+            user.avatar = '/avatars/default.jpg';
+        }
 
-        res.json(rows[0]);
+        res.json(user);
     } catch (error) {
         console.error(error);
         res.status(500).json({ mensaje: 'Error en el servidor' });

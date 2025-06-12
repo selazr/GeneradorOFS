@@ -509,7 +509,7 @@ const Ordenes = () => {
                       onClick={() => handleDownloadPDF(ordenSeleccionada.id, true)}
                       disabled={loadingPDF}
                     >
-                      {loadingPDF ? <Spinner size="sm" animation="border" /> : "OF Cliente"}
+                      {loadingPDF ? <Spinner size="sm" animation="border" /> : "OF Proveedor"}
                     </button>
                     <button className="btn btn-primary" type="button">
                       OT
