@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import axios from "axios";
 import { Modal, Button } from "react-bootstrap";
 import {
@@ -9,7 +9,7 @@ import {
   AlertCircle,
   Search,
 } from "lucide-react";
-import { Bar } from "react-chartjs-2";
+import { Line } from "react-chartjs-2";
 import Chart from "chart.js/auto";
 
 const getStatus = (orden) => {
@@ -102,66 +102,103 @@ const VerOFs = () => {
     pending: ordenes.filter((o) => getStatus(o) === "pending").length,
   };
 
-  const calcularActividad = (lista, esExterna = false) => {
-    const ahora = new Date();
-    const haceUnaSemana = new Date();
-    haceUnaSemana.setDate(ahora.getDate() - 7);
-    const haceUnMes = new Date();
-    haceUnMes.setMonth(ahora.getMonth() - 1);
-    const haceUnAno = new Date();
-    haceUnAno.setFullYear(ahora.getFullYear() - 1);
-
-    const obtenerFecha = (o) => {
-      if (esExterna) {
-        if (o.pdf_path) {
-          const m = o.pdf_path.match(/(\d+)-/);
-          if (m) return new Date(Number(m[1]));
-        }
-        return o.fecha_creacion ? new Date(o.fecha_creacion) : null;
+  const obtenerFecha = (o, esExterna = false) => {
+    if (esExterna) {
+      if (o.pdf_path) {
+        const m = o.pdf_path.match(/(\d+)-/);
+        if (m) return new Date(Number(m[1]));
       }
-      return o.fecha_inicio
-        ? new Date(o.fecha_inicio)
-        : o.fecha_creacion
-          ? new Date(o.fecha_creacion)
-          : null;
-    };
+      return o.fecha_creacion ? new Date(o.fecha_creacion) : null;
+    }
+    return o.fecha_inicio
+      ? new Date(o.fecha_inicio)
+      : o.fecha_creacion
+        ? new Date(o.fecha_creacion)
+        : null;
+  };
 
-    const enRango = (f, limite) => f && f >= limite;
+  const contarPorDia = (lista, dias, esExterna = false) => {
+    const ahora = new Date();
+    const counts = Array(dias).fill(0);
+    lista.forEach((o) => {
+      const f = obtenerFecha(o, esExterna);
+      if (!f) return;
+      const diff = Math.floor((ahora - f) / (1000 * 60 * 60 * 24));
+      if (diff < dias && diff >= 0) counts[dias - diff - 1]++;
+    });
+    return counts;
+  };
+
+  const contarPorMes = (lista, esExterna = false) => {
+    const ahora = new Date();
+    const counts = Array(12).fill(0);
+    lista.forEach((o) => {
+      const f = obtenerFecha(o, esExterna);
+      if (!f) return;
+      const diff =
+        ahora.getFullYear() * 12 + ahora.getMonth() -
+        (f.getFullYear() * 12 + f.getMonth());
+      if (diff < 12 && diff >= 0) counts[11 - diff]++;
+    });
+    return counts;
+  };
+
+  const [rango, setRango] = useState("7d");
+
+  const chartData = useMemo(() => {
+    const ahora = new Date();
+    let labels = [];
+    let internas = [];
+    let externasData = [];
+
+    if (rango === "7d") {
+      labels = Array.from({ length: 7 }).map((_, i) => {
+        const d = new Date();
+        d.setDate(ahora.getDate() - (6 - i));
+        return d.toLocaleDateString();
+      });
+      internas = contarPorDia(ordenes, 7);
+      externasData = contarPorDia(externas, 7, true);
+    } else if (rango === "1m") {
+      labels = Array.from({ length: 30 }).map((_, i) => {
+        const d = new Date();
+        d.setDate(ahora.getDate() - (29 - i));
+        return d.toLocaleDateString();
+      });
+      internas = contarPorDia(ordenes, 30);
+      externasData = contarPorDia(externas, 30, true);
+    } else {
+      labels = Array.from({ length: 12 }).map((_, i) => {
+        const d = new Date();
+        d.setMonth(ahora.getMonth() - (11 - i));
+        return d.toLocaleString("default", { month: "short" });
+      });
+      internas = contarPorMes(ordenes);
+      externasData = contarPorMes(externas, true);
+    }
 
     return {
-      semana: lista.filter((o) => enRango(obtenerFecha(o), haceUnaSemana))
-        .length,
-      mes: lista.filter((o) => enRango(obtenerFecha(o), haceUnMes)).length,
-      ano: lista.filter((o) => enRango(obtenerFecha(o), haceUnAno)).length,
+      labels,
+      datasets: [
+        {
+          label: "Internas",
+          data: internas,
+          borderColor: "#0d6efd",
+          backgroundColor: "rgba(13,110,253,0.2)",
+          fill: false,
+          tension: 0.3,
+        },
+        {
+          label: "Externas",
+          data: externasData,
+          borderColor: "#dc3545",
+          backgroundColor: "rgba(220,53,69,0.2)",
+          fill: false,
+          tension: 0.3,
+        },
+      ],
     };
-  };
-
-  const actividadInterna = calcularActividad(ordenes);
-  const actividadExterna = calcularActividad(externas, true);
-
-  const chartData = {
-    labels: ["Semana", "Mes", "Año"],
-    datasets: [
-      {
-        label: "Internas",
-        backgroundColor: "#0d6efd",
-        data: [
-          actividadInterna.semana,
-          actividadInterna.mes,
-          actividadInterna.ano,
-        ],
-      },
-      {
-        label: "Externas",
-        backgroundColor: "#dc3545",
-        data: [
-          actividadExterna.semana,
-          actividadExterna.mes,
-          actividadExterna.ano,
-        ],
-      },
-    ],
-  };
+  }, [ordenes, externas, rango]);
 
   const handleDownloadPDF = async (id) => {
     if (!id || !token) return;
@@ -398,8 +435,30 @@ const VerOFs = () => {
 
       <div className="card">
         <div className="card-body">
-          <h6 className="mb-3 text-center">Órdenes creadas</h6>
-          <Bar data={chartData} />
+          <div className="d-flex justify-content-between align-items-center mb-3">
+            <h6 className="mb-0">Órdenes creadas</h6>
+            <div className="btn-group btn-group-sm">
+              <button
+                className={`btn btn-outline-secondary ${rango === '7d' ? 'active' : ''}`}
+                onClick={() => setRango('7d')}
+              >
+                7 días
+              </button>
+              <button
+                className={`btn btn-outline-secondary ${rango === '1m' ? 'active' : ''}`}
+                onClick={() => setRango('1m')}
+              >
+                1 mes
+              </button>
+              <button
+                className={`btn btn-outline-secondary ${rango === '1y' ? 'active' : ''}`}
+                onClick={() => setRango('1y')}
+              >
+                1 año
+              </button>
+            </div>
+          </div>
+          <Line data={chartData} />
         </div>
       </div>
 
