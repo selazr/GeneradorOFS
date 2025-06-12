@@ -4,6 +4,7 @@ import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/Dashboard.css";
 import Ordenes from "../apps/Ordenes";
+import Estadisticas from "../apps/Estadisticas";
 import { Modal, Button } from "react-bootstrap";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
@@ -157,18 +158,7 @@ const Dashboard = () => {
           {appSeleccionada === "ordenes" && <Ordenes />}
           {appSeleccionada === "aplicacion2" && <h2>Aplicación 2</h2>}
           {appSeleccionada === "aplicacion3" && <h2>Aplicación 3</h2>}
-          {appSeleccionada === "Inicio" && (
-      <div class="patch-notes">
-          <h2>Versión 1.0.1</h2>
-          <ul>
-            <li>Mejoras en el rendimiento del dashboard</li>
-            <li>Nuevo diseño de bienvenida</li>
-            <li>Corrección de errores menores</li>
-            <li>Implementacion y correcion de errores al lanzar OF</li>
-            <b><li>¡YA PUEDEN GENERAR OF CLIENTE!</li></b>
-          </ul>
-      </div>
-          )}
+          {appSeleccionada === "Inicio" && <Estadisticas />}
         </div>
       </div>
       {/* Modales de perfil */}
