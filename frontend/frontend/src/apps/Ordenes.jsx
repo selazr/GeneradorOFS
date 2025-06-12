@@ -20,6 +20,14 @@ const Ordenes = () => {
   const [imagenesModal, setImagenesModal] = useState({ grande: null, pequenas: [null, null, null, null] });
   const [busqueda, setBusqueda] = useState("");
   const [loadingPDF, setLoadingPDF] = useState(false);
+  const [mensajeModal, setMensajeModal] = useState("");
+  const [mostrarMensaje, setMostrarMensaje] = useState(false);
+
+  const mostrarModalTemporal = (msg) => {
+    setMensajeModal(msg);
+    setMostrarMensaje(true);
+    setTimeout(() => setMostrarMensaje(false), 2000);
+  };
 
   const generarCodigoProyecto = () => {
     const letras = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -118,10 +126,16 @@ const Ordenes = () => {
   const [ordenesTree, setOrdenesTree] = useState([]);
 
   const fetchOrdenesTree = () => {
-    axios
+    return axios
       .get("http://localhost:3000/ordenes/tree")
-      .then((res) => setOrdenesTree(res.data))
-      .catch((err) => console.error("Error al cargar árbol:", err));
+      .then((res) => {
+        setOrdenesTree(res.data);
+        return res.data;
+      })
+      .catch((err) => {
+        console.error("Error al cargar árbol:", err);
+        throw err;
+      });
   };
 
   const filteredOrdenesTree = ordenesTree
@@ -143,6 +157,23 @@ const Ordenes = () => {
   useEffect(() => {
     fetchOrdenesTree();
   }, []);
+
+  const expandirVista = (clienteId, proyectoId, ordenId) => {
+    setTimeout(() => {
+      const cliente = document.getElementById(`clienteCollapse-${clienteId}`);
+      if (cliente) {
+        const c = window.bootstrap.Collapse.getOrCreateInstance(cliente);
+        c.show();
+      }
+      const proyecto = document.getElementById(`collapseProyecto-${proyectoId}`);
+      if (proyecto) {
+        const p = window.bootstrap.Collapse.getOrCreateInstance(proyecto);
+        p.show();
+      }
+      const li = document.getElementById(`orden-${ordenId}`);
+      if (li) li.scrollIntoView({ behavior: 'smooth' });
+    }, 300);
+  };
 
 
   const handleChange = (e) => {
@@ -183,16 +214,20 @@ const Ordenes = () => {
         await axios.put(`http://localhost:3000/ordenes/${ordenSeleccionada.id}`, form, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        alert("Orden actualizada con éxito");
+        mostrarModalTemporal("Orden actualizada con éxito");
         setOrdenSeleccionada({ ...ordenSeleccionada, ...form });
       } else {
         const { data } = await axios.post("http://localhost:3000/ordenes", form, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        alert("Orden creada con éxito");
+        mostrarModalTemporal("Orden creada con éxito");
         setOrdenes([...ordenes, { ...form, id: data.orden_id }]);
+        await fetchOrdenesTree();
+        expandirVista(data.cliente_id, data.proyecto_id, data.orden_id);
       }
-      fetchOrdenesTree();
+      if (ordenSeleccionada) {
+        await fetchOrdenesTree();
+      }
       if (!ordenSeleccionada) {
         resetForm();
       }
@@ -342,23 +377,23 @@ const Ordenes = () => {
           <div className="accordion" id={`proyectosAccordion-${i}`}>
   {cliente.proyectos.map((proyecto, j) => (
     <div className="accordion-item border-0 text-white" key={j}>
-      <h2 className="accordion-header" id={`headingProyecto-${i}-${j}`}>
+      <h2 className="accordion-header" id={`headingProyecto-${proyecto.proyecto?.id || j}`}>
         <button
           className="accordion-button text-warning collapsed"
           type="button"
           data-bs-toggle="collapse"
-          data-bs-target={`#collapseProyecto-${i}-${j}`}
+          data-bs-target={`#collapseProyecto-${proyecto.proyecto?.id || j}`}
           aria-expanded="false"
-          aria-controls={`collapseProyecto-${i}-${j}`}
+          aria-controls={`collapseProyecto-${proyecto.proyecto?.id || j}`}
           style={{ fontSize: "0.9rem" }}
         >
           <Folder size={16} className="me-2" /> {proyecto.proyecto?.nombre_proyecto}
         </button>
       </h2>
       <div
-        id={`collapseProyecto-${i}-${j}`}
+        id={`collapseProyecto-${proyecto.proyecto?.id || j}`}
         className="accordion-collapse collapse"
-        aria-labelledby={`headingProyecto-${i}-${j}`}
+        aria-labelledby={`headingProyecto-${proyecto.proyecto?.id || j}`}
         data-bs-parent={`#proyectosAccordion-${i}`}
       >
         <div className="accordion-body ps-4">
@@ -366,6 +401,7 @@ const Ordenes = () => {
             {proyecto.ordenes.map((orden, k) => (
               <li
                 key={k}
+                id={`orden-${orden.id}`}
                 className={`list-group-item bg-transparent text-white border-0 ps-4 d-flex align-items-center ${
                   ordenSeleccionada?.id === orden.id ? "active bg-primary" : ""
                 }`}
@@ -605,6 +641,9 @@ const Ordenes = () => {
     </Button>
   </Modal.Footer>
 </Modal>
+      <Modal show={mostrarMensaje} onHide={() => setMostrarMensaje(false)} centered>
+        <Modal.Body className="text-center">{mensajeModal}</Modal.Body>
+      </Modal>
           </div>
         </div>
       </div>
