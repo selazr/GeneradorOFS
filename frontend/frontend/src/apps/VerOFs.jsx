@@ -66,6 +66,10 @@ const VerOFs = () => {
   const [seleccionada, setSeleccionada] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [loadingPDF, setLoadingPDF] = useState(false);
+  const [paginaInternas, setPaginaInternas] = useState(1);
+  const [paginaExternas, setPaginaExternas] = useState(1);
+
+  const itemsPorPagina = 5;
 
   useEffect(() => {
     if (!token) return;
@@ -94,6 +98,27 @@ const VerOFs = () => {
     const texto = `${o.figura} ${o.proyecto} ${o.cliente}`.toLowerCase();
     return texto.includes(busquedaExternas.toLowerCase());
   });
+
+  const totalPaginasInternas = Math.ceil(filtradas.length / itemsPorPagina) || 1;
+  const totalPaginasExternas = Math.ceil(filtradasExternas.length / itemsPorPagina) || 1;
+
+  useEffect(() => {
+    setPaginaInternas(1);
+  }, [busqueda, ordenes]);
+
+  useEffect(() => {
+    setPaginaExternas(1);
+  }, [busquedaExternas, externas]);
+
+  const paginadas = filtradas.slice(
+    (paginaInternas - 1) * itemsPorPagina,
+    paginaInternas * itemsPorPagina
+  );
+
+  const paginadasExternas = filtradasExternas.slice(
+    (paginaExternas - 1) * itemsPorPagina,
+    paginaExternas * itemsPorPagina
+  );
 
   const totals = {
     total: ordenes.length,
@@ -310,7 +335,7 @@ const VerOFs = () => {
                 </tr>
               </thead>
               <tbody>
-                {filtradas.map((o) => {
+                {paginadas.map((o) => {
                   const status = getStatus(o);
                   return (
                     <tr
@@ -360,6 +385,43 @@ const VerOFs = () => {
               </tbody>
             </table>
           </div>
+          <nav>
+            <ul className="pagination justify-content-center">
+              <li className={`page-item ${paginaInternas === 1 ? 'disabled' : ''}`}>
+                <button
+                  className="page-link"
+                  onClick={() => setPaginaInternas(paginaInternas - 1)}
+                  disabled={paginaInternas === 1}
+                >
+                  Anterior
+                </button>
+              </li>
+              {Array.from({ length: totalPaginasInternas }).map((_, idx) => (
+                <li
+                  key={idx}
+                  className={`page-item ${paginaInternas === idx + 1 ? 'active' : ''}`}
+                >
+                  <button
+                    className="page-link"
+                    onClick={() => setPaginaInternas(idx + 1)}
+                  >
+                    {idx + 1}
+                  </button>
+                </li>
+              ))}
+              <li
+                className={`page-item ${paginaInternas === totalPaginasInternas ? 'disabled' : ''}`}
+              >
+                <button
+                  className="page-link"
+                  onClick={() => setPaginaInternas(paginaInternas + 1)}
+                  disabled={paginaInternas === totalPaginasInternas}
+                >
+                  Siguiente
+                </button>
+              </li>
+            </ul>
+          </nav>
           {externas.length > 0 && (
             <>
               <hr />
@@ -396,7 +458,7 @@ const VerOFs = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {filtradasExternas.map((o) => (
+                    {paginadasExternas.map((o) => (
                       <tr key={o.id}>
                         <td>#{o.id}</td>
                         <td>{o.figura}</td>
@@ -428,6 +490,43 @@ const VerOFs = () => {
                   </tbody>
                 </table>
               </div>
+              <nav>
+                <ul className="pagination justify-content-center">
+                  <li className={`page-item ${paginaExternas === 1 ? 'disabled' : ''}`}>
+                    <button
+                      className="page-link"
+                      onClick={() => setPaginaExternas(paginaExternas - 1)}
+                      disabled={paginaExternas === 1}
+                    >
+                      Anterior
+                    </button>
+                  </li>
+                  {Array.from({ length: totalPaginasExternas }).map((_, idx) => (
+                    <li
+                      key={idx}
+                      className={`page-item ${paginaExternas === idx + 1 ? 'active' : ''}`}
+                    >
+                      <button
+                        className="page-link"
+                        onClick={() => setPaginaExternas(idx + 1)}
+                      >
+                        {idx + 1}
+                      </button>
+                    </li>
+                  ))}
+                  <li
+                    className={`page-item ${paginaExternas === totalPaginasExternas ? 'disabled' : ''}`}
+                  >
+                    <button
+                      className="page-link"
+                      onClick={() => setPaginaExternas(paginaExternas + 1)}
+                      disabled={paginaExternas === totalPaginasExternas}
+                    >
+                      Siguiente
+                    </button>
+                  </li>
+                </ul>
+              </nav>
             </>
           )}
         </div>
