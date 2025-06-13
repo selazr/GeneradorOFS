@@ -248,7 +248,7 @@ const Ordenes = () => {
       case 2:
         return (
           <div className="mb-3" style={{ display: 'flex', border: '1px solid #ccc', borderRadius: 4, overflow: 'hidden', height: 200 }}>
-            <div style={{ flex: 1, marginRight: 2, display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: '#f8f9fa' }}>
+            <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: '#f8f9fa' }}>
               {getImg(imagenes.grande?.preview, 'Imagen 1')}
             </div>
             <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: '#f8f9fa' }}>
@@ -259,10 +259,10 @@ const Ordenes = () => {
       case 3:
         return (
           <div className="mb-3" style={{ display: 'flex', border: '1px solid #ccc', borderRadius: 4, overflow: 'hidden', height: 200 }}>
-            <div style={{ flex: 2, marginRight: 2, display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: '#f8f9fa' }}>
+            <div style={{ flex: 2, display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: '#f8f9fa' }}>
               {getImg(imagenes.grande?.preview, 'Imagen 1')}
             </div>
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
               <div style={{ flex: 1, backgroundColor: '#f8f9fa', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                 {getImg(imagenes.pequenas[0]?.preview, 'Imagen 2')}
               </div>
@@ -274,35 +274,16 @@ const Ordenes = () => {
         );
       case 4:
         return (
-          <div className="mb-3" style={{ display: 'flex', border: '1px solid #ccc', borderRadius: 4, overflow: 'hidden', height: 200 }}>
-            <div style={{ flex: 2, marginRight: 2, display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: '#f8f9fa' }}>
-              {getImg(imagenes.grande?.preview, 'Imagen 1')}
-            </div>
-            <div style={{ flex: 1, display: 'flex', flexWrap: 'wrap', gap: 2 }}>
-              {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} style={{ width: '48%', height: '48%', backgroundColor: '#f8f9fa', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                  {getImg(imagenes.pequenas[i]?.preview, `Imagen ${i + 2}`)}
-                </div>
-              ))}
-            </div>
+          <div className="mb-3" style={{ display: 'flex', flexWrap: 'wrap', border: '1px solid #ccc', borderRadius: 4, overflow: 'hidden', height: 200 }}>
+            {[imagenes.grande?.preview, imagenes.pequenas[0]?.preview, imagenes.pequenas[1]?.preview, imagenes.pequenas[2]?.preview].map((src, i) => (
+              <div key={i} style={{ flex: '0 0 50%', display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: '#f8f9fa' }}>
+                {getImg(src, `Imagen ${i + 1}`)}
+              </div>
+            ))}
           </div>
         );
-      case 5:
       default:
-        return (
-          <div className="mb-3" style={{ display: 'flex', border: '1px solid #ccc', borderRadius: 4, overflow: 'hidden', height: 200 }}>
-            <div style={{ flex: 2, marginRight: 2, display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: '#f8f9fa' }}>
-              {getImg(imagenes.grande?.preview, 'Imagen 1')}
-            </div>
-            <div style={{ flex: 1, display: 'flex', flexWrap: 'wrap', gap: 2 }}>
-              {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} style={{ width: '48%', height: '48%', backgroundColor: '#f8f9fa', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                  {getImg(imagenes.pequenas[i]?.preview, `Imagen ${i + 2}`)}
-                </div>
-              ))}
-            </div>
-          </div>
-        );
+        return null;
     }
   };
   
@@ -712,7 +693,7 @@ const Ordenes = () => {
   </Modal.Header>
   <Modal.Body>
     <div className="d-flex mb-3 justify-content-center gap-2">
-      {[1, 2, 3, 4, 5].map((n) => (
+      {[1, 2, 3, 4].map((n) => (
         <div
           key={n}
           onClick={() => setLayout(n)}
