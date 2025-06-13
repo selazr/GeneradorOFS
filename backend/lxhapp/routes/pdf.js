@@ -63,16 +63,21 @@ router.post("/:id/pdf", async (req, res) => {
       } catch (e) { console.error('Error leyendo imágenes', e); }
     }
 
-    const layoutClass = `layout-${layoutSeleccionado}`;
-    const imagenesHtml = imagenes
-      .slice(0, layoutSeleccionado)
-      .map((img) => `<img src="${img}" />`)
-      .join("");
+    let imagenGrande = imagenes.length > 0 ? `<img src="${imagenes[0]}" />` : "";
+    let imagenesPequenas = imagenes.slice(1, 5).map(img => `<img src="${img}" />`).join("");
+    let estiloGrande = "";
+    let estiloPequenas = "";
+    if (layoutSeleccionado === 1) {
+      estiloGrande = 'style="flex:1;width:100%"';
+      estiloPequenas = 'style="display:none"';
+    }
 
     // **Reemplazar variables en la plantilla**
     html = html
-      .replace("{{LAYOUT_CLASS}}", layoutClass)
-      .replace("{{IMAGENES_GRID}}", imagenesHtml)
+      .replace("{{IMAGEN_GRANDE}}", imagenGrande)
+      .replace("{{IMAGENES_PEQ}}", imagenesPequenas)
+      .replace("{{STYLE_GRANDE}}", estiloGrande)
+      .replace("{{STYLE_PEQ}}", estiloPequenas)
       .replace("{{LOGO}}", logoSrc)
       .replace(/{{ORDEN}}/g, orden.codigo_proyecto || "No")
       .replace(/{{PESO}}/g, orden.peso || "")
