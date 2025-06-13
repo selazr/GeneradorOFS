@@ -207,21 +207,6 @@ const Ordenes = () => {
     );
   };
 
-  const LayoutPreview = ({ n }) => {
-    const small = Array.from({ length: n - 1 });
-    return (
-      <div style={{ display: 'flex', width: '100%', height: '100%' }}>
-        <div style={{ flex: 1.2, border: '1px solid #ccc', marginRight: n > 1 ? 2 : 0 }}></div>
-        {n > 1 && (
-          <div style={{ flex: 1, display: 'flex', flexWrap: 'wrap', gap: 2 }}>
-            {small.map((_, i) => (
-              <div key={i} style={{ width: '48%', height: '48%', border: '1px solid #ccc' }}></div>
-            ))}
-          </div>
-        )}
-      </div>
-    );
-  };
 
   const PDFLayoutPreview = ({ layout, imagenes }) => {
     const getImg = (img, placeholder) =>
@@ -235,44 +220,85 @@ const Ordenes = () => {
         <span style={{ color: '#aaa' }}>{placeholder}</span>
       );
 
-    return (
+    const imgPeq = (i, ph) => (
       <div
-        className="mb-3"
-        style={{ display: 'flex', border: '1px solid #ccc', borderRadius: 4, overflow: 'hidden', height: 200 }}
+        key={i}
+        style={{
+          backgroundColor: '#f8f9fa',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          width: '100%',
+          height: '100%',
+        }}
       >
-        <div
-          style={{
-            flex: 1.2,
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            marginRight: layout > 1 ? 2 : 0,
-            backgroundColor: '#f8f9fa',
-          }}
-        >
-          {getImg(imagenes.grande?.preview, 'Imagen 1')}
-        </div>
-        {layout > 1 && (
-          <div style={{ flex: 1, display: 'flex', flexWrap: 'wrap', gap: 2 }}>
-            {Array.from({ length: layout - 1 }).map((_, i) => (
-              <div
-                key={i}
-                style={{
-                  width: '48%',
-                  height: '48%',
-                  backgroundColor: '#f8f9fa',
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}
-              >
-                {getImg(imagenes.pequenas[i]?.preview, `Imagen ${i + 2}`)}
+        {getImg(imagenes.pequenas[i]?.preview, ph)}
+      </div>
+    );
+
+    switch (layout) {
+      case 1:
+        return (
+          <div className="mb-3" style={{ display: 'flex', border: '1px solid #ccc', borderRadius: 4, overflow: 'hidden', height: 200 }}>
+            <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: '#f8f9fa' }}>
+              {getImg(imagenes.grande?.preview, 'Imagen 1')}
+            </div>
+          </div>
+        );
+      case 2:
+        return (
+          <div className="mb-3" style={{ display: 'flex', border: '1px solid #ccc', borderRadius: 4, overflow: 'hidden', height: 200 }}>
+            <div style={{ flex: 1, marginRight: 2, display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: '#f8f9fa' }}>
+              {getImg(imagenes.grande?.preview, 'Imagen 1')}
+            </div>
+            <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: '#f8f9fa' }}>
+              {getImg(imagenes.pequenas[0]?.preview, 'Imagen 2')}
+            </div>
+          </div>
+        );
+      case 3:
+        return (
+          <div className="mb-3" style={{ display: 'flex', border: '1px solid #ccc', borderRadius: 4, overflow: 'hidden', height: 200 }}>
+            <div style={{ flex: 2, marginRight: 2, display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: '#f8f9fa' }}>
+              {getImg(imagenes.grande?.preview, 'Imagen 1')}
+            </div>
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <div style={{ flex: 1, backgroundColor: '#f8f9fa', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                {getImg(imagenes.pequenas[0]?.preview, 'Imagen 2')}
+              </div>
+              <div style={{ flex: 1, backgroundColor: '#f8f9fa', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                {getImg(imagenes.pequenas[1]?.preview, 'Imagen 3')}
+              </div>
+            </div>
+          </div>
+        );
+      case 4:
+        return (
+          <div className="mb-3" style={{ display: 'flex', flexWrap: 'wrap', border: '1px solid #ccc', borderRadius: 4, overflow: 'hidden', height: 200 }}>
+            {[imagenes.grande, ...imagenes.pequenas.slice(0, 3)].map((img, i) => (
+              <div key={i} style={{ width: '50%', height: '50%', backgroundColor: '#f8f9fa', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                {getImg(img?.preview, `Imagen ${i + 1}`)}
               </div>
             ))}
           </div>
-        )}
-      </div>
-    );
+        );
+      case 5:
+      default:
+        return (
+          <div className="mb-3" style={{ display: 'flex', border: '1px solid #ccc', borderRadius: 4, overflow: 'hidden', height: 200 }}>
+            <div style={{ flex: 2, marginRight: 2, display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: '#f8f9fa' }}>
+              {getImg(imagenes.grande?.preview, 'Imagen 1')}
+            </div>
+            <div style={{ flex: 1, display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} style={{ width: '48%', height: '48%', backgroundColor: '#f8f9fa', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                  {getImg(imagenes.pequenas[i]?.preview, `Imagen ${i + 2}`)}
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+    }
   };
   
   
@@ -665,7 +691,7 @@ const Ordenes = () => {
             borderRadius: 4,
           }}
         >
-          <LayoutPreview n={n} />
+          {n}
         </div>
       ))}
     </div>
