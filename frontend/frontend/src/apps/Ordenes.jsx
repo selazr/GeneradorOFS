@@ -206,6 +206,22 @@ const Ordenes = () => {
       </div>
     );
   };
+
+  const LayoutPreview = ({ n }) => {
+    const small = Array.from({ length: n - 1 });
+    return (
+      <div style={{ display: 'flex', width: '100%', height: '100%' }}>
+        <div style={{ flex: 1.2, border: '1px solid #ccc', marginRight: n > 1 ? 2 : 0 }}></div>
+        {n > 1 && (
+          <div style={{ flex: 1, display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+            {small.map((_, i) => (
+              <div key={i} style={{ width: '48%', height: '48%', border: '1px solid #ccc' }}></div>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  };
   
   
   const handleSubmit = async (e) => {
@@ -588,7 +604,7 @@ const Ordenes = () => {
           onClick={() => setLayout(n)}
           style={{width:40,height:40,backgroundColor:layout===n? '#6c757d':'#e9ecef',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',borderRadius:4}}
         >
-          {n}
+          <LayoutPreview n={n} />
         </div>
       ))}
     </div>
@@ -641,6 +657,7 @@ const Ordenes = () => {
         if (ordenSeleccionada && archivos.length){
           const data = new FormData();
           archivos.forEach(f => data.append('imagenes', f));
+          data.append('layout', layout);
           axios
             .post(`http://localhost:3000/ordenes/${ordenSeleccionada.id}/imagenes`, data)
             .catch((err) => console.error('Error guardando imágenes', err));

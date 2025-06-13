@@ -46,9 +46,12 @@ router.post("/:id/pdf", async (req, res) => {
     let html = fs.readFileSync(plantillaPath, "utf8");
 
     let imagenes = [];
+    let layoutSeleccionado = 1;
     if (orden.imagenes) {
       try {
-        const rutas = JSON.parse(orden.imagenes);
+        const parsed = JSON.parse(orden.imagenes);
+        const rutas = Array.isArray(parsed) ? parsed : parsed.rutas || [];
+        layoutSeleccionado = Array.isArray(parsed) ? rutas.length : parsed.layout || rutas.length;
         imagenes = await Promise.all(
           rutas.map(async (ruta) => {
             const abs = path.join(__dirname, '..', ruta.replace('/ordenes-img/', 'uploads/ordenes/'));
@@ -62,11 +65,19 @@ router.post("/:id/pdf", async (req, res) => {
 
     let imagenGrande = imagenes.length > 0 ? `<img src="${imagenes[0]}" />` : "";
     let imagenesPequenas = imagenes.slice(1, 5).map(img => `<img src="${img}" />`).join("");
+    let estiloGrande = "";
+    let estiloPequenas = "";
+    if (layoutSeleccionado === 1) {
+      estiloGrande = 'style="flex:1;width:100%"';
+      estiloPequenas = 'style="display:none"';
+    }
 
     // **Reemplazar variables en la plantilla**
     html = html
       .replace("{{IMAGEN_GRANDE}}", imagenGrande)
       .replace("{{IMAGENES_PEQ}}", imagenesPequenas)
+      .replace("{{STYLE_GRANDE}}", estiloGrande)
+      .replace("{{STYLE_PEQ}}", estiloPequenas)
       .replace("{{LOGO}}", logoSrc)
       .replace(/{{ORDEN}}/g, orden.codigo_proyecto || "No")
       .replace(/{{PESO}}/g, orden.peso || "")
