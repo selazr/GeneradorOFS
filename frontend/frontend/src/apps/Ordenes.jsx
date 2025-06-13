@@ -274,12 +274,17 @@ const Ordenes = () => {
         );
       case 4:
         return (
-          <div className="mb-3" style={{ display: 'flex', flexWrap: 'wrap', border: '1px solid #ccc', borderRadius: 4, overflow: 'hidden', height: 200 }}>
-            {[imagenes.grande, ...imagenes.pequenas.slice(0, 3)].map((img, i) => (
-              <div key={i} style={{ width: '50%', height: '50%', backgroundColor: '#f8f9fa', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                {getImg(img?.preview, `Imagen ${i + 1}`)}
-              </div>
-            ))}
+          <div className="mb-3" style={{ display: 'flex', border: '1px solid #ccc', borderRadius: 4, overflow: 'hidden', height: 200 }}>
+            <div style={{ flex: 2, marginRight: 2, display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: '#f8f9fa' }}>
+              {getImg(imagenes.grande?.preview, 'Imagen 1')}
+            </div>
+            <div style={{ flex: 1, display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} style={{ width: '48%', height: '48%', backgroundColor: '#f8f9fa', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                  {getImg(imagenes.pequenas[i]?.preview, `Imagen ${i + 2}`)}
+                </div>
+              ))}
+            </div>
           </div>
         );
       case 5:
@@ -804,11 +809,13 @@ const Ordenes = () => {
             .post(`http://localhost:3000/ordenes/${ordenSeleccionada.id}/imagenes`, data)
             .then(res => {
               const rutas = res.data.rutas || [];
+              const nuevoLayout = rutas.length;
               setImagenesModal({
                 grande: rutas[0] ? { file: null, preview: `http://localhost:3000${rutas[0]}` } : null,
                 pequenas: [1,2,3,4].map(i => rutas[i] ? { file: null, preview: `http://localhost:3000${rutas[i]}` } : null)
               });
-              setOrdenSeleccionada({ ...ordenSeleccionada, imagenes: JSON.stringify({ layout, rutas }) });
+              setLayout(nuevoLayout);
+              setOrdenSeleccionada({ ...ordenSeleccionada, imagenes: JSON.stringify({ layout: nuevoLayout, rutas }) });
             })
             .catch((err) => console.error('Error guardando imágenes', err));
         }
