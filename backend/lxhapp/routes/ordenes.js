@@ -76,15 +76,15 @@ router.post('/', verificarToken, async (req, res) => {
           material, acabado, cantidad, fecha_inicio, fecha_fin, revisado,
           fabric_pieza, post_mec, pegar_lijar, esculpir,
           line_x, fibra, mortero, aparejo, pintura, estructura,
-          peso, notas, cliente_id, proyecto_id
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          peso, notas, imagenes, cliente_id, proyecto_id
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           usuario_id, nombre_cliente, nombre_proyecto, codigo_proyecto, responsable, figura,
           medida_v, medida_w, medida_h, unidad_medida,
           material, acabado, cantidad, fecha_inicio, fecha_fin, revisado,
           fabric_pieza, post_mec, pegar_lijar, esculpir,
           line_x, fibra, mortero, aparejo, pintura, estructura,
-          peso, notas, cliente_id, proyecto_id
+          peso, notas, null, cliente_id, proyecto_id
         ]
       );
   
@@ -246,26 +246,27 @@ router.get('/estadisticas', verificarToken, async (req, res) => {
   }
 });
 
-// Guardar imágenes para una orden
-router.post('/:id/imagenes', async (req, res) => {
-  const { id } = req.params;
-  const { imagenes } = req.body;
-  if (!imagenes || !Array.isArray(imagenes)) {
-    return res.status(400).json({ mensaje: 'No se enviaron imágenes' });
-  }
-  try {
-    const dir = path.join(__dirname, '..', 'uploads', id.toString());
+// Guardar imágenes para una orden usando multer
+const multer = require('multer');
+const storage = multer.diskStorage({
+  destination: async (req, file, cb) => {
+    const dir = path.join(__dirname, '..', 'uploads', 'ordenes', req.params.id);
     await fs.promises.mkdir(dir, { recursive: true });
-    await Promise.all(
-      imagenes.map((img, idx) => {
-        const match = img.match(/^data:image\/(\w+);base64,/);
-        const ext = match ? match[1] : 'png';
-        const base64Data = img.replace(/^data:image\/\w+;base64,/, '');
-        const filePath = path.join(dir, `${idx}.${ext}`);
-        return fs.promises.writeFile(filePath, base64Data, 'base64');
-      })
-    );
-    res.json({ mensaje: 'Imágenes guardadas correctamente' });
+    cb(null, dir);
+  },
+  filename: (req, file, cb) => {
+    const unique = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    cb(null, unique + path.extname(file.originalname));
+  }
+});
+const upload = multer({ storage });
+
+router.post('/:id/imagenes', upload.array('imagenes', 5), async (req, res) => {
+  const { id } = req.params;
+  try {
+    const rutas = req.files.map(f => `/ordenes-img/${id}/${f.filename}`);
+    await pool.query('UPDATE ordenes SET imagenes = ? WHERE id = ?', [JSON.stringify(rutas), id]);
+    res.json({ mensaje: 'Imágenes guardadas correctamente', rutas });
   } catch (error) {
     console.error('Error guardando imágenes:', error);
     res.status(500).json({ mensaje: 'Error al guardar imágenes' });
