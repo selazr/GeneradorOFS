@@ -29,7 +29,6 @@ const formatFecha = (fecha) => {
 router.post("/:id/pdf", async (req, res) => {
   const { id } = req.params;
   const { cliente } = req.query; // 📌 Detectar si es PDF para el cliente
-  const { imagenes } = req.body;
 
   try {
     // **Obtener datos de la orden desde MySQL**
@@ -46,7 +45,21 @@ router.post("/:id/pdf", async (req, res) => {
     // **Leer la plantilla HTML**
     let html = fs.readFileSync(plantillaPath, "utf8");
 
-    // **Convertir imágenes en HTML**
+    let imagenes = [];
+    if (orden.imagenes) {
+      try {
+        const rutas = JSON.parse(orden.imagenes);
+        imagenes = await Promise.all(
+          rutas.map(async (ruta) => {
+            const abs = path.join(__dirname, '..', ruta.replace('/ordenes-img/', 'uploads/ordenes/'));
+            const data = await fs.promises.readFile(abs);
+            const ext = path.extname(ruta).substring(1);
+            return `data:image/${ext};base64,${data.toString('base64')}`;
+          })
+        );
+      } catch (e) { console.error('Error leyendo imágenes', e); }
+    }
+
     let imagenGrande = imagenes.length > 0 ? `<img src="${imagenes[0]}" />` : "";
     let imagenesPequenas = imagenes.slice(1, 5).map(img => `<img src="${img}" />`).join("");
 

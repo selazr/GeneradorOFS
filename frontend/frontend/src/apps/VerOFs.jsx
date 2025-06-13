@@ -232,10 +232,8 @@ const VerOFs = () => {
       const response = await fetch(`http://localhost:3000/ordenes/${id}/pdf`, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ imagenes: [] }),
       });
       if (!response.ok) {
         const errorData = await response.json();
