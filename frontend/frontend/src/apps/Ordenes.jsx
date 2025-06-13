@@ -18,7 +18,7 @@ const Ordenes = () => {
   const [imagenes, setImagenes] = useState([]); // Archivos de imágenes
   const [showModal, setShowModal] = useState(false);
   const [layout, setLayout] = useState(1);
-  const [imagenesModal, setImagenesModal] = useState({ grande: null, pequenas: [null, null, null, null] });
+  const [imagenesModal, setImagenesModal] = useState({ grande: null, pequenas: Array(9).fill(null) });
   const [busqueda, setBusqueda] = useState("");
   const [loadingPDF, setLoadingPDF] = useState(false);
   const [mensajeModal, setMensajeModal] = useState("");
@@ -207,21 +207,20 @@ const Ordenes = () => {
     );
   };
 
-  const LayoutPreview = ({ n }) => {
-    const small = Array.from({ length: n - 1 });
-    return (
-      <div style={{ display: 'flex', width: '100%', height: '100%' }}>
-        <div style={{ flex: 1.2, border: '1px solid #ccc', marginRight: n > 1 ? 2 : 0 }}></div>
-        {n > 1 && (
-          <div style={{ flex: 1, display: 'flex', flexWrap: 'wrap', gap: 2 }}>
-            {small.map((_, i) => (
-              <div key={i} style={{ width: '48%', height: '48%', border: '1px solid #ccc' }}></div>
-            ))}
-          </div>
-        )}
-      </div>
-    );
-  };
+  const LayoutPreview = ({ n }) => (
+    <div
+      style={{
+        display: 'flex',
+        width: '100%',
+        height: '100%',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontWeight: 'bold',
+      }}
+    >
+      {n}
+    </div>
+  );
 
   const PDFLayoutPreview = ({ layout, imagenes }) => {
     const getImg = (img, placeholder) =>
@@ -235,42 +234,47 @@ const Ordenes = () => {
         <span style={{ color: '#aaa' }}>{placeholder}</span>
       );
 
+    const getGridStyle = (n) => {
+      if (n === 1) return { gridTemplateColumns: '1fr' };
+      if (n === 2) return { gridTemplateColumns: 'repeat(2,1fr)' };
+      if (n === 3) return { gridTemplateColumns: '2fr 1fr', gridTemplateRows: 'repeat(2,1fr)' };
+      if (n === 4) return { gridTemplateColumns: 'repeat(2,1fr)', gridTemplateRows: 'repeat(2,1fr)' };
+      if (n === 5) return { gridTemplateColumns: '2fr 1fr', gridTemplateRows: 'repeat(2,1fr)' };
+      if (n === 6) return { gridTemplateColumns: 'repeat(3,1fr)', gridTemplateRows: 'repeat(2,1fr)' };
+      if (n === 7 || n === 8) return { gridTemplateColumns: 'repeat(4,1fr)', gridTemplateRows: 'repeat(2,1fr)' };
+      return { gridTemplateColumns: 'repeat(5,1fr)', gridTemplateRows: 'repeat(2,1fr)' };
+    };
+
+    const imgs = [imagenes.grande, ...imagenes.pequenas].slice(0, layout);
+
     return (
       <div
         className="mb-3"
-        style={{ display: 'flex', border: '1px solid #ccc', borderRadius: 4, overflow: 'hidden', height: 200 }}
+        style={{
+          display: 'grid',
+          border: '1px solid #ccc',
+          borderRadius: 4,
+          overflow: 'hidden',
+          height: 200,
+          gap: 2,
+          ...getGridStyle(layout),
+        }}
       >
-        <div
-          style={{
-            flex: 1.2,
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            marginRight: layout > 1 ? 2 : 0,
-            backgroundColor: '#f8f9fa',
-          }}
-        >
-          {getImg(imagenes.grande?.preview, 'Imagen 1')}
-        </div>
-        {layout > 1 && (
-          <div style={{ flex: 1, display: 'flex', flexWrap: 'wrap', gap: 2 }}>
-            {Array.from({ length: layout - 1 }).map((_, i) => (
-              <div
-                key={i}
-                style={{
-                  width: '48%',
-                  height: '48%',
-                  backgroundColor: '#f8f9fa',
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}
-              >
-                {getImg(imagenes.pequenas[i]?.preview, `Imagen ${i + 2}`)}
-              </div>
-            ))}
+        {imgs.map((img, idx) => (
+          <div
+            key={idx}
+            style={{
+              backgroundColor: '#f8f9fa',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              ...(layout === 3 && idx === 0 ? { gridRow: 'span 2' } : {}),
+              ...(layout === 5 && idx === 0 ? { gridRow: 'span 2' } : {}),
+            }}
+          >
+            {getImg(img?.preview, `Imagen ${idx + 1}`)}
           </div>
-        )}
+        ))}
       </div>
     );
   };
@@ -356,7 +360,7 @@ const Ordenes = () => {
     setOrdenSeleccionada(null);
     setImagenes([]); // Limpiar imágenes
     setLayout(1);
-    setImagenesModal({ grande: null, pequenas: [null, null, null, null] });
+    setImagenesModal({ grande: null, pequenas: Array(9).fill(null) });
   };
   
   const handleDownloadPDF = async (id, cliente = false) => {
@@ -650,7 +654,7 @@ const Ordenes = () => {
   </Modal.Header>
   <Modal.Body>
     <div className="d-flex mb-3 justify-content-center gap-2">
-      {[1, 2, 3, 4, 5].map((n) => (
+      {[1,2,3,4,5,6,7,8,9,10].map((n) => (
         <div
           key={n}
           onClick={() => setLayout(n)}
