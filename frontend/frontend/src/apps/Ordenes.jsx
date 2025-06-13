@@ -222,6 +222,58 @@ const Ordenes = () => {
       </div>
     );
   };
+
+  const PDFLayoutPreview = ({ layout, imagenes }) => {
+    const getImg = (img, placeholder) =>
+      img ? (
+        <img
+          src={img}
+          alt="preview"
+          style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
+        />
+      ) : (
+        <span style={{ color: '#aaa' }}>{placeholder}</span>
+      );
+
+    return (
+      <div
+        className="mb-3"
+        style={{ display: 'flex', border: '1px solid #ccc', borderRadius: 4, overflow: 'hidden', height: 200 }}
+      >
+        <div
+          style={{
+            flex: 1.2,
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            marginRight: layout > 1 ? 2 : 0,
+            backgroundColor: '#f8f9fa',
+          }}
+        >
+          {getImg(imagenes.grande?.preview, 'Imagen 1')}
+        </div>
+        {layout > 1 && (
+          <div style={{ flex: 1, display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+            {Array.from({ length: layout - 1 }).map((_, i) => (
+              <div
+                key={i}
+                style={{
+                  width: '48%',
+                  height: '48%',
+                  backgroundColor: '#f8f9fa',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}
+              >
+                {getImg(imagenes.pequenas[i]?.preview, `Imagen ${i + 2}`)}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  };
   
   
   const handleSubmit = async (e) => {
@@ -598,16 +650,26 @@ const Ordenes = () => {
   </Modal.Header>
   <Modal.Body>
     <div className="d-flex mb-3 justify-content-center gap-2">
-      {[1,2,3,4,5].map((n) => (
+      {[1, 2, 3, 4, 5].map((n) => (
         <div
           key={n}
           onClick={() => setLayout(n)}
-          style={{width:40,height:40,backgroundColor:layout===n? '#6c757d':'#e9ecef',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',borderRadius:4}}
+          style={{
+            width: 40,
+            height: 40,
+            backgroundColor: layout === n ? '#6c757d' : '#e9ecef',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderRadius: 4,
+          }}
         >
           <LayoutPreview n={n} />
         </div>
       ))}
     </div>
+    <PDFLayoutPreview layout={layout} imagenes={imagenesModal} />
     {[0].map(() => (
       <div className="mb-3" key="grande">
         <strong>Imagen 1:</strong>
