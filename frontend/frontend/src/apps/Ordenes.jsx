@@ -207,15 +207,25 @@ const Ordenes = () => {
     );
   };
 
-  const LayoutPreview = ({ n }) => {
-    const small = Array.from({ length: n - 1 });
+
+  const LayoutDisplay = ({ layout, imagenes }) => {
+    const previewImgs = imagenes.filter(Boolean);
+    const small = previewImgs.slice(1, layout);
     return (
-      <div style={{ display: 'flex', width: '100%', height: '100%' }}>
-        <div style={{ flex: 1.2, border: '1px solid #ccc', marginRight: n > 1 ? 2 : 0 }}></div>
-        {n > 1 && (
-          <div style={{ flex: 1, display: 'flex', flexWrap: 'wrap', gap: 2 }}>
-            {small.map((_, i) => (
-              <div key={i} style={{ width: '48%', height: '48%', border: '1px solid #ccc' }}></div>
+      <div style={{ display: 'flex', border: '1px solid #ccc', borderRadius: 8, height: 200, padding: 5 }}>
+        <div style={{ flex: 1.2, marginRight: layout > 1 ? 5 : 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8f9fa', borderRadius: 6 }}>
+          {previewImgs[0] && (
+            <img src={previewImgs[0]} alt="prev" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+          )}
+        </div>
+        {layout > 1 && (
+          <div style={{ flex: 1.4, display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+            {Array.from({ length: layout - 1 }).map((_, i) => (
+              <div key={i} style={{ width: '48%', height: '48%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8f9fa', borderRadius: 5 }}>
+                {small[i] && (
+                  <img src={small[i]} alt="prev" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+                )}
+              </div>
             ))}
           </div>
         )}
@@ -597,16 +607,16 @@ const Ordenes = () => {
     <Modal.Title>Seleccionar Imágenes</Modal.Title>
   </Modal.Header>
   <Modal.Body>
-    <div className="d-flex mb-3 justify-content-center gap-2">
-      {[1,2,3,4,5].map((n) => (
-        <div
-          key={n}
-          onClick={() => setLayout(n)}
-          style={{width:40,height:40,backgroundColor:layout===n? '#6c757d':'#e9ecef',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',borderRadius:4}}
-        >
-          <LayoutPreview n={n} />
-        </div>
-      ))}
+    <div className="mb-3">
+      <label className="form-label">Cantidad de imágenes: {layout}</label>
+      <input
+        type="range"
+        min="1"
+        max="5"
+        className="form-range"
+        value={layout}
+        onChange={(e) => setLayout(parseInt(e.target.value))}
+      />
     </div>
     {[0].map(() => (
       <div className="mb-3" key="grande">
@@ -644,6 +654,16 @@ const Ordenes = () => {
         </div>
       </div>
     )}
+    <div className="mb-3">
+      <strong>Vista previa:</strong>
+      <LayoutDisplay
+        layout={layout}
+        imagenes={[
+          imagenesModal.grande?.preview,
+          ...imagenesModal.pequenas.map((p) => p?.preview)
+        ]}
+      />
+    </div>
   </Modal.Body>
   <Modal.Footer>
     <Button variant="secondary" onClick={() => setShowModal(false)}>Cerrar</Button>
