@@ -63,13 +63,44 @@ router.post("/:id/pdf", async (req, res) => {
       } catch (e) { console.error('Error leyendo imágenes', e); }
     }
 
-    let imagenGrande = imagenes.length > 0 ? `<img src="${imagenes[0]}" />` : "";
-    let imagenesPequenas = imagenes.slice(1, 5).map(img => `<img src="${img}" />`).join("");
+    let imagenGrande = "";
+    let imagenesPequenas = "";
     let estiloGrande = "";
     let estiloPequenas = "";
-    if (layoutSeleccionado === 1) {
-      estiloGrande = 'style="flex:1;width:100%"';
-      estiloPequenas = 'style="display:none"';
+
+    switch (layoutSeleccionado) {
+      case 1:
+        imagenGrande = imagenes[0] ? `<img src="${imagenes[0]}" />` : "";
+        estiloGrande = 'style="flex:1;width:100%"';
+        estiloPequenas = 'style="display:none"';
+        break;
+      case 2:
+        imagenGrande = imagenes[0] ? `<img src="${imagenes[0]}" style="width:100%;height:100%;object-fit:contain" />` : "";
+        imagenesPequenas = imagenes[1] ? `<img src="${imagenes[1]}" style="width:100%;height:100%;object-fit:contain" />` : "";
+        estiloGrande = 'style="flex:1;display:flex;justify-content:center;align-items:center;"';
+        estiloPequenas = 'style="flex:1;display:flex;justify-content:center;align-items:center;"';
+        break;
+      case 3:
+        imagenGrande = imagenes[0] ? `<img src="${imagenes[0]}" style="width:100%;height:100%;object-fit:contain" />` : "";
+        imagenesPequenas = [imagenes[1], imagenes[2]]
+          .map(img => img ? `<img src="${img}" style="width:100%;height:49%;object-fit:contain" />` : '<div style="width:100%;height:49%"></div>')
+          .join('');
+        estiloGrande = 'style="flex:2;display:flex;justify-content:center;align-items:center;margin-right:5px"';
+        estiloPequenas = 'style="flex:1;display:flex;flex-direction:column;gap:5px"';
+        break;
+      case 4:
+        imagenGrande = [imagenes[0], imagenes[1]]
+          .map(img => img ? `<img src="${img}" style="width:50%;height:50%;object-fit:contain" />` : '<div style="width:50%;height:50%"></div>')
+          .join('');
+        imagenesPequenas = [imagenes[2], imagenes[3]]
+          .map(img => img ? `<img src="${img}" style="width:50%;height:50%;object-fit:contain" />` : '<div style="width:50%;height:50%"></div>')
+          .join('');
+        estiloGrande = 'style="flex:1;display:flex;flex-wrap:wrap"';
+        estiloPequenas = 'style="flex:1;display:flex;flex-wrap:wrap"';
+        break;
+      default:
+        imagenGrande = imagenes[0] ? `<img src="${imagenes[0]}" />` : "";
+        imagenesPequenas = imagenes.slice(1, 5).map(img => `<img src="${img}" />`).join('');
     }
 
     // **Reemplazar variables en la plantilla**
