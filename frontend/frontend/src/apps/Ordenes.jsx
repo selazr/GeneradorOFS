@@ -522,6 +522,30 @@ const Ordenes = () => {
                   }
                   setOrdenSeleccionada(orden);
                   setForm(editableCopy);
+                  if (orden.imagenes) {
+                    try {
+                      const imgData = JSON.parse(orden.imagenes);
+                      setLayout(imgData.layout || 1);
+                      const rutas = imgData.rutas || [];
+                      setImagenesModal({
+                        grande: rutas[0]
+                          ? { file: null, preview: `http://localhost:3000${rutas[0]}` }
+                          : null,
+                        pequenas: [1, 2, 3, 4].map((idx) =>
+                          rutas[idx + 1]
+                            ? { file: null, preview: `http://localhost:3000${rutas[idx + 1]}` }
+                            : null
+                        ),
+                      });
+                    } catch (e) {
+                      console.error('Error parsing imágenes', e);
+                      setLayout(1);
+                      setImagenesModal({ grande: null, pequenas: [null, null, null, null] });
+                    }
+                  } else {
+                    setLayout(1);
+                    setImagenesModal({ grande: null, pequenas: [null, null, null, null] });
+                  }
                 }}
               >
                 <FileText size={16} className="me-2" /> {orden.figura}
@@ -630,6 +654,13 @@ const Ordenes = () => {
                   </div>
                 ))}
               </div>
+
+              {(imagenesModal.grande?.preview || imagenesModal.pequenas.some(p => p?.preview)) && (
+                <>
+                  <h6 className="section-title">Imágenes guardadas</h6>
+                  <PDFLayoutPreview layout={layout} imagenes={imagenesModal} />
+                </>
+              )}
 
               <div className="d-flex justify-content-center mt-3 flex-wrap">
                 <button className="btn btn-success me-2" type="submit">
@@ -748,6 +779,14 @@ const Ordenes = () => {
           data.append('layout', layout);
           axios
             .post(`http://localhost:3000/ordenes/${ordenSeleccionada.id}/imagenes`, data)
+            .then(res => {
+              const rutas = res.data.rutas || [];
+              setImagenesModal({
+                grande: rutas[0] ? { file: null, preview: `http://localhost:3000${rutas[0]}` } : null,
+                pequenas: [1,2,3,4].map(i => rutas[i] ? { file: null, preview: `http://localhost:3000${rutas[i]}` } : null)
+              });
+              setOrdenSeleccionada({ ...ordenSeleccionada, imagenes: JSON.stringify({ layout, rutas }) });
+            })
             .catch((err) => console.error('Error guardando imágenes', err));
         }
         setShowModal(false);
