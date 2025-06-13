@@ -23,6 +23,8 @@ const Ordenes = () => {
   const [loadingPDF, setLoadingPDF] = useState(false);
   const [mensajeModal, setMensajeModal] = useState("");
   const [mostrarMensaje, setMostrarMensaje] = useState(false);
+  const [pdfPreviewUrl, setPdfPreviewUrl] = useState(null);
+  const [showPDFModal, setShowPDFModal] = useState(false);
 
   const mostrarModalTemporal = (msg) => {
     setMensajeModal(msg);
@@ -158,6 +160,14 @@ const Ordenes = () => {
   useEffect(() => {
     fetchOrdenesTree();
   }, []);
+
+  useEffect(() => {
+    if (ordenSeleccionada) {
+      handlePreviewPDF(ordenSeleccionada.id);
+    } else {
+      setPdfPreviewUrl(null);
+    }
+  }, [ordenSeleccionada]);
 
   const expandirVista = (clienteId, proyectoId, ordenId) => {
     setTimeout(() => {
@@ -369,6 +379,29 @@ const Ordenes = () => {
     setImagenes([]); // Limpiar imágenes
     setLayout(1);
     setImagenesModal({ grande: null, pequenas: [null, null, null, null] });
+  };
+
+  const handlePreviewPDF = async (id) => {
+    if (!id || !token) return;
+    try {
+      const response = await fetch(`http://localhost:3000/ordenes/${id}/pdf`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.mensaje || "Error al generar el PDF");
+      }
+
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      setPdfPreviewUrl(url);
+    } catch (error) {
+      console.error("Error al obtener vista previa del PDF:", error);
+    }
   };
   
   const handleDownloadPDF = async (id, cliente = false) => {
@@ -641,10 +674,21 @@ const Ordenes = () => {
                 ))}
               </div>
 
-              {(imagenesModal.grande?.preview || imagenesModal.pequenas.some(p => p?.preview)) && (
+              {pdfPreviewUrl && (
                 <>
-                  <h6 className="section-title">Imágenes guardadas</h6>
-                  <PDFLayoutPreview layout={layout} imagenes={imagenesModal} />
+                  <h6 className="section-title">Vista previa del PDF</h6>
+                  <img
+                    src={pdfPreviewUrl}
+                    alt="PDF preview"
+                    className="img-thumbnail"
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => setShowPDFModal(true)}
+                  />
+                  <Modal show={showPDFModal} onHide={() => setShowPDFModal(false)} size="lg">
+                    <Modal.Body>
+                      <embed src={pdfPreviewUrl} type="application/pdf" width="100%" height="600px" />
+                    </Modal.Body>
+                  </Modal>
                 </>
               )}
 
