@@ -17,6 +17,7 @@ const Ordenes = () => {
   const token = localStorage.getItem("token");
   const [imagenes, setImagenes] = useState([]); // Estado para almacenar imágenes en Base64
   const [showModal, setShowModal] = useState(false);
+  const [layoutSeleccion, setLayoutSeleccion] = useState(null); // número de imágenes
   const [imagenesModal, setImagenesModal] = useState({ grande: null, pequenas: [null, null, null, null] });
   const [busqueda, setBusqueda] = useState("");
   const [loadingPDF, setLoadingPDF] = useState(false);
@@ -216,6 +217,11 @@ const Ordenes = () => {
         });
         mostrarModalTemporal("Orden actualizada con éxito");
         setOrdenSeleccionada({ ...ordenSeleccionada, ...form });
+        if (imagenes.length > 0) {
+          await axios
+            .post(`http://localhost:3000/ordenes/${ordenSeleccionada.id}/imagenes`, { imagenes })
+            .catch((err) => console.error('Error guardando imágenes', err));
+        }
       } else {
         const { data } = await axios.post("http://localhost:3000/ordenes", form, {
           headers: { Authorization: `Bearer ${token}` },
@@ -224,6 +230,11 @@ const Ordenes = () => {
         setOrdenes([...ordenes, { ...form, id: data.orden_id }]);
         await fetchOrdenesTree();
         expandirVista(data.cliente_id, data.proyecto_id, data.orden_id);
+        if (imagenes.length > 0) {
+          await axios
+            .post(`http://localhost:3000/ordenes/${data.orden_id}/imagenes`, { imagenes })
+            .catch((err) => console.error('Error guardando imágenes', err));
+        }
       }
       if (ordenSeleccionada) {
         await fetchOrdenesTree();
@@ -286,6 +297,8 @@ const Ordenes = () => {
     });
     setOrdenSeleccionada(null);
     setImagenes([]); // Limpiar imágenes
+    setLayoutSeleccion(null);
+    setImagenesModal({ grande: null, pequenas: [null, null, null, null] });
   };
   
   const handleDownloadPDF = async (id, cliente = false) => {
@@ -540,6 +553,9 @@ const Ordenes = () => {
                 <button className="btn btn-success me-2" type="submit">
                   {ordenSeleccionada ? "Actualizar" : "Crear"}
                 </button>
+                <Button className="btn btn-secondary me-2" onClick={() => { setLayoutSeleccion(null); setShowModal(true); }}>
+                  Añadir imágenes
+                </Button>
                 {ordenSeleccionada && (
                   <>
                     <button
@@ -549,9 +565,6 @@ const Ordenes = () => {
                     >
                       Eliminar
                     </button>
-                    <Button className="btn btn-secondary me-2" onClick={() => setShowModal(true)}>
-                      Añadir imágenes
-                    </Button>
                     <button
                       className="btn btn-primary me-2"
                       type="button"
@@ -575,59 +588,75 @@ const Ordenes = () => {
                 )}
               </div>
             </form>
-              <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
+              <Modal show={showModal} onHide={() => { setShowModal(false); setLayoutSeleccion(null); }} size="lg">
   <Modal.Header closeButton>
     <Modal.Title>Seleccionar Imágenes</Modal.Title>
   </Modal.Header>
   <Modal.Body>
-    <div className="mb-3">
-      <strong>Imagen Grande:</strong>
-      <ImagenDropzone
-        label="Arrastra aquí la imagen grande"
-        index="grande"
-        preview={imagenesModal.grande}
-        onDrop={(key, file) => {
-          const reader = new FileReader();
-          reader.onload = () =>
-            setImagenesModal((prev) => ({ ...prev, grande: reader.result }));
-          reader.readAsDataURL(file);
-        }}
-      />
-
-    </div>
-
-    <div className="mb-3">
-      <strong>Imágenes Pequeñas:</strong>
-      <div className="row">
-        {[0, 1, 2, 3].map((i) => (
-          <div className="col-md-3 mb-2" key={i}>
-        <ImagenDropzone
-          label={`Imagen ${i + 1}`}
-          index={i}
-          preview={imagenesModal.pequenas[i]}
-          onDrop={(index, file) => {
-            const reader = new FileReader();
-            reader.onload = () => {
-              setImagenesModal((prev) => {
-                const nuevas = [...prev.pequenas];
-                nuevas[index] = reader.result;
-                return { ...prev, pequenas: nuevas };
-              });
-            };
-            reader.readAsDataURL(file);
-          }}
-        />
+    {!layoutSeleccion ? (
+      <div className="d-flex justify-content-between mb-3">
+        {[1,2,3,4,5].map((n) => (
+          <div
+            key={n}
+            onClick={() => setLayoutSeleccion(n)}
+            style={{ width: 60, height: 60, backgroundColor: '#e9ecef', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          >
+            {n}
           </div>
         ))}
       </div>
-    </div>
+    ) : (
+      <>
+        <div className="mb-3">
+          <strong>Imagen Grande:</strong>
+          <ImagenDropzone
+            label="Arrastra aquí la imagen grande"
+            index="grande"
+            preview={imagenesModal.grande}
+            onDrop={(key, file) => {
+              const reader = new FileReader();
+              reader.onload = () =>
+                setImagenesModal((prev) => ({ ...prev, grande: reader.result }));
+              reader.readAsDataURL(file);
+            }}
+          />
+
+        </div>
+
+        <div className="mb-3">
+          <strong>Imágenes Pequeñas:</strong>
+          <div className="row">
+            {Array.from({ length: layoutSeleccion - 1 }, (_, i) => i).map((i) => (
+              <div className="col-md-3 mb-2" key={i}>
+                <ImagenDropzone
+                  label={`Imagen ${i + 1}`}
+                  index={i}
+                  preview={imagenesModal.pequenas[i]}
+                  onDrop={(index, file) => {
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                      setImagenesModal((prev) => {
+                        const nuevas = [...prev.pequenas];
+                        nuevas[index] = reader.result;
+                        return { ...prev, pequenas: nuevas };
+                      });
+                    };
+                    reader.readAsDataURL(file);
+                  }}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      </>
+    )}
   </Modal.Body>
   <Modal.Footer>
-    <Button variant="secondary" onClick={() => setShowModal(false)}>Cerrar</Button>
+    <Button variant="secondary" onClick={() => { setShowModal(false); setLayoutSeleccion(null); }}>Cerrar</Button>
     <Button
       variant="primary"
       onClick={() => {
-        const todas = [imagenesModal.grande, ...imagenesModal.pequenas.filter(Boolean)];
+        const todas = [imagenesModal.grande, ...imagenesModal.pequenas.slice(0, layoutSeleccion ? layoutSeleccion - 1 : 4).filter(Boolean)];
         setImagenes(todas);
         if (ordenSeleccionada) {
           axios
@@ -635,6 +664,7 @@ const Ordenes = () => {
             .catch((err) => console.error('Error guardando imágenes', err));
         }
         setShowModal(false);
+        setLayoutSeleccion(null);
       }}
     >
       Usar estas imágenes
