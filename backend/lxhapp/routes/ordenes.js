@@ -254,15 +254,13 @@ router.post('/:id/imagenes', async (req, res) => {
     return res.status(400).json({ mensaje: 'No se enviaron imágenes' });
   }
   try {
-    const dir = path.join(__dirname, '..', 'uploads', id.toString());
-    await fs.promises.mkdir(dir, { recursive: true });
     await Promise.all(
       imagenes.map((img, idx) => {
-        const match = img.match(/^data:image\/(\w+);base64,/);
-        const ext = match ? match[1] : 'png';
         const base64Data = img.replace(/^data:image\/\w+;base64,/, '');
-        const filePath = path.join(dir, `${idx}.${ext}`);
-        return fs.promises.writeFile(filePath, base64Data, 'base64');
+        return pool.query(
+          'INSERT INTO orden_imagenes (orden_id, posicion, imagen) VALUES (?, ?, ?)',
+          [id, idx, base64Data]
+        );
       })
     );
     res.json({ mensaje: 'Imágenes guardadas correctamente' });
