@@ -263,9 +263,30 @@ const upload = multer({ storage });
 
 router.post('/:id/imagenes', upload.array('imagenes', 5), async (req, res) => {
   const { id } = req.params;
-  const layout = parseInt(req.body.layout) || req.files.length || 1;
+  let layout = parseInt(req.body.layout) || req.files.length || 1;
   try {
-    const rutas = req.files.map(f => `/ordenes-img/${id}/${f.filename}`);
+    const existentes = req.body.existing ? JSON.parse(req.body.existing) : [];
+
+    const rutas = [];
+    let fileIdx = 0;
+
+    for (let i = 0; i < layout; i++) {
+      const prev = existentes[i];
+      if (typeof prev === 'string' && prev) {
+        rutas.push(prev);
+      } else if (req.files[fileIdx]) {
+        rutas.push(`/ordenes-img/${id}/${req.files[fileIdx].filename}`);
+        fileIdx++;
+      }
+    }
+
+    // agregar cualquier archivo restante
+    while (fileIdx < req.files.length) {
+      rutas.push(`/ordenes-img/${id}/${req.files[fileIdx].filename}`);
+      fileIdx++;
+    }
+
+    layout = rutas.length || layout;
     const payload = { layout, rutas };
     await pool.query('UPDATE ordenes SET imagenes = ? WHERE id = ?', [JSON.stringify(payload), id]);
     res.json({ mensaje: 'Imágenes guardadas correctamente', rutas });

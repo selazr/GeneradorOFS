@@ -770,13 +770,36 @@ const Ordenes = () => {
       variant="primary"
       onClick={() => {
         const archivos = [];
-        if (imagenesModal.grande?.file) archivos.push(imagenesModal.grande.file);
-        imagenesModal.pequenas.slice(0, layout-1).forEach((img) => { if(img?.file) archivos.push(img.file); });
+        const rutasExistentes = [];
+
+        if (imagenesModal.grande?.file) {
+          archivos.push(imagenesModal.grande.file);
+          rutasExistentes.push(null);
+        } else if (imagenesModal.grande?.preview) {
+          rutasExistentes.push(imagenesModal.grande.preview.replace('http://localhost:3000', ''));
+        } else {
+          rutasExistentes.push(null);
+        }
+
+        imagenesModal.pequenas.slice(0, layout-1).forEach((img) => {
+          if (img?.file) {
+            archivos.push(img.file);
+            rutasExistentes.push(null);
+          } else if (img?.preview) {
+            rutasExistentes.push(img.preview.replace('http://localhost:3000', ''));
+          } else {
+            rutasExistentes.push(null);
+          }
+        });
+
         setImagenes(archivos);
-        if (ordenSeleccionada && archivos.length){
+
+        if (ordenSeleccionada && rutasExistentes.length){
           const data = new FormData();
           archivos.forEach(f => data.append('imagenes', f));
           data.append('layout', layout);
+          data.append('existing', JSON.stringify(rutasExistentes));
+
           axios
             .post(`http://localhost:3000/ordenes/${ordenSeleccionada.id}/imagenes`, data)
             .then(res => {
