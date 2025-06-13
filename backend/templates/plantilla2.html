@@ -22,37 +22,37 @@
     }
 
     .imagenes-container {
-      display: flex;
+      display: grid;
       height: 620px; /* altura fija controlada */
+      gap: 5px;
     }
 
-
-    .imagen-grande {
-      flex: 1.2;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      overflow: hidden;
-    }
-
-    .imagen-grande img {
+    .imagenes-container img {
       width: 100%;
       height: 100%;
       object-fit: contain;
+      background: white;
+      border-radius: 5px;
     }
 
-    .imagenes-pequenas {
-      flex: 1.2;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
+    .layout-1 { grid-template-columns: 1fr; }
+    .layout-2 { grid-template-columns: repeat(2, 1fr); }
+    .layout-3 {
+      grid-template-columns: 2fr 1fr;
+      grid-template-rows: repeat(2, 1fr);
     }
-
-    .imagenes-pequenas img {
-      width: 49%;
-      height: 49%;
-      object-fit: contain;
+    .layout-3 img:first-child { grid-row: span 2; }
+    .layout-4 { grid-template-columns: repeat(2,1fr); grid-template-rows: repeat(2,1fr); }
+    .layout-5 {
+      grid-template-columns: 2fr 1fr;
+      grid-template-rows: repeat(2,1fr);
     }
+    .layout-5 img:first-child { grid-row: span 2; }
+    .layout-6 { grid-template-columns: repeat(3,1fr); grid-template-rows: repeat(2,1fr); }
+    .layout-7 { grid-template-columns: repeat(4,1fr); grid-template-rows: repeat(2,1fr); }
+    .layout-8 { grid-template-columns: repeat(4,1fr); grid-template-rows: repeat(2,1fr); }
+    .layout-9 { grid-template-columns: repeat(5,1fr); grid-template-rows: repeat(2,1fr); }
+    .layout-10 { grid-template-columns: repeat(5,1fr); grid-template-rows: repeat(2,1fr); }
 
     .footer {
       display: flex;
@@ -121,13 +121,8 @@
 </head>
 <body>
 
-  <div class="imagenes-container">
-    <div class="imagen-grande" {{STYLE_GRANDE}}>
-      {{IMAGEN_GRANDE}}
-    </div>
-    <div class="imagenes-pequenas" {{STYLE_PEQ}}>
-      {{IMAGENES_PEQ}}
-    </div>
+  <div class="imagenes-container {{LAYOUT_CLASS}}">
+    {{IMAGENES_GRID}}
   </div>
 
   <div class="footer">
