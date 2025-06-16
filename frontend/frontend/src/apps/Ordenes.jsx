@@ -15,10 +15,10 @@ const Ordenes = () => {
   const [ordenes, setOrdenes] = useState([]);
   const [ordenSeleccionada, setOrdenSeleccionada] = useState(null);
   const token = localStorage.getItem("token");
-  const [imagenes, setImagenes] = useState([]); // Archivos de imágenes
   const [showModal, setShowModal] = useState(false);
-  const [layout, setLayout] = useState(1);
-  const [imagenesModal, setImagenesModal] = useState({ grande: null, pequenas: [null, null, null, null] });
+  const [imagenesModal, setImagenesModal] = useState([null, null, null, null, null]);
+  const [cargandoImagenes, setCargandoImagenes] = useState(false);
+  const [errorImagenes, setErrorImagenes] = useState(null);
   const [busqueda, setBusqueda] = useState("");
   const [loadingPDF, setLoadingPDF] = useState(false);
   const [mensajeModal, setMensajeModal] = useState("");
@@ -219,86 +219,6 @@ const Ordenes = () => {
     );
   };
 
-
-  const PDFLayoutPreview = ({ layout, imagenes }) => {
-    const getImg = (img, placeholder) =>
-      img ? (
-        <img
-          src={img}
-          alt="preview"
-          style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
-        />
-      ) : (
-        <span style={{ color: '#aaa' }}>{placeholder}</span>
-      );
-
-    const imgPeq = (i, ph) => (
-      <div
-        key={i}
-        style={{
-          backgroundColor: '#f8f9fa',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          width: '100%',
-          height: '100%',
-        }}
-      >
-        {getImg(imagenes.pequenas[i]?.preview, ph)}
-      </div>
-    );
-
-    switch (layout) {
-      case 1:
-        return (
-          <div className="mb-3" style={{ display: 'flex', border: '1px solid #ccc', borderRadius: 4, overflow: 'hidden', height: 200 }}>
-            <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: '#f8f9fa' }}>
-              {getImg(imagenes.grande?.preview, 'Imagen 1')}
-            </div>
-          </div>
-        );
-      case 2:
-        return (
-          <div className="mb-3" style={{ display: 'flex', border: '1px solid #ccc', borderRadius: 4, overflow: 'hidden', height: 200 }}>
-            <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: '#f8f9fa' }}>
-              {getImg(imagenes.grande?.preview, 'Imagen 1')}
-            </div>
-            <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: '#f8f9fa' }}>
-              {getImg(imagenes.pequenas[0]?.preview, 'Imagen 2')}
-            </div>
-          </div>
-        );
-      case 3:
-        return (
-          <div className="mb-3" style={{ display: 'flex', border: '1px solid #ccc', borderRadius: 4, overflow: 'hidden', height: 200 }}>
-            <div style={{ flex: 2, display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: '#f8f9fa' }}>
-              {getImg(imagenes.grande?.preview, 'Imagen 1')}
-            </div>
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-              <div style={{ flex: 1, backgroundColor: '#f8f9fa', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                {getImg(imagenes.pequenas[0]?.preview, 'Imagen 2')}
-              </div>
-              <div style={{ flex: 1, backgroundColor: '#f8f9fa', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                {getImg(imagenes.pequenas[1]?.preview, 'Imagen 3')}
-              </div>
-            </div>
-          </div>
-        );
-      case 4:
-        return (
-          <div className="mb-3" style={{ display: 'flex', flexWrap: 'wrap', border: '1px solid #ccc', borderRadius: 4, overflow: 'hidden', height: 200 }}>
-            {[imagenes.grande?.preview, imagenes.pequenas[0]?.preview, imagenes.pequenas[1]?.preview, imagenes.pequenas[2]?.preview].map((src, i) => (
-              <div key={i} style={{ flex: '0 0 50%', display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: '#f8f9fa' }}>
-                {getImg(src, `Imagen ${i + 1}`)}
-              </div>
-            ))}
-          </div>
-        );
-      default:
-        return null;
-    }
-  };
-  
   
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -378,9 +298,7 @@ const Ordenes = () => {
       notas: ""
     });
     setOrdenSeleccionada(null);
-    setImagenes([]); // Limpiar imágenes
-    setLayout(1);
-    setImagenesModal({ grande: null, pequenas: [null, null, null, null] });
+    setImagenesModal([null, null, null, null, null]);
   };
 
   const handlePreviewPDF = async (id) => {
@@ -442,6 +360,45 @@ const Ordenes = () => {
       setLoadingPDF(false);
     }
 
+  };
+
+  const handleSaveImages = async () => {
+    if (!ordenSeleccionada) return;
+    setCargandoImagenes(true);
+    setErrorImagenes(null);
+    try {
+      const data = new FormData();
+      imagenesModal.forEach((img, idx) => {
+        if (img?.file) {
+          data.append('imagenes', img.file);
+          data.append('posiciones', idx + 1);
+        }
+      });
+      const res = await axios.post(
+        `http://localhost:3000/ordenes/${ordenSeleccionada.id}/imagenes`,
+        data,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      const nuevas = res.data.imagenes || [];
+      const arr = Array(5).fill(null);
+      nuevas.forEach((img) => {
+        if (img.posicion >= 1 && img.posicion <= 5) {
+          arr[img.posicion - 1] = {
+            file: null,
+            preview: `http://localhost:3000${img.ruta}`,
+          };
+        }
+      });
+      setImagenesModal(arr);
+      setOrdenSeleccionada({ ...ordenSeleccionada, imagenes: nuevas });
+      mostrarModalTemporal('Imágenes guardadas correctamente');
+    } catch (err) {
+      console.error('Error guardando imágenes', err);
+      setErrorImagenes('Error al guardar imágenes');
+    } finally {
+      setCargandoImagenes(false);
+      setShowModal(false);
+    }
   };
   return (
 
@@ -543,29 +500,19 @@ const Ordenes = () => {
                   }
                   setOrdenSeleccionada(orden);
                   setForm(editableCopy);
-                  if (orden.imagenes) {
-                    try {
-                      const imgData = JSON.parse(orden.imagenes);
-                      setLayout(imgData.layout || 1);
-                      const rutas = imgData.rutas || [];
-                      setImagenesModal({
-                        grande: rutas[0]
-                          ? { file: null, preview: `http://localhost:3000${rutas[0]}` }
-                          : null,
-                        pequenas: [1, 2, 3, 4].map((idx) =>
-                          rutas[idx + 1]
-                            ? { file: null, preview: `http://localhost:3000${rutas[idx + 1]}` }
-                            : null
-                        ),
-                      });
-                    } catch (e) {
-                      console.error('Error parsing imágenes', e);
-                      setLayout(1);
-                      setImagenesModal({ grande: null, pequenas: [null, null, null, null] });
-                    }
+                  if (orden.imagenes && Array.isArray(orden.imagenes)) {
+                    const imgs = Array(5).fill(null);
+                    orden.imagenes.forEach((img) => {
+                      if (img.posicion >= 1 && img.posicion <= 5) {
+                        imgs[img.posicion - 1] = {
+                          file: null,
+                          preview: `http://localhost:3000${img.ruta}`,
+                        };
+                      }
+                    });
+                    setImagenesModal(imgs);
                   } else {
-                    setLayout(1);
-                    setImagenesModal({ grande: null, pequenas: [null, null, null, null] });
+                    setImagenesModal([null, null, null, null, null]);
                   }
                 }}
               >
@@ -738,118 +685,36 @@ const Ordenes = () => {
     <Modal.Title>Seleccionar Imágenes</Modal.Title>
   </Modal.Header>
   <Modal.Body>
-    <div className="d-flex mb-3 justify-content-center gap-2">
-      {[1, 2, 3, 4].map((n) => (
-        <div
-          key={n}
-          onClick={() => setLayout(n)}
-          style={{
-            width: 40,
-            height: 40,
-            backgroundColor: layout === n ? '#6c757d' : '#e9ecef',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            borderRadius: 4,
-          }}
-        >
-          {n}
+    <div className="row">
+      {imagenesModal.map((img, i) => (
+        <div className="col-md-4 mb-3" key={i}>
+          <ImagenDropzone
+            label={`Imagen ${i + 1}`}
+            index={i}
+            preview={img?.preview}
+            onDrop={(idx, file) => {
+              setImagenesModal((prev) => {
+                const copia = [...prev];
+                copia[idx] = { file, preview: URL.createObjectURL(file) };
+                return copia;
+              });
+            }}
+          />
         </div>
       ))}
     </div>
-    <PDFLayoutPreview layout={layout} imagenes={imagenesModal} />
-    {[0].map(() => (
-      <div className="mb-3" key="grande">
-        <strong>Imagen 1:</strong>
-        <ImagenDropzone
-          label="Arrastra aquí la imagen"
-          index={0}
-          preview={imagenesModal.grande?.preview}
-          onDrop={(key, file) => {
-            setImagenesModal((prev) => ({ ...prev, grande: {file, preview: URL.createObjectURL(file)} }));
-          }}
-        />
-      </div>
-    ))}
-    {layout > 1 && (
-      <div className="mb-3">
-        <strong>Imágenes Adicionales:</strong>
-        <div className="row">
-          {Array.from({length: layout-1}).map((_, i) => (
-            <div className="col-md-3 mb-2" key={i}>
-              <ImagenDropzone
-                label={`Imagen ${i + 2}`}
-                index={i}
-                preview={imagenesModal.pequenas[i]?.preview}
-                onDrop={(index, file) => {
-                  setImagenesModal((prev) => {
-                    const nuevas = [...prev.pequenas];
-                    nuevas[index] = {file, preview: URL.createObjectURL(file)};
-                    return { ...prev, pequenas: nuevas };
-                  });
-                }}
-              />
-            </div>
-          ))}
-        </div>
-      </div>
+    {errorImagenes && (
+      <div className="text-danger text-center">{errorImagenes}</div>
     )}
   </Modal.Body>
   <Modal.Footer>
     <Button variant="secondary" onClick={() => setShowModal(false)}>Cerrar</Button>
     <Button
       variant="primary"
-      onClick={() => {
-        const archivos = [];
-        const rutasExistentes = [];
-
-        if (imagenesModal.grande?.file) {
-          archivos.push(imagenesModal.grande.file);
-          rutasExistentes.push(null);
-        } else if (imagenesModal.grande?.preview) {
-          rutasExistentes.push(imagenesModal.grande.preview.replace('http://localhost:3000', ''));
-        } else {
-          rutasExistentes.push(null);
-        }
-
-        imagenesModal.pequenas.slice(0, layout-1).forEach((img) => {
-          if (img?.file) {
-            archivos.push(img.file);
-            rutasExistentes.push(null);
-          } else if (img?.preview) {
-            rutasExistentes.push(img.preview.replace('http://localhost:3000', ''));
-          } else {
-            rutasExistentes.push(null);
-          }
-        });
-
-        setImagenes(archivos);
-
-        if (ordenSeleccionada && rutasExistentes.length){
-          const data = new FormData();
-          archivos.forEach(f => data.append('imagenes', f));
-          data.append('layout', layout);
-          data.append('existing', JSON.stringify(rutasExistentes));
-
-          axios
-            .post(`http://localhost:3000/ordenes/${ordenSeleccionada.id}/imagenes`, data)
-            .then(res => {
-              const rutas = res.data.rutas || [];
-              const nuevoLayout = rutas.length;
-              setImagenesModal({
-                grande: rutas[0] ? { file: null, preview: `http://localhost:3000${rutas[0]}` } : null,
-                pequenas: [1,2,3,4].map(i => rutas[i] ? { file: null, preview: `http://localhost:3000${rutas[i]}` } : null)
-              });
-              setLayout(nuevoLayout);
-              setOrdenSeleccionada({ ...ordenSeleccionada, imagenes: JSON.stringify({ layout: nuevoLayout, rutas }) });
-            })
-            .catch((err) => console.error('Error guardando imágenes', err));
-        }
-        setShowModal(false);
-      }}
+      onClick={handleSaveImages}
+      disabled={cargandoImagenes}
     >
-      Usar estas imágenes
+      {cargandoImagenes ? <Spinner size="sm" animation="border" /> : 'Guardar'}
     </Button>
   </Modal.Footer>
 </Modal>
