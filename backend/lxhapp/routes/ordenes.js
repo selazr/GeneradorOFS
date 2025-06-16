@@ -76,15 +76,15 @@ router.post('/', verificarToken, async (req, res) => {
           material, acabado, cantidad, fecha_inicio, fecha_fin, revisado,
           fabric_pieza, post_mec, pegar_lijar, esculpir,
           line_x, fibra, mortero, aparejo, pintura, estructura,
-          peso, notas, imagenes, cliente_id, proyecto_id
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          peso, notas, cliente_id, proyecto_id
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           usuario_id, nombre_cliente, nombre_proyecto, codigo_proyecto, responsable, figura,
           medida_v, medida_w, medida_h, unidad_medida,
           material, acabado, cantidad, fecha_inicio, fecha_fin, revisado,
           fabric_pieza, post_mec, pegar_lijar, esculpir,
           line_x, fibra, mortero, aparejo, pintura, estructura,
-          peso, notas, null, cliente_id, proyecto_id
+          peso, notas, cliente_id, proyecto_id
         ]
       );
   
@@ -166,6 +166,16 @@ router.get('/', verificarToken, async (req, res) => {
 
     try {
         const [ordenes] = await pool.query('SELECT * FROM ordenes WHERE usuario_id = ?', [usuario_id]);
+
+        for (const orden of ordenes) {
+            const [imgs] = await pool.query(
+                'SELECT ruta FROM imagenes WHERE orden_id = ? ORDER BY posicion',
+                [orden.id]
+            );
+            const rutas = imgs.map(img => img.ruta);
+            orden.imagenes = JSON.stringify({ layout: rutas.length, rutas });
+        }
+
         res.json(ordenes);
     } catch (error) {
         console.error(error);
@@ -198,11 +208,20 @@ router.get('/detalle', verificarToken, async (req, res) => {
 
     try {
         const [ordenes] = await pool.query(
-            `SELECT * FROM ordenes 
+            `SELECT * FROM ordenes
             WHERE usuario_id = ?
             ORDER BY fecha_inicio DESC`, // Ordenado por fecha más reciente
             [usuario_id]
         );
+        for (const orden of ordenes) {
+            const [imgs] = await pool.query(
+                'SELECT ruta FROM imagenes WHERE orden_id = ? ORDER BY posicion',
+                [orden.id]
+            );
+            const rutas = imgs.map(img => img.ruta);
+            orden.imagenes = JSON.stringify({ layout: rutas.length, rutas });
+        }
+
         res.json(ordenes);
     } catch (error) {
         console.error("Error al obtener los detalles de las órdenes:", error);
@@ -219,6 +238,16 @@ router.get('/all', verificarToken, async (req, res) => {
              JOIN usuarios u ON o.usuario_id = u.id
              ORDER BY o.fecha_inicio DESC`
         );
+
+        for (const orden of ordenes) {
+            const [imgs] = await pool.query(
+                'SELECT ruta FROM imagenes WHERE orden_id = ? ORDER BY posicion',
+                [orden.id]
+            );
+            const rutas = imgs.map(img => img.ruta);
+            orden.imagenes = JSON.stringify({ layout: rutas.length, rutas });
+        }
+
         res.json(ordenes);
     } catch (error) {
         console.error("Error al obtener todas las órdenes:", error);
@@ -303,8 +332,15 @@ router.post('/:id/imagenes', upload.array('imagenes', 5), async (req, res) => {
     }
 
     layout = rutas.length || layout;
-    const payload = { layout, rutas };
-    await pool.query('UPDATE ordenes SET imagenes = ? WHERE id = ?', [JSON.stringify(payload), id]);
+
+    await pool.query('DELETE FROM imagenes WHERE orden_id = ?', [id]);
+    for (let i = 0; i < rutas.length; i++) {
+      await pool.query(
+        'INSERT INTO imagenes (orden_id, posicion, ruta) VALUES (?, ?, ?)',
+        [id, i + 1, rutas[i]]
+      );
+    }
+
     res.json({ mensaje: 'Imágenes guardadas correctamente', rutas });
   } catch (error) {
     console.error('Error guardando imágenes:', error);

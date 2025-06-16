@@ -22,6 +22,16 @@ const getOrdenesTree = async (req, res) => {
               'SELECT * FROM ordenes WHERE proyecto_id = ? AND usuario_id = ?',
               [proyecto.id, usuario_id]
             );
+
+            for (const orden of ordenes) {
+              const [imgs] = await pool.query(
+                'SELECT ruta FROM imagenes WHERE orden_id = ? ORDER BY posicion',
+                [orden.id]
+              );
+              const rutas = imgs.map((img) => img.ruta);
+              orden.imagenes = JSON.stringify({ layout: rutas.length, rutas });
+            }
+
             return { proyecto, ordenes };
           })
         );
