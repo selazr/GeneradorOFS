@@ -32,6 +32,11 @@ router.post('/', verificarToken, async (req, res) => {
     estructura ??= null;
     peso ??= null;
     notas ??= null;
+
+    if (peso !== null && peso !== undefined) {
+      const m = peso.toString().match(/[\d\.]+/);
+      peso = m ? parseFloat(m[0]) : null;
+    }
   
     const fecha_inicio = new Date().toISOString().slice(0, 10);
   
@@ -112,6 +117,12 @@ router.put('/:id', verificarToken, async (req, res) => {
         revisado, fecha_inicio, fecha_fin, notas, peso
     } = req.body;
 
+    let parsedPeso = null;
+    if (peso !== null && peso !== undefined) {
+        const m = peso.toString().match(/[\d\.]+/);
+        parsedPeso = m ? parseFloat(m[0]) : null;
+    }
+
     try {
         const [result] = await pool.query(
             `UPDATE ordenes SET
@@ -125,7 +136,7 @@ router.put('/:id', verificarToken, async (req, res) => {
                     nombre_cliente, responsable, figura, medida_v, medida_w, medida_h, unidad_medida,
                     material, acabado, cantidad, fabric_pieza, post_mec, pegar_lijar, esculpir,
                     line_x, fibra, mortero, aparejo, pintura, estructura, revisado, fecha_inicio,
-                    fecha_fin, peso, notas, id, usuario_id
+                    fecha_fin, parsedPeso, notas, id, usuario_id
                 ]
 
         );
@@ -274,16 +285,24 @@ router.get('/estadisticas', verificarToken, async (req, res) => {
 
     const [pesoProyecto] = await pool.query(
       `SELECT p.nombre_proyecto AS proyecto,
-              SUM(COALESCE(o.peso, 0)) AS total_peso
+              SUM(COALESCE(CAST(REPLACE(REPLACE(o.peso, 'kg', ''), 'KG', '') AS DECIMAL(10,2)), 0)) AS total_peso
        FROM ordenes o
        JOIN proyectos p ON o.proyecto_id = p.id
        GROUP BY o.proyecto_id`
     );
 
+    const [ordenesPorMes] = await pool.query(
+      `SELECT DATE_FORMAT(fecha_inicio, '%Y-%m') AS mes, COUNT(*) AS total
+       FROM ordenes
+       GROUP BY mes
+       ORDER BY mes`
+    );
+
     res.json({
       ordenesPorUsuario: porUsuario,
       ordenesPorMaterial: porMaterial,
-      pesoTotalPorProyecto: pesoProyecto
+      pesoTotalPorProyecto: pesoProyecto,
+      ordenesPorMes
     });
   } catch (error) {
     console.error('Error obteniendo estadísticas:', error);
