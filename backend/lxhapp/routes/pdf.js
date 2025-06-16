@@ -47,20 +47,27 @@ router.post("/:id/pdf", async (req, res) => {
 
     let imagenes = [];
     let layoutSeleccionado = 1;
-    if (orden.imagenes) {
-      try {
-        const parsed = JSON.parse(orden.imagenes);
-        const rutas = Array.isArray(parsed) ? parsed : parsed.rutas || [];
-        layoutSeleccionado = Array.isArray(parsed) ? rutas.length : parsed.layout || rutas.length;
-        imagenes = await Promise.all(
-          rutas.map(async (ruta) => {
-            const abs = path.join(__dirname, '..', ruta.replace('/ordenes-img/', 'uploads/ordenes/'));
-            const data = await fs.promises.readFile(abs);
-            const ext = path.extname(ruta).substring(1);
-            return `data:image/${ext};base64,${data.toString('base64')}`;
-          })
-        );
-      } catch (e) { console.error('Error leyendo imágenes', e); }
+    try {
+      const [imgs] = await pool.query(
+        'SELECT ruta FROM imagenes WHERE orden_id = ? ORDER BY posicion',
+        [id]
+      );
+      const rutas = imgs.map((img) => img.ruta);
+      layoutSeleccionado = rutas.length;
+      imagenes = await Promise.all(
+        rutas.map(async (ruta) => {
+          const abs = path.join(
+            __dirname,
+            '..',
+            ruta.replace('/ordenes-img/', 'uploads/ordenes/')
+          );
+          const data = await fs.promises.readFile(abs);
+          const ext = path.extname(ruta).substring(1);
+          return `data:image/${ext};base64,${data.toString('base64')}`;
+        })
+      );
+    } catch (e) {
+      console.error('Error leyendo imágenes', e);
     }
 
     let imagenGrande = "";
