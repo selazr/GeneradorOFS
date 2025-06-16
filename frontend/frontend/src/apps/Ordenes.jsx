@@ -857,10 +857,10 @@ const Ordenes = () => {
       <Modal show={mostrarMensaje} onHide={() => setMostrarMensaje(false)} centered>
         <Modal.Body className="text-center">{mensajeModal}</Modal.Body>
       </Modal>
-          </div>
-        </div>
-      </div>
     </div>
+  </div>
+</div>
+</div>
   );
 };
 
