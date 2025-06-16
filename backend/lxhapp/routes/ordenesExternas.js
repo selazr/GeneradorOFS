@@ -53,4 +53,17 @@ router.get('/', verificarToken, async (req, res) => {
   }
 });
 
+// Listar todas las órdenes externas sin filtrar por usuario
+router.get('/all', verificarToken, async (req, res) => {
+  try {
+    const [ordenes] = await pool.query(
+      'SELECT id, cliente, proyecto, figura, pdf_path, usuario_id FROM ordenes_externas ORDER BY id DESC'
+    );
+    res.json(ordenes);
+  } catch (error) {
+    console.error('Error listando ordenes externas:', error);
+    res.status(500).json({ mensaje: 'Error al obtener ordenes externas' });
+  }
+});
+
 module.exports = router;
