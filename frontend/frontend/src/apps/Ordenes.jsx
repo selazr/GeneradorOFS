@@ -379,18 +379,19 @@ const Ordenes = () => {
         data,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      const nuevas = res.data.imagenes || [];
+      const rutas = res.data.rutas || [];
       const arr = Array(5).fill(null);
-      nuevas.forEach((img) => {
-        if (img.posicion >= 1 && img.posicion <= 5) {
-          arr[img.posicion - 1] = {
+      rutas.forEach((ruta, idx) => {
+        if (idx < 5) {
+          arr[idx] = {
             file: null,
-            preview: `http://localhost:3000${img.ruta}`,
+            preview: `http://localhost:3000${ruta}`,
           };
         }
       });
       setImagenesModal(arr);
-      setOrdenSeleccionada({ ...ordenSeleccionada, imagenes: nuevas });
+      const imgsGuardadas = rutas.map((ruta, idx) => ({ posicion: idx + 1, ruta }));
+      setOrdenSeleccionada({ ...ordenSeleccionada, imagenes: imgsGuardadas });
       mostrarModalTemporal('Imágenes guardadas correctamente');
     } catch (err) {
       console.error('Error guardando imágenes', err);
@@ -500,20 +501,38 @@ const Ordenes = () => {
                   }
                   setOrdenSeleccionada(orden);
                   setForm(editableCopy);
-                  if (orden.imagenes && Array.isArray(orden.imagenes)) {
-                    const imgs = Array(5).fill(null);
-                    orden.imagenes.forEach((img) => {
-                      if (img.posicion >= 1 && img.posicion <= 5) {
-                        imgs[img.posicion - 1] = {
-                          file: null,
-                          preview: `http://localhost:3000${img.ruta}`,
-                        };
+                  let imgsArr = [];
+                  if (orden.imagenes) {
+                    if (Array.isArray(orden.imagenes)) {
+                      imgsArr = orden.imagenes;
+                    } else {
+                      try {
+                        const parsed = typeof orden.imagenes === 'string'
+                          ? JSON.parse(orden.imagenes)
+                          : orden.imagenes;
+                        if (Array.isArray(parsed)) {
+                          imgsArr = parsed;
+                        } else if (parsed && Array.isArray(parsed.rutas)) {
+                          imgsArr = parsed.rutas.map((ruta, idx) => ({
+                            posicion: idx + 1,
+                            ruta,
+                          }));
+                        }
+                      } catch (e) {
+                        console.error('Error parseando imagenes', e);
                       }
-                    });
-                    setImagenesModal(imgs);
-                  } else {
-                    setImagenesModal([null, null, null, null, null]);
+                    }
                   }
+                  const imgs = Array(5).fill(null);
+                  imgsArr.forEach((img) => {
+                    if (img && img.posicion >= 1 && img.posicion <= 5) {
+                      imgs[img.posicion - 1] = {
+                        file: null,
+                        preview: `http://localhost:3000${img.ruta}`,
+                      };
+                    }
+                  });
+                  setImagenesModal(imgs);
                 }}
               >
                 <FileText size={16} className="me-2" /> {orden.figura}
