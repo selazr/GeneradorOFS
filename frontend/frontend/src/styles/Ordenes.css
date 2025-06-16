@@ -7,22 +7,9 @@
   background: linear-gradient(135deg, #007bff, #6610f2);
   color: #fff;
   max-height: 80vh;
+  overflow-y: auto;
   border-radius: 0.5rem;
   padding: 1rem;
-  display: flex;
-  flex-direction: column;
-}
-
-.ordenes-sidebar-header {
-  position: sticky;
-  top: 0;
-  background: inherit;
-  z-index: 1;
-}
-
-.ordenes-sidebar-body {
-  overflow-y: auto;
-  flex-grow: 1;
 }
 
 
