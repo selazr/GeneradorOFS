@@ -209,6 +209,19 @@ router.get('/detalle', verificarToken, async (req, res) => {
         res.status(500).json({ mensaje: 'Error al obtener las órdenes completas', error });
     }
 });
+
+// Obtener todas las órdenes sin filtrar por usuario (vista general)
+router.get('/all', verificarToken, async (req, res) => {
+    try {
+        const [ordenes] = await pool.query(
+            `SELECT * FROM ordenes ORDER BY fecha_inicio DESC`
+        );
+        res.json(ordenes);
+    } catch (error) {
+        console.error("Error al obtener todas las órdenes:", error);
+        res.status(500).json({ mensaje: 'Error al obtener las órdenes' });
+    }
+});
 router.get('/tree', projectController.getOrdenesTree);
 
 // Obtener estadísticas globales de órdenes

@@ -74,14 +74,14 @@ const VerOFs = () => {
   useEffect(() => {
     if (!token) return;
     axios
-      .get("http://localhost:3000/ordenes", {
+      .get("http://localhost:3000/ordenes/all", {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => setOrdenes(res.data))
       .catch((err) => console.error("Error obteniendo internas", err));
 
     axios
-      .get("http://localhost:3000/ordenes-externas", {
+      .get("http://localhost:3000/ordenes-externas/all", {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => setExternas(res.data))
