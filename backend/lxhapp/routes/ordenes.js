@@ -222,7 +222,7 @@ router.get('/all', verificarToken, async (req, res) => {
         res.status(500).json({ mensaje: 'Error al obtener las órdenes' });
     }
 });
-
+router.get('/tree', projectController.getOrdenesTree);
 
 // Obtener estadísticas globales de órdenes
 router.get('/estadisticas', verificarToken, async (req, res) => {
