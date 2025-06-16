@@ -214,7 +214,10 @@ router.get('/detalle', verificarToken, async (req, res) => {
 router.get('/all', verificarToken, async (req, res) => {
     try {
         const [ordenes] = await pool.query(
-            `SELECT * FROM ordenes ORDER BY fecha_inicio DESC`
+            `SELECT o.*, u.nombre AS creador
+             FROM ordenes o
+             JOIN usuarios u ON o.usuario_id = u.id
+             ORDER BY o.fecha_inicio DESC`
         );
         res.json(ordenes);
     } catch (error) {
@@ -222,7 +225,7 @@ router.get('/all', verificarToken, async (req, res) => {
         res.status(500).json({ mensaje: 'Error al obtener las órdenes' });
     }
 });
-router.get('/tree', projectController.getOrdenesTree);
+router.get('/tree', verificarToken, projectController.getOrdenesTree);
 
 // Obtener estadísticas globales de órdenes
 router.get('/estadisticas', verificarToken, async (req, res) => {
