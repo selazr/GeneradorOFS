@@ -120,6 +120,17 @@ const VerOFs = () => {
     paginaExternas * itemsPorPagina
   );
 
+  const getVisiblePages = (current, total) => {
+    let start = Math.max(current - 1, 1);
+    let end = Math.min(start + 2, total);
+    if (end - start < 2) {
+      start = Math.max(end - 2, 1);
+    }
+    const pages = [];
+    for (let i = start; i <= end; i++) pages.push(i);
+    return pages;
+  };
+
   const totals = {
     total: ordenes.length,
     completed: ordenes.filter((o) => getStatus(o) === "completed").length,
@@ -385,7 +396,12 @@ const VerOFs = () => {
           </div>
           <nav>
             <ul className="pagination justify-content-center">
-              <li className={`page-item ${paginaInternas === 1 ? 'disabled' : ''}`}>
+              <li className={`page-item ${paginaInternas === 1 ? 'disabled' : ''}`}> 
+                <button className="page-link" onClick={() => setPaginaInternas(1)}>
+                  &laquo;
+                </button>
+              </li>
+              <li className={`page-item ${paginaInternas === 1 ? 'disabled' : ''}`}> 
                 <button
                   className="page-link"
                   onClick={() => setPaginaInternas(paginaInternas - 1)}
@@ -394,28 +410,25 @@ const VerOFs = () => {
                   Anterior
                 </button>
               </li>
-              {Array.from({ length: totalPaginasInternas }).map((_, idx) => (
-                <li
-                  key={idx}
-                  className={`page-item ${paginaInternas === idx + 1 ? 'active' : ''}`}
-                >
-                  <button
-                    className="page-link"
-                    onClick={() => setPaginaInternas(idx + 1)}
-                  >
-                    {idx + 1}
+              {getVisiblePages(paginaInternas, totalPaginasInternas).map((num) => (
+                <li key={num} className={`page-item ${paginaInternas === num ? 'active' : ''}`}> 
+                  <button className="page-link" onClick={() => setPaginaInternas(num)}>
+                    {num}
                   </button>
                 </li>
               ))}
-              <li
-                className={`page-item ${paginaInternas === totalPaginasInternas ? 'disabled' : ''}`}
-              >
+              <li className={`page-item ${paginaInternas === totalPaginasInternas ? 'disabled' : ''}`}> 
                 <button
                   className="page-link"
                   onClick={() => setPaginaInternas(paginaInternas + 1)}
                   disabled={paginaInternas === totalPaginasInternas}
                 >
                   Siguiente
+                </button>
+              </li>
+              <li className={`page-item ${paginaInternas === totalPaginasInternas ? 'disabled' : ''}`}> 
+                <button className="page-link" onClick={() => setPaginaInternas(totalPaginasInternas)}>
+                  &raquo;
                 </button>
               </li>
             </ul>
@@ -490,7 +503,12 @@ const VerOFs = () => {
               </div>
               <nav>
                 <ul className="pagination justify-content-center">
-                  <li className={`page-item ${paginaExternas === 1 ? 'disabled' : ''}`}>
+                  <li className={`page-item ${paginaExternas === 1 ? 'disabled' : ''}`}> 
+                    <button className="page-link" onClick={() => setPaginaExternas(1)}>
+                      &laquo;
+                    </button>
+                  </li>
+                  <li className={`page-item ${paginaExternas === 1 ? 'disabled' : ''}`}> 
                     <button
                       className="page-link"
                       onClick={() => setPaginaExternas(paginaExternas - 1)}
@@ -499,28 +517,25 @@ const VerOFs = () => {
                       Anterior
                     </button>
                   </li>
-                  {Array.from({ length: totalPaginasExternas }).map((_, idx) => (
-                    <li
-                      key={idx}
-                      className={`page-item ${paginaExternas === idx + 1 ? 'active' : ''}`}
-                    >
-                      <button
-                        className="page-link"
-                        onClick={() => setPaginaExternas(idx + 1)}
-                      >
-                        {idx + 1}
+                  {getVisiblePages(paginaExternas, totalPaginasExternas).map((num) => (
+                    <li key={num} className={`page-item ${paginaExternas === num ? 'active' : ''}`}>
+                      <button className="page-link" onClick={() => setPaginaExternas(num)}>
+                        {num}
                       </button>
                     </li>
                   ))}
-                  <li
-                    className={`page-item ${paginaExternas === totalPaginasExternas ? 'disabled' : ''}`}
-                  >
+                  <li className={`page-item ${paginaExternas === totalPaginasExternas ? 'disabled' : ''}`}> 
                     <button
                       className="page-link"
                       onClick={() => setPaginaExternas(paginaExternas + 1)}
                       disabled={paginaExternas === totalPaginasExternas}
                     >
                       Siguiente
+                    </button>
+                  </li>
+                  <li className={`page-item ${paginaExternas === totalPaginasExternas ? 'disabled' : ''}`}> 
+                    <button className="page-link" onClick={() => setPaginaExternas(totalPaginasExternas)}>
+                      &raquo;
                     </button>
                   </li>
                 </ul>
