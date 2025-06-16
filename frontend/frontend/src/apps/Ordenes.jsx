@@ -449,26 +449,27 @@ const Ordenes = () => {
       <div className="row">
         {/* Sidebar */}
         <div className="col-md-3 ordenes-sidebar">
-          <h4 className="text-center d-flex align-items-center justify-content-center gap-2">
-            <FolderOpen size={20} /> Tus órdenes por cliente
-          </h4>
+          <div className="ordenes-sidebar-header mb-3">
+            <h4 className="text-center d-flex align-items-center justify-content-center gap-2 mb-3">
+              <FolderOpen size={20} /> Tus órdenes por cliente
+            </h4>
 
-          <button
-            className="btn btn-light text-dark w-100 mb-3"
-            onClick={resetForm}
-          >
-            Crear orden
-          </button>
-          <input
-            type="text"
-            className="form-control mb-3"
-            placeholder="Buscar OF"
-            value={busqueda}
-            onChange={(e) => setBusqueda(e.target.value)}
-          />
-
-          {/* Aquí va el nuevo árbol */}
-          <div className="accordion" id="ordenesAccordion">
+            <button
+              className="btn btn-light text-dark w-100 mb-2"
+              onClick={resetForm}
+            >
+              Crear orden
+            </button>
+            <input
+              type="text"
+              className="form-control"
+              placeholder="Buscar OF"
+              value={busqueda}
+              onChange={(e) => setBusqueda(e.target.value)}
+            />
+          </div>
+          <div className="ordenes-sidebar-body">
+            <div className="accordion accordion-flush" id="ordenesAccordion">
             {filteredOrdenesTree.map((cliente, i) => (
               <div className="accordion-item border-0 text-white" key={i}>
         <h2 className="accordion-header" id={`heading-${cliente.cliente?.id || i}`}>
