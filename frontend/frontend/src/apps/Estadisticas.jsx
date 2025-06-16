@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Bar, Pie } from 'react-chartjs-2';
+import { Bar, Pie, Line } from 'react-chartjs-2';
 import Chart from 'chart.js/auto';
 
 const Estadisticas = () => {
   const [stats, setStats] = useState({
     ordenesPorUsuario: [],
     ordenesPorMaterial: [],
-    pesoTotalPorProyecto: []
+    pesoTotalPorProyecto: [],
+    ordenesPorMes: []
   });
 
   const token = localStorage.getItem('token');
@@ -24,21 +25,19 @@ const Estadisticas = () => {
 
   const totalOrdenes = stats.ordenesPorMaterial.reduce((sum, m) => sum + m.total, 0);
 
-  const pieData = {
+  const barMaterialData = {
     labels: stats.ordenesPorMaterial.map((m) => m.material || 'Sin material'),
     datasets: [
       {
+        label: 'Órdenes por material',
         data: stats.ordenesPorMaterial.map((m) => m.total),
-        backgroundColor: [
-          '#007bff',
-          '#28a745',
-          '#dc3545',
-          '#ffc107',
-          '#17a2b8',
-          '#6610f2'
-        ]
+        backgroundColor: '#17a2b8'
       }
     ]
+  };
+
+  const barMaterialOptions = {
+    indexAxis: 'y'
   };
 
   const barUsuarioData = {
@@ -63,6 +62,20 @@ const Estadisticas = () => {
     ]
   };
 
+  const lineMesData = {
+    labels: stats.ordenesPorMes.map((m) => m.mes),
+    datasets: [
+      {
+        label: 'Órdenes por mes',
+        data: stats.ordenesPorMes.map((m) => m.total),
+        borderColor: '#6610f2',
+        backgroundColor: 'rgba(102,16,242,0.2)',
+        fill: false,
+        tension: 0.3
+      }
+    ]
+  };
+
   return (
     <div className="stats-panel">
       <h2 className="mb-4">Estadísticas de Órdenes Internas</h2>
@@ -74,11 +87,17 @@ const Estadisticas = () => {
         </div>
         <div className="col-md-4 mb-4">
           <h5 className="text-center">Órdenes por material</h5>
-          <Pie data={pieData} />
+          <Bar data={barMaterialData} options={barMaterialOptions} />
         </div>
         <div className="col-md-4 mb-4">
           <h5 className="text-center">Peso total por proyecto</h5>
           <Bar data={barPesoData} />
+        </div>
+      </div>
+      <div className="row">
+        <div className="col-12">
+          <h5 className="text-center">Órdenes por mes</h5>
+          <Line data={lineMesData} />
         </div>
       </div>
     </div>
