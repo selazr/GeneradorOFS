@@ -130,9 +130,7 @@ const Ordenes = () => {
 
   const fetchOrdenesTree = () => {
     return axios
-      .get("http://localhost:3000/ordenes/tree", {
-        headers: { Authorization: `Bearer ${token}` },
-      })
+      .get("http://localhost:3000/ordenes/tree")
       .then((res) => {
         setOrdenesTree(res.data);
         return res.data;
@@ -160,10 +158,8 @@ const Ordenes = () => {
     .filter((c) => c.proyectos.length > 0);
 
   useEffect(() => {
-    if (token) {
-      fetchOrdenesTree();
-    }
-  }, [token]);
+    fetchOrdenesTree();
+  }, []);
 
   useEffect(() => {
     if (ordenSeleccionada) {
