@@ -7,6 +7,17 @@ import { useDropzone } from "react-dropzone";
 import "../styles/Ordenes.css";
 import { FolderOpen, User, Folder, FileText } from "lucide-react";
 
+const parseImagenes = (raw) => {
+  if (!raw) return { layout: 1, rutas: [] };
+  if (typeof raw === 'object') return raw;
+  try {
+    return JSON.parse(raw);
+  } catch (e) {
+    console.error('Error parseando imágenes', e);
+    return { layout: 1, rutas: [] };
+  }
+};
+
 
 
 
@@ -121,8 +132,16 @@ const Ordenes = () => {
       return;
     }
     axios
-      .get("http://localhost:3000/ordenes", { headers: { Authorization: `Bearer ${token}` } })
-      .then((res) => setOrdenes(res.data))
+      .get("http://localhost:3000/ordenes", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((res) => {
+        const ordenesParseadas = res.data.map((o) => ({
+          ...o,
+          imagenes: parseImagenes(o.imagenes),
+        }));
+        setOrdenes(ordenesParseadas);
+      })
       .catch((error) => console.error(error));
   }, [token, navigate]);
 
@@ -134,8 +153,18 @@ const Ordenes = () => {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {
-        setOrdenesTree(res.data);
-        return res.data;
+        const tree = res.data.map((cliente) => ({
+          ...cliente,
+          proyectos: cliente.proyectos.map((proyecto) => ({
+            ...proyecto,
+            ordenes: proyecto.ordenes.map((o) => ({
+              ...o,
+              imagenes: parseImagenes(o.imagenes),
+            })),
+          })),
+        }));
+        setOrdenesTree(tree);
+        return tree;
       })
       .catch((err) => {
         console.error("Error al cargar árbol:", err);
@@ -545,7 +574,7 @@ const Ordenes = () => {
                   setForm(editableCopy);
                   if (orden.imagenes) {
                     try {
-                      const imgData = JSON.parse(orden.imagenes);
+                      const imgData = parseImagenes(orden.imagenes);
                       setLayout(imgData.layout || 1);
                       const rutas = imgData.rutas || [];
                       setImagenesModal({
@@ -842,7 +871,10 @@ const Ordenes = () => {
                 pequenas: [1,2,3,4].map(i => rutas[i] ? { file: null, preview: `http://localhost:3000${rutas[i]}` } : null)
               });
               setLayout(nuevoLayout);
-              setOrdenSeleccionada({ ...ordenSeleccionada, imagenes: JSON.stringify({ layout: nuevoLayout, rutas }) });
+              setOrdenSeleccionada({
+                ...ordenSeleccionada,
+                imagenes: { layout: nuevoLayout, rutas },
+              });
             })
             .catch((err) => console.error('Error guardando imágenes', err));
         }
