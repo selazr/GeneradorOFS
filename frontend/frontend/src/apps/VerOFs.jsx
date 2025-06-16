@@ -345,7 +345,7 @@ const VerOFs = () => {
                       <td>{o.figura}</td>
                       <td>{o.nombre_proyecto}</td>
                       <td>{o.nombre_cliente}</td>
-                      <td>{localStorage.getItem("username")}</td>
+                      <td>{o.creador}</td>
                       <td>
                         <span className={getStatusClass(status)}>
                           {getStatusIcon(status)}
@@ -462,7 +462,7 @@ const VerOFs = () => {
                         <td>{o.figura}</td>
                         <td>{o.proyecto}</td>
                         <td>{o.cliente}</td>
-                        <td>{localStorage.getItem("username")}</td>
+                        <td>{o.creador}</td>
                         <td>-</td>
                         <td>
                           {o.fecha_creacion
@@ -598,7 +598,7 @@ const VerOFs = () => {
                 {new Date(seleccionada.fecha_creacion).toLocaleString()}
               </p>
               <p>
-                <strong>Creada por:</strong> {localStorage.getItem("username")}
+                <strong>Creada por:</strong> {seleccionada.creador}
               </p>
             </div>
           )}

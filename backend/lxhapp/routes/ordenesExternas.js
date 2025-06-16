@@ -57,7 +57,10 @@ router.get('/', verificarToken, async (req, res) => {
 router.get('/all', verificarToken, async (req, res) => {
   try {
     const [ordenes] = await pool.query(
-      'SELECT id, cliente, proyecto, figura, pdf_path, usuario_id FROM ordenes_externas ORDER BY id DESC'
+      `SELECT oe.id, oe.cliente, oe.proyecto, oe.figura, oe.pdf_path, oe.usuario_id, u.nombre AS creador
+       FROM ordenes_externas oe
+       JOIN usuarios u ON oe.usuario_id = u.id
+       ORDER BY oe.id DESC`
     );
     res.json(ordenes);
   } catch (error) {

@@ -130,7 +130,9 @@ const Ordenes = () => {
 
   const fetchOrdenesTree = () => {
     return axios
-      .get("http://localhost:3000/ordenes/tree")
+      .get("http://localhost:3000/ordenes/tree", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
       .then((res) => {
         setOrdenesTree(res.data);
         return res.data;
