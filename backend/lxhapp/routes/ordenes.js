@@ -171,31 +171,8 @@ router.delete('/:id', verificarToken, async (req, res) => {
 });
 
 
-// Obtener todas las órdenes del usuario autenticado
-router.get('/', verificarToken, async (req, res) => {
-    const usuario_id = req.usuario.id;
-
-    try {
-        const [ordenes] = await pool.query('SELECT * FROM ordenes WHERE usuario_id = ?', [usuario_id]);
-
-        for (const orden of ordenes) {
-            const [imgs] = await pool.query(
-                'SELECT ruta FROM imagenes WHERE orden_id = ? ORDER BY posicion',
-                [orden.id]
-            );
-            const rutas = imgs.map(img => img.ruta);
-            orden.imagenes = JSON.stringify({ layout: rutas.length, rutas });
-        }
-
-        res.json(ordenes);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ mensaje: 'Error al obtener las órdenes', error });
-    }
-});
-
 // Obtener una lista simplificada de órdenes (para mostrar en el listado)
-router.get('/', verificarToken, async (req, res) => {
+router.get('/resumen', verificarToken, async (req, res) => {
     const usuario_id = req.usuario.id;
 
     try {
