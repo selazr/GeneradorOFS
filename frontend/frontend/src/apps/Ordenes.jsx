@@ -396,12 +396,20 @@ const Ordenes = () => {
     setErrorImagenes(null);
     try {
       const data = new FormData();
+      const existing = [];
       imagenesModal.forEach((img, idx) => {
         if (img?.file) {
-          data.append('imagenes', img.file);
-          data.append('posiciones', idx + 1);
+          data.append("imagenes", img.file);
+          existing.push("");
+        } else {
+          const prev = ordenSeleccionada.imagenes?.find(
+            (i) => i.posicion === idx + 1
+          );
+          existing.push(prev ? prev.ruta : "");
         }
       });
+      data.append("existing", JSON.stringify(existing));
+      data.append("layout", imagenesModal.length);
       const res = await axios.post(
         `http://localhost:3000/ordenes/${ordenSeleccionada.id}/imagenes`,
         data,
@@ -420,10 +428,10 @@ const Ordenes = () => {
       });
       setImagenesModal(arr);
       setOrdenSeleccionada({ ...ordenSeleccionada, imagenes: nuevas });
-      mostrarModalTemporal('Imágenes guardadas correctamente');
+      mostrarModalTemporal("Imágenes guardadas correctamente");
     } catch (err) {
-      console.error('Error guardando imágenes', err);
-      setErrorImagenes('Error al guardar imágenes');
+      console.error("Error guardando imágenes", err);
+      setErrorImagenes("Error al guardar imágenes");
     } finally {
       setCargandoImagenes(false);
       setShowModal(false);
