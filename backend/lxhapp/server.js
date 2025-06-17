@@ -111,8 +111,6 @@ app.get('/admin', verificarToken, verificarRol(['admin']), (req, res) => {
     res.json({ mensaje: 'Bienvenido al panel de administrador' });
 });
 
-// ✅ Rutas personalizadas para usuarios
-app.use('/usuarios', userRoutes);
 
 // ✅ **Servidor en ejecución**
 const PORT = process.env.PORT || 3000;
