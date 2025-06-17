@@ -121,7 +121,7 @@ const Ordenes = () => {
       return;
     }
     axios
-      .get("http://localhost:3000/ordenes", { headers: { Authorization: `Bearer ${token}` } })
+      .get("http://localhost:3000/ordenes/detalle", { headers: { Authorization: `Bearer ${token}` } })
       .then((res) => setOrdenes(res.data))
       .catch((error) => console.error(error));
   }, [token, navigate]);
