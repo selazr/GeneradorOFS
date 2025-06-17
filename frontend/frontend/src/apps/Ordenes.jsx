@@ -187,6 +187,28 @@ const Ordenes = () => {
     }))
     .filter((c) => c.proyectos.length > 0);
 
+  const handlePreviewPDF = useCallback(async (id) => {
+    if (!id || !token) return;
+    try {
+      const response = await fetch(`http://localhost:3000/ordenes/${id}/pdf`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.mensaje || "Error al generar el PDF");
+      }
+
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      setPdfPreviewUrl(url);
+    } catch (error) {
+      console.error("Error al obtener vista previa del PDF:", error);
+    }
+  }, [token]);
   useEffect(() => {
     fetchOrdenesTree();
   }, [fetchOrdenesTree]);
@@ -329,28 +351,6 @@ const Ordenes = () => {
     setImagenesModal([null, null, null, null, null]);
   };
 
-  const handlePreviewPDF = useCallback(async (id) => {
-    if (!id || !token) return;
-    try {
-      const response = await fetch(`http://localhost:3000/ordenes/${id}/pdf`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.mensaje || "Error al generar el PDF");
-      }
-
-      const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
-      setPdfPreviewUrl(url);
-    } catch (error) {
-      console.error("Error al obtener vista previa del PDF:", error);
-    }
-  }, [token]);
   
   const handleDownloadPDF = async (id, cliente = false) => {
     if (!id || !token) {
