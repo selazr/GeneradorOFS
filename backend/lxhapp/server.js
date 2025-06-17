@@ -92,8 +92,7 @@ app.get('/admin', verificarToken, verificarRol(['admin']), (req, res) => {
 
 // ✅ **Servidor en ejecución**
 const PORT = process.env.PORT || 3000;
-const BASE_URL = process.env.BASE_URL || 'http://localhost';
 app.listen(PORT, () => {
     console.log('✅ Hola LXH, el backend funciona correctamente');
-    console.log(`🚀 Servidor corriendo en ${BASE_URL}:${PORT}`);
+    console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
 });

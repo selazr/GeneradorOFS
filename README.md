@@ -18,7 +18,7 @@ npm install
 npm start
 ```
 
-El backend necesita un archivo `.env` con la configuración de la base de datos y las claves `JWT_SECRET` y `BASE_URL`.
+El backend necesita un archivo `.env` con la configuración de la base de datos y la clave `JWT_SECRET`.
 
 Copia `backend/lxhapp/.env.example` a `backend/lxhapp/.env` y completa los valores de:
 - `DB_HOST`
@@ -26,8 +26,4 @@ Copia `backend/lxhapp/.env.example` a `backend/lxhapp/.env` y completa los valor
 - `DB_PASSWORD`
 - `DB_NAME`
 - `JWT_SECRET`
-- `BASE_URL`
-
-El frontend también requiere un archivo `.env` para definir la URL base de la API.
-Copia `frontend/frontend/.env.example` a `frontend/frontend/.env` y ajusta el valor de `REACT_APP_API_URL` según tu entorno.
 

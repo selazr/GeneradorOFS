@@ -1,7 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
-
-const API_URL = process.env.REACT_APP_API_URL;
 import Collapse from 'bootstrap/js/dist/collapse';
 import { useNavigate } from "react-router-dom";
 import { Modal, Button, Spinner } from "react-bootstrap";
@@ -123,7 +121,7 @@ const Ordenes = () => {
       return;
     }
     axios
-      .get(`${API_URL}/ordenes/detalle`, { headers: { Authorization: `Bearer ${token}` } })
+      .get("http://localhost:3000/ordenes/detalle", { headers: { Authorization: `Bearer ${token}` } })
       .then((res) => setOrdenes(res.data))
       .catch((error) => console.error(error));
   }, [token, navigate]);
@@ -132,7 +130,7 @@ const Ordenes = () => {
 
   const fetchOrdenesTree = useCallback(() => {
     return axios
-      .get(`${API_URL}/ordenes/tree`, {
+      .get("http://localhost:3000/ordenes/tree", {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {
@@ -192,7 +190,7 @@ const Ordenes = () => {
   const handlePreviewPDF = useCallback(async (id) => {
     if (!id || !token) return;
     try {
-      const response = await fetch(`${API_URL}/ordenes/${id}/pdf`, {
+      const response = await fetch(`http://localhost:3000/ordenes/${id}/pdf`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -276,13 +274,13 @@ const Ordenes = () => {
     e.preventDefault();
     try {
       if (ordenSeleccionada) {
-        await axios.put(`${API_URL}/ordenes/${ordenSeleccionada.id}`, form, {
+        await axios.put(`http://localhost:3000/ordenes/${ordenSeleccionada.id}`, form, {
           headers: { Authorization: `Bearer ${token}` },
         });
         mostrarModalTemporal("Orden actualizada con éxito");
         setOrdenSeleccionada({ ...ordenSeleccionada, ...form });
       } else {
-        const { data } = await axios.post(`${API_URL}/ordenes`, form, {
+        const { data } = await axios.post("http://localhost:3000/ordenes", form, {
           headers: { Authorization: `Bearer ${token}` },
         });
         mostrarModalTemporal("Orden creada con éxito");
@@ -307,7 +305,7 @@ const Ordenes = () => {
     if (!confirmacion) return;
     
   try {
-      await axios.delete(`${API_URL}/ordenes/${ordenSeleccionada.id}`, {
+      await axios.delete(`http://localhost:3000/ordenes/${ordenSeleccionada.id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       alert("Orden eliminada con éxito");
@@ -360,7 +358,7 @@ const Ordenes = () => {
       return;
     }
 
-    const url = `${API_URL}/ordenes/${id}/pdf${cliente ? "?cliente=true" : ""}`;
+    const url = `http://localhost:3000/ordenes/${id}/pdf${cliente ? "?cliente=true" : ""}`;
 
     try {
       setLoadingPDF(true);
@@ -413,7 +411,7 @@ const Ordenes = () => {
       data.append("existing", JSON.stringify(existing));
       data.append("layout", imagenesModal.length);
       const res = await axios.post(
-        `${API_URL}/ordenes/${ordenSeleccionada.id}/imagenes`,
+        `http://localhost:3000/ordenes/${ordenSeleccionada.id}/imagenes`,
         data,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -424,7 +422,7 @@ const Ordenes = () => {
         if (img.posicion >= 1 && img.posicion <= 5) {
           arr[img.posicion - 1] = {
             file: null,
-            preview: `${API_URL}${img.ruta}`,
+            preview: `http://localhost:3000${img.ruta}`,
           };
         }
       });
@@ -561,7 +559,7 @@ const Ordenes = () => {
                       if (img.posicion >= 1 && img.posicion <= 5) {
                         imgs[img.posicion - 1] = {
                           file: null,
-                          preview: `${API_URL}${img.ruta}`,
+                          preview: `http://localhost:3000${img.ruta}`,
                         };
                       }
                     });
