@@ -80,25 +80,25 @@ const Estadisticas = () => {
     <div className="stats-panel">
       <h2 className="mb-4">Estadísticas de Órdenes Internas</h2>
       <p>Total de órdenes: {totalOrdenes}</p>
-      <div className="row">
-        <div className="col-md-4 mb-4">
-          <h5 className="text-center">Órdenes por usuario</h5>
-          <Bar data={barUsuarioData} />
-        </div>
-        <div className="col-md-4 mb-4">
-          <h5 className="text-center">Órdenes por material</h5>
-          <Bar data={barMaterialData} options={barMaterialOptions} />
-        </div>
-        <div className="col-md-4 mb-4">
-          <h5 className="text-center">Peso total por proyecto</h5>
-          <Bar data={barPesoData} />
-        </div>
+
+      <div className="chart-container">
+        <h5 className="text-center">Órdenes por usuario</h5>
+        <Bar data={barUsuarioData} options={{ maintainAspectRatio: false }} />
       </div>
-      <div className="row">
-        <div className="col-12">
-          <h5 className="text-center">Órdenes por mes</h5>
-          <Line data={lineMesData} />
-        </div>
+
+      <div className="chart-container">
+        <h5 className="text-center">Órdenes por material</h5>
+        <Bar data={barMaterialData} options={{ ...barMaterialOptions, maintainAspectRatio: false }} />
+      </div>
+
+      <div className="chart-container">
+        <h5 className="text-center">Peso total por proyecto</h5>
+        <Bar data={barPesoData} options={{ maintainAspectRatio: false }} />
+      </div>
+
+      <div className="chart-container">
+        <h5 className="text-center">Órdenes por mes</h5>
+        <Line data={lineMesData} options={{ maintainAspectRatio: false }} />
       </div>
     </div>
   );
