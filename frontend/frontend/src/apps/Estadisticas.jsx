@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-
-const API_URL = process.env.REACT_APP_API_URL;
 import { Bar, Pie, Line } from 'react-chartjs-2';
 import Chart from 'chart.js/auto';
 
@@ -18,7 +16,7 @@ const Estadisticas = () => {
   useEffect(() => {
     if (!token) return;
     axios
-      .get(`${API_URL}/ordenes/estadisticas`, {
+      .get('http://localhost:3000/ordenes/estadisticas', {
         headers: { Authorization: `Bearer ${token}` }
       })
       .then((res) => setStats(res.data))
