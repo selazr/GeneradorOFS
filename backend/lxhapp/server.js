@@ -10,6 +10,7 @@ const ordenesRoutes = require('./routes/ordenes');
 const pdfRoutes = require("./routes/pdf"); // PDF
 const ordenesExternasRoutes = require('./routes/ordenesExternas');
 const bodyParser = require("body-parser");
+const { verificarToken, verificarRol } = require('./middlewares/auth');
 
 const app = express();
 
@@ -82,29 +83,6 @@ app.post('/login', async (req, res) => {
     }
 });
 
-// ✅ Middleware para verificar tokens
-const verificarToken = (req, res, next) => {
-    const token = req.header('Authorization');
-    if (!token) return res.status(403).json({ mensaje: 'Acceso denegado, token requerido' });
-
-    try {
-        const decoded = jwt.verify(token.replace('Bearer ', ''), process.env.JWT_SECRET);
-        req.usuario = decoded;
-        next();
-    } catch (error) {
-        return res.status(401).json({ mensaje: 'Token inválido o expirado' });
-    }
-};
-
-// ✅ Middleware para verificar roles
-const verificarRol = (rolesPermitidos) => {
-    return (req, res, next) => {
-        if (!rolesPermitidos.includes(req.usuario.rol)) {
-            return res.status(403).json({ mensaje: 'No tienes permisos para acceder a esta ruta' });
-        }
-        next();
-    };
-};
 
 // ✅ Ruta protegida por rol de Admin
 app.get('/admin', verificarToken, verificarRol(['admin']), (req, res) => {
