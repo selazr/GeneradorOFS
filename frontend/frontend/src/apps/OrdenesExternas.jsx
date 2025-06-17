@@ -27,7 +27,7 @@ const OrdenesExternas = () => {
     data.append('figura', form.figura);
 
     try {
-      await axios.post('http://localhost:3000/ordenes-externas', data, {
+      await axios.post(`${process.env.REACT_APP_API_URL}/ordenes-externas`, data, {
         headers: { Authorization: `Bearer ${token}` },
       });
       alert('Orden externa guardada');

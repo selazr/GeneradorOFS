@@ -16,7 +16,7 @@ const Estadisticas = () => {
   useEffect(() => {
     if (!token) return;
     axios
-      .get('http://localhost:3000/ordenes/estadisticas', {
+      .get(`${process.env.REACT_APP_API_URL}/ordenes/estadisticas`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       .then((res) => setStats(res.data))

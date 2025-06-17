@@ -74,14 +74,14 @@ const VerOFs = () => {
   useEffect(() => {
     if (!token) return;
     axios
-      .get("http://localhost:3000/ordenes/all", {
+      .get(`${process.env.REACT_APP_API_URL}/ordenes/all`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => setOrdenes(res.data))
       .catch((err) => console.error("Error obteniendo internas", err));
 
     axios
-      .get("http://localhost:3000/ordenes-externas/all", {
+      .get(`${process.env.REACT_APP_API_URL}/ordenes-externas/all`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => setExternas(res.data))
@@ -240,7 +240,7 @@ const VerOFs = () => {
     if (!id || !token) return;
     try {
       setLoadingPDF(true);
-      const response = await fetch(`http://localhost:3000/ordenes/${id}/pdf`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/ordenes/${id}/pdf`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -488,7 +488,7 @@ const VerOFs = () => {
                         </td>
                         <td>
                           <a
-                            href={`http://localhost:3000${o.pdf_path}`}
+                            href={`${process.env.REACT_APP_API_URL}${o.pdf_path}`}
                             target="_blank"
                             rel="noreferrer"
                             className="btn btn-sm btn-outline-primary"

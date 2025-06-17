@@ -37,7 +37,10 @@ const Register = () => {
     }
 
     try {
-      await axios.post("http://localhost:3000/register", form);
+      await axios.post(
+        `${process.env.REACT_APP_API_URL}/register`,
+        form
+      );
       alert("Usuario registrado con éxito");
       navigate("/login");
     } catch (error) {

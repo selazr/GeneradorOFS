@@ -18,7 +18,10 @@ const Login = () => {
     e.preventDefault();
     setError("");
     try {
-      const response = await axios.post("http://localhost:3000/login", form);
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/login`,
+        form
+      );
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("rol", response.data.rol);
       localStorage.setItem("username", response.data.nombre);

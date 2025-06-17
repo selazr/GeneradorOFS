@@ -20,3 +20,5 @@ npm start
 
 El backend necesita un archivo `.env` con la configuración de la base de datos y la clave `JWT_SECRET`.
 
+Para el frontend, copia `.env.example` como `.env` y ajusta `REACT_APP_API_URL` si la API se encuentra en otra dirección.
+

@@ -10,6 +10,8 @@ import Estadisticas from "../apps/Estadisticas";
 import { Modal, Button } from "react-bootstrap";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
+const API_URL = process.env.REACT_APP_API_URL;
+
 const Dashboard = () => {
   const navigate = useNavigate();
   const [mensaje, setMensaje] = useState("");
@@ -32,7 +34,7 @@ const Dashboard = () => {
     }
 
     axios
-      .get(`http://localhost:3000/usuarios/${nombreUsuario}`, {
+      .get(`${API_URL}/usuarios/${nombreUsuario}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((response) => {
@@ -75,10 +77,10 @@ const Dashboard = () => {
     e.preventDefault();
     const token = localStorage.getItem("token");
     try {
-      await axios.put(`http://localhost:3000/usuarios/${perfil.nombre}`, editData, {
+      await axios.put(`${API_URL}/usuarios/${perfil.nombre}`, editData, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      const res = await axios.get(`http://localhost:3000/usuarios/${editData.nombre}`, {
+      const res = await axios.get(`${API_URL}/usuarios/${editData.nombre}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setPerfil(res.data);
@@ -191,7 +193,9 @@ const Dashboard = () => {
           </div>
           <div className="dropdown" ref={dropdownRef}>
             <img
-              src={perfil?.avatar ? `http://localhost:3000${perfil.avatar}` : "/silueta.jpg"}
+              src={
+                perfil?.avatar ? `${API_URL}${perfil.avatar}` : "/silueta.jpg"
+              }
               alt=""
               className="perfil-img dropdown-toggle"
               onClick={() => setMenuAbierto(!menuAbierto)}
@@ -225,7 +229,7 @@ const Dashboard = () => {
           {perfil && (
             <>
               <img
-                src={perfil.avatar ? `http://localhost:3000${perfil.avatar}` : "/silueta.jpg"}
+                src={perfil.avatar ? `${API_URL}${perfil.avatar}` : "/silueta.jpg"}
                 alt="avatar"
                 className="rounded-circle mb-3"
                 style={{ width: "100px", height: "100px", objectFit: "cover" }}
