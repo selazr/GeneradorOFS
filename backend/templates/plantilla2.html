@@ -1,83 +1,85 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Plantilla LINE-X Hispania Arquitectónica</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plantilla LINE-X Hispania</title>
   <style>
-    @page { size: A4 landscape; margin: 0; }
+    @page { size: A4 landscape; margin: 10mm; }
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
-      font-size: 12px;
-      box-sizing: border-box;
-      width: 100%;
-      height: 100%;
-    }
-
-
-    .imagenes-container, .footer {
-      width: 100%;
-    }
+    body { font-family: Arial, sans-serif; padding: 10px; }
 
     .imagenes-container {
       display: flex;
-      height: 620px; /* altura fija controlada */
+      border: 1px solid #000;
+      border-radius: 10px;
+      height: 550px;
+      padding: 5px;
     }
-
 
     .imagen-grande {
       flex: 1.2;
       display: flex;
       justify-content: center;
       align-items: center;
+      border-radius: 10px;
+      margin-right: 5px;
       overflow: hidden;
+      background-color: white;
     }
 
     .imagen-grande img {
-      width: 100%;
-      height: 100%;
+      max-width: 100%;
+      max-height: 100%;
       object-fit: contain;
     }
 
     .imagenes-pequenas {
-      flex: 1.2;
+      flex: 1.4;
       display: flex;
       flex-wrap: wrap;
       justify-content: space-between;
+      gap: 5px;
     }
 
     .imagenes-pequenas img {
-      width: 49%;
-      height: 49%;
+      width: 48%;
+      height: 48%;
+      padding: 4px;
+      border-radius: 5px;
+      background-color: white;
       object-fit: contain;
     }
 
     .footer {
       display: flex;
       height: 130px;
-      overflow: hidden; /* Evita que contenido lo rompa */
+      width: 100%;
+      margin-top: 10px;
     }
 
     .box {
       border: 1px solid #000;
-      outline: 1px solid #000; /* simula doble borde */
-      outline-offset: -3px;     /* controla la separación entre ambos bordes */
+      border-radius: 8px;
+      margin-right: 2px;
+      padding: 8px 10px;
       display: flex;
       flex-direction: column;
-      text-align: center;
-      min-width: 0;
-      overflow: hidden;
+      justify-content: flex-start; /* Alinea arriba */
+      align-items: flex-start;     /* Alinea a la izquierda */
+      font-size: 11px;
+      height: 100%; /* para cuadrarlas */
     }
 
-
     .logo {
-      width: 130px;
+      width: 120px;
+      border: 1px solid #000;
+      border-radius: 8px;
       background-color: #000;
       display: flex;
       align-items: center;
       justify-content: center;
+      margin-right: 2px;
     }
 
     .logo img {
@@ -87,40 +89,30 @@
     }
 
     .box.medium {
-      flex-grow: 1;
-      padding: 3px;
+      flex-grow: 1.8;
+      padding-left: 10px;
     }
 
-    .cabecera {
+    .title {
       font-weight: bold;
-      font-size: 11px;
-      border-bottom: 0.5px solid black;
-      margin-bottom: 3px;
-      padding-bottom: 2px;
-    }
-
-    .contenido-box {
-      flex-grow: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
+      font-size: 13px;
+      margin-bottom: 8px; /* Espacio profesional debajo del título */
+      text-transform: uppercase;
     }
 
     .contenido-box div {
-      font-size: 11px;
-      margin-bottom: 2px;
+      margin-bottom: 3px;
     }
 
     #notas-container {
-      max-width: 180px;
-      white-space: normal;
       word-wrap: break-word;
+      white-space: normal;
     }
   </style>
 </head>
 <body>
 
+  <!-- Contenedor de imágenes -->
   <div class="imagenes-container">
     <div class="imagen-grande" {{STYLE_GRANDE}}>
       {{IMAGEN_GRANDE}}
@@ -130,60 +122,55 @@
     </div>
   </div>
 
+  <!-- Footer estructurado -->
   <div class="footer">
     <div class="logo">
       <img src="{{LOGO}}" alt="Logo LINE-X" />
     </div>
 
     <div class="box medium">
-      <div class="cabecera">ORDEN FABRICACIÓN</div>
+      <div class="title">ORDEN</div>
       <div class="contenido-box">
-        <div>{{NOMBRE_CLIENTE}}</div>
-        <div>{{NOMBRE_PROYECTO}}</div>
-        <div><b>{{FIGURA}}</b></div>
-        <div>{{FECHA_INICIO}}</div>
+        <div>Cliente: Line-X Hispania</div>
+        <div>Figura: <strong>{{FIGURA}}</strong></div>
+        <div>Fecha: {{FECHA_INICIO}}</div>
       </div>
     </div>
 
     <div class="box medium">
-      <div class="cabecera">MEDIDAS</div>
+      <div class="title">MEDIDAS</div>
       <div class="contenido-box">
         <div id="medidas-box">{{MEDIDAS}}</div>
-        <div>PESO: {{PESO}}</div>
+        <div>Peso: {{PESO}}</div>
       </div>
     </div>
 
     <div class="box medium">
-      <div class="cabecera">CANTIDAD</div>
+      <div class="title">MATERIAL</div>
       <div class="contenido-box">
-        <div><b>{{CANTIDAD}}</b></div>
-      </div>
-    </div>
-
-    <div class="box medium">
-      <div class="cabecera">MATERIAL</div>
-      <div class="contenido-box">
+        <div>Cantidad: {{CANTIDAD}}</div>
         <div>{{MATERIAL}}</div>
       </div>
     </div>
 
     <div class="box medium">
-      <div class="cabecera">NOTAS</div>
+      <div class="title">NOTAS</div>
       <div class="contenido-box" id="notas-container">
         <div id="notas-box">{{NOTAS}}</div>
       </div>
     </div>
 
     <div class="box medium">
-      <div class="cabecera">APROBACIÓN</div>
+      <div class="title">APROBACIÓN</div>
       <div class="contenido-box">
-        <div>Firma: ____________</div>
-        <div>Nombre: __________</div>
+        <div>Firma: __________________</div>
+        <div>Nombre: ________________</div>
         <div>Fecha: __ / __ / ____</div>
       </div>
     </div>
   </div>
 
+  <!-- Script para formatear unidades -->
   <script>
     const UNIDADES = "{{UNIDADES}}";
     const medidasDiv = document.getElementById("medidas-box");
@@ -191,10 +178,9 @@
     if (medidasDiv && UNIDADES) {
       const contenido = medidasDiv.textContent;
       const nuevoContenido = contenido
-        .replace(/L:(\d+)/g, `<br>L: $1 ${UNIDADES}`)
+        .replace(/L:(\d+)/g, `L: $1 ${UNIDADES}`)
         .replace(/W:(\d+)/g, `<br>W: $1 ${UNIDADES}`)
         .replace(/H:(\d+)/g, `<br>H: $1 ${UNIDADES}`);
-
       medidasDiv.innerHTML = nuevoContenido.replace(/^<br>/, '');
     }
   </script>
