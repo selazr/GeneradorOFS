@@ -149,6 +149,12 @@
   animation: fadeIn 0.3s ease-in-out;
 }
 
+.chart-container {
+  max-width: 800px;
+  margin: 0 auto 2rem;
+  height: 400px;
+}
+
 .stats-panel h2 {
   font-weight: 700;
   margin-bottom: 1rem;
