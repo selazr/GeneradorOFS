@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import Collapse from 'bootstrap/js/dist/collapse';
 import { useNavigate } from "react-router-dom";
@@ -128,7 +128,7 @@ const Ordenes = () => {
 
   const [ordenesTree, setOrdenesTree] = useState([]);
 
-  const fetchOrdenesTree = () => {
+  const fetchOrdenesTree = useCallback(() => {
     return axios
       .get("http://localhost:3000/ordenes/tree", {
         headers: { Authorization: `Bearer ${token}` },
@@ -169,7 +169,7 @@ const Ordenes = () => {
         console.error("Error al cargar árbol:", err);
         throw err;
       });
-  };
+  }, [token]);
 
   const filteredOrdenesTree = ordenesTree
     .map((cliente) => ({
@@ -189,7 +189,7 @@ const Ordenes = () => {
 
   useEffect(() => {
     fetchOrdenesTree();
-  }, []);
+  }, [fetchOrdenesTree]);
 
   useEffect(() => {
     if (ordenSeleccionada) {
@@ -197,7 +197,7 @@ const Ordenes = () => {
     } else {
       setPdfPreviewUrl(null);
     }
-  }, [ordenSeleccionada]);
+  }, [ordenSeleccionada, handlePreviewPDF]);
 
   const expandirVista = (clienteId, proyectoId, ordenId) => {
     setTimeout(() => {
@@ -329,7 +329,7 @@ const Ordenes = () => {
     setImagenesModal([null, null, null, null, null]);
   };
 
-  const handlePreviewPDF = async (id) => {
+  const handlePreviewPDF = useCallback(async (id) => {
     if (!id || !token) return;
     try {
       const response = await fetch(`http://localhost:3000/ordenes/${id}/pdf`, {
@@ -350,7 +350,7 @@ const Ordenes = () => {
     } catch (error) {
       console.error("Error al obtener vista previa del PDF:", error);
     }
-  };
+  }, [token]);
   
   const handleDownloadPDF = async (id, cliente = false) => {
     if (!id || !token) {
