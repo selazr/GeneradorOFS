@@ -134,8 +134,36 @@ const Ordenes = () => {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {
-        setOrdenesTree(res.data);
-        return res.data;
+        const parsed = res.data.map((cliente) => ({
+          ...cliente,
+          proyectos: cliente.proyectos.map((proyecto) => ({
+            ...proyecto,
+            ordenes: proyecto.ordenes.map((orden) => {
+              let imgs = [];
+              if (orden.imagenes) {
+                try {
+                  const info =
+                    typeof orden.imagenes === "string"
+                      ? JSON.parse(orden.imagenes)
+                      : orden.imagenes;
+                  if (Array.isArray(info)) {
+                    imgs = info;
+                  } else if (info && Array.isArray(info.rutas)) {
+                    imgs = info.rutas.map((ruta, idx) => ({
+                      posicion: idx + 1,
+                      ruta,
+                    }));
+                  }
+                } catch (e) {
+                  console.error("Error parsing imagenes", e);
+                }
+              }
+              return { ...orden, imagenes: imgs };
+            }),
+          })),
+        }));
+        setOrdenesTree(parsed);
+        return parsed;
       })
       .catch((err) => {
         console.error("Error al cargar árbol:", err);
@@ -379,7 +407,8 @@ const Ordenes = () => {
         data,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      const nuevas = res.data.imagenes || [];
+      const rutas = res.data.rutas || [];
+      const nuevas = rutas.map((ruta, idx) => ({ posicion: idx + 1, ruta }));
       const arr = Array(5).fill(null);
       nuevas.forEach((img) => {
         if (img.posicion >= 1 && img.posicion <= 5) {
@@ -498,11 +527,27 @@ const Ordenes = () => {
                       .toISOString()
                       .slice(0, 10);
                   }
-                  setOrdenSeleccionada(orden);
+                  let imagenesData = orden.imagenes;
+                  if (typeof imagenesData === "string") {
+                    try {
+                      const parsed = JSON.parse(imagenesData);
+                      if (parsed && Array.isArray(parsed.rutas)) {
+                        imagenesData = parsed.rutas.map((ruta, idx) => ({
+                          posicion: idx + 1,
+                          ruta,
+                        }));
+                      } else {
+                        imagenesData = [];
+                      }
+                    } catch (_) {
+                      imagenesData = [];
+                    }
+                  }
+                  setOrdenSeleccionada({ ...orden, imagenes: imagenesData });
                   setForm(editableCopy);
-                  if (orden.imagenes && Array.isArray(orden.imagenes)) {
+                  if (Array.isArray(imagenesData) && imagenesData.length > 0) {
                     const imgs = Array(5).fill(null);
-                    orden.imagenes.forEach((img) => {
+                    imagenesData.forEach((img) => {
                       if (img.posicion >= 1 && img.posicion <= 5) {
                         imgs[img.posicion - 1] = {
                           file: null,
