@@ -7,6 +7,17 @@ const path = require('path');
 const router = express.Router();
 const projectController = require('../controllers/project.controller');
 
+// Lista de usuarios (excepto el propio) para iniciar conversaciones
+router.get('/list', verificarToken, async (req, res) => {
+    try {
+        const [rows] = await pool.query('SELECT id, nombre FROM usuarios WHERE id <> ?', [req.usuario.id]);
+        res.json(rows);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ mensaje: 'Error al obtener usuarios' });
+    }
+});
+
 // Ruta dinámica basada en el nombre de usuario
 router.get('/:username', verificarToken, async (req, res) => {
     const { username } = req.params;  // Obtener el nombre de usuario desde la URL

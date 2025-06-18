@@ -52,6 +52,45 @@ app.get('/mensajes', verificarToken, async (req, res) => {
     }
 });
 
+// Crear o recuperar una conversación privada
+app.post('/conversaciones', verificarToken, async (req, res) => {
+    const { usuarioId } = req.body;
+    const miId = req.usuario.id;
+    if (!usuarioId) return res.status(400).json({ mensaje: 'Usuario requerido' });
+    try {
+        const [rows] = await pool.query(
+            'SELECT id FROM conversaciones WHERE (usuario_a=? AND usuario_b=?) OR (usuario_a=? AND usuario_b=?)',
+            [miId, usuarioId, usuarioId, miId]
+        );
+        let convId;
+        if (rows.length > 0) {
+            convId = rows[0].id;
+        } else {
+            const [result] = await pool.query('INSERT INTO conversaciones (usuario_a, usuario_b) VALUES (?, ?)', [miId, usuarioId]);
+            convId = result.insertId;
+        }
+        res.json({ id: convId });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ mensaje: 'Error al crear conversación' });
+    }
+});
+
+// Obtener mensajes de una conversación
+app.get('/conversaciones/:id/mensajes', verificarToken, async (req, res) => {
+    const convId = req.params.id;
+    const miId = req.usuario.id;
+    try {
+        const [conv] = await pool.query('SELECT * FROM conversaciones WHERE id=? AND (usuario_a=? OR usuario_b=?)', [convId, miId, miId]);
+        if (conv.length === 0) return res.status(403).json({ mensaje: 'Acceso denegado' });
+        const [rows] = await pool.query('SELECT mensaje, remitente_id FROM mensajes_privados WHERE conversacion_id=? ORDER BY id ASC', [convId]);
+        res.json(rows);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ mensaje: 'Error al obtener mensajes' });
+    }
+});
+
 // Socket.io auth con JWT
 io.use((socket, next) => {
     const token = socket.handshake.auth.token;
@@ -67,6 +106,8 @@ io.use((socket, next) => {
 
 io.on('connection', (socket) => {
     console.log(`Socket conectado: ${socket.user.email}`);
+    socket.join(`user:${socket.user.id}`);
+
     socket.on('chat message', async (msg) => {
         const data = { user: socket.user.email, mensaje: msg };
         io.emit('chat message', data);
@@ -74,6 +115,16 @@ io.on('connection', (socket) => {
             await pool.query('INSERT INTO mensajes (usuario_id, mensaje) VALUES (?, ?)', [socket.user.id, msg]);
         } catch (err) {
             console.error('Error guardando mensaje:', err);
+        }
+    });
+
+    socket.on('private message', async ({ to, conversacionId, mensaje }) => {
+        const payload = { conversacion_id: conversacionId, remitente_id: socket.user.id, mensaje };
+        io.to(`user:${to}`).to(`user:${socket.user.id}`).emit('private message', payload);
+        try {
+            await pool.query('INSERT INTO mensajes_privados (conversacion_id, remitente_id, mensaje) VALUES (?, ?, ?)', [conversacionId, socket.user.id, mensaje]);
+        } catch (err) {
+            console.error('Error guardando mensaje privado:', err);
         }
     });
 });

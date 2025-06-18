@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/Dashboard.css";
@@ -174,6 +174,19 @@ const Dashboard = () => {
       >
         Ver OF's
       </button>
+    </li>
+    <li className="nav-item">
+      <Link
+        to="/chat"
+        className="nav-link text-white btn btn-link w-100 text-center p-2"
+        style={{ transition: 'background-color 0.3s, transform 0.2s' }}
+        onMouseEnter={(e) => e.target.style.backgroundColor = '#575757'}
+        onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+        onMouseDown={(e) => e.target.style.transform = 'scale(0.98)'}
+        onMouseUp={(e) => e.target.style.transform = 'scale(1)'}
+      >
+        Chat
+      </Link>
     </li>
   </ul>
 </div>

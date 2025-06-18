@@ -4,56 +4,94 @@ import axios from 'axios';
 
 const Chat = () => {
   const [socket, setSocket] = useState(null);
-  const [message, setMessage] = useState('');
+  const [users, setUsers] = useState([]);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [conversationId, setConversationId] = useState(null);
   const [messages, setMessages] = useState([]);
+  const [message, setMessage] = useState('');
+  const [myId, setMyId] = useState(null);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) return;
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    setMyId(payload.id);
 
     axios
-      .get('http://localhost:3000/mensajes', {
+      .get('http://localhost:3000/usuarios/list', {
         headers: { Authorization: `Bearer ${token}` }
       })
-      .then(res => setMessages(res.data))
+      .then(res => setUsers(res.data))
       .catch(err => console.error(err));
 
-    const newSocket = io('http://localhost:3000', {
-      auth: { token }
-    });
+    const newSocket = io('http://localhost:3000', { auth: { token } });
     setSocket(newSocket);
 
-    newSocket.on('chat message', (msg) => {
-      setMessages((prev) => [...prev, msg]);
+    newSocket.on('private message', (msg) => {
+      if (msg.conversacion_id === conversationId) {
+        setMessages(prev => [...prev, msg]);
+      }
     });
 
     return () => newSocket.disconnect();
-  }, []);
+  }, [conversationId]);
 
-  const sendMessage = (e) => {
-    e.preventDefault();
-    if (message.trim() && socket) {
-      socket.emit('chat message', message);
-      setMessage('');
+  const openConversation = async (userId) => {
+    const token = localStorage.getItem('token');
+    try {
+      const res = await axios.post('http://localhost:3000/conversaciones', { usuarioId: userId }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setConversationId(res.data.id);
+      setSelectedUser(userId);
+      const resMsgs = await axios.get(`http://localhost:3000/conversaciones/${res.data.id}/mensajes`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setMessages(resMsgs.data);
+    } catch (err) {
+      console.error(err);
     }
   };
 
+  const sendMessage = (e) => {
+    e.preventDefault();
+    if (!socket || !message.trim() || !conversationId || !selectedUser) return;
+    socket.emit('private message', { to: selectedUser, conversacionId: conversationId, mensaje: message });
+    setMessage('');
+  };
+
+  const nombreUsuario = users.find(u => u.id === selectedUser)?.nombre;
+
   return (
-    <div>
-      <h2>Chat</h2>
-      <ul>
-        {messages.map((m, i) => (
-          <li key={i}><b>{m.user}:</b> {m.mensaje}</li>
-        ))}
-      </ul>
-      <form onSubmit={sendMessage}>
-        <input
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          placeholder="Escribe un mensaje"
-        />
-        <button type="submit">Enviar</button>
-      </form>
+    <div style={{ display: 'flex' }}>
+      <aside style={{ width: 200, marginRight: '1rem' }}>
+        <h4>Usuarios</h4>
+        <ul>
+          {users.map(u => (
+            <li key={u.id}>
+              <button onClick={() => openConversation(u.id)}>{u.nombre}</button>
+            </li>
+          ))}
+        </ul>
+      </aside>
+      <main style={{ flex: 1 }}>
+        {conversationId ? (
+          <>
+            <h4>Chat con {nombreUsuario}</h4>
+            <ul>
+              {messages.map((m, i) => (
+                <li key={i}><b>{m.remitente_id === myId ? 'Tú' : nombreUsuario}:</b> {m.mensaje}</li>
+              ))}
+            </ul>
+            <form onSubmit={sendMessage}>
+              <input value={message} onChange={e => setMessage(e.target.value)} placeholder="Escribe un mensaje" />
+              <button type="submit">Enviar</button>
+            </form>
+          </>
+        ) : (
+          <p>Selecciona un usuario para comenzar a chatear</p>
+        )}
+      </main>
     </div>
   );
 };
