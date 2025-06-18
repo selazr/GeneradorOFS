@@ -82,7 +82,7 @@ router.post('/', verificarToken, async (req, res) => {
           fabric_pieza, post_mec, pegar_lijar, esculpir,
           line_x, fibra, mortero, aparejo, pintura, estructura,
           peso, notas, cliente_id, proyecto_id
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
         [
           usuario_id, nombre_cliente, nombre_proyecto, codigo_proyecto, responsable, figura,
           medida_v, medida_w, medida_h, unidad_medida,
