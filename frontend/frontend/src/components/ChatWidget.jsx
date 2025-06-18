@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { MessageCircle, SendHorizonal, ArrowLeft } from 'lucide-react';
 import { io } from 'socket.io-client';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import '../styles/ChatWidget.css';
 
 const ChatWidget = () => {
   const [open, setOpen] = useState(false);
@@ -13,6 +14,8 @@ const ChatWidget = () => {
   const [message, setMessage] = useState('');
   const [users, setUsers] = useState([]);
   const [myId, setMyId] = useState(null);
+  const [unread, setUnread] = useState({});
+  const messagesEndRef = useRef(null);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -32,13 +35,27 @@ const ChatWidget = () => {
     setSocket(newSocket);
 
     newSocket.on('private message', msg => {
+      if (msg.remitente_id === myId) {
+        if (msg.conversacion_id === conversationId) {
+          setMessages(prev => [...prev, msg]);
+        }
+        return;
+      }
       if (msg.conversacion_id === conversationId) {
         setMessages(prev => [...prev, msg]);
+      } else {
+        setUnread(prev => ({ ...prev, [msg.remitente_id]: true }));
       }
     });
 
     return () => newSocket.disconnect();
   }, [conversationId]);
+
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages]);
 
   const openConversation = async (user) => {
     const token = localStorage.getItem('token');
@@ -50,6 +67,7 @@ const ChatWidget = () => {
       );
       setConversationId(res.data.id);
       setSelectedUser(user);
+      setUnread(prev => ({ ...prev, [user.id]: false }));
       const resMsgs = await axios.get(
         `http://localhost:3000/conversaciones/${res.data.id}/mensajes`,
         { headers: { Authorization: `Bearer ${token}` } }
@@ -67,17 +85,14 @@ const ChatWidget = () => {
       conversacionId: conversationId,
       mensaje: message,
     });
-    setMessages(prev => [
-      ...prev,
-      { remitente_id: myId, mensaje: message },
-    ]);
+    // The server will emit the message back to this user
     setMessage('');
   };
 
   return (
     <>
       <button
-        className="btn btn-primary rounded-circle position-fixed bottom-0 end-0 m-4 shadow"
+        className="btn btn-primary rounded-circle position-fixed bottom-0 end-0 m-4 shadow position-relative"
         onClick={() => {
           if (selectedUser) {
             setSelectedUser(null);
@@ -89,6 +104,9 @@ const ChatWidget = () => {
         }}
       >
         <MessageCircle />
+        {Object.values(unread).some(Boolean) && (
+          <span className="notification-dot"></span>
+        )}
       </button>
 
       {open && !selectedUser && (
@@ -98,7 +116,7 @@ const ChatWidget = () => {
             {users.map(user => (
               <li
                 key={user.id}
-                className="list-group-item d-flex align-items-center hover-bg-light cursor-pointer"
+                className="list-group-item d-flex align-items-center hover-bg-light cursor-pointer position-relative"
                 onClick={() => openConversation(user)}
               >
                 <div className="me-2 rounded-circle bg-secondary text-white d-flex justify-content-center align-items-center" style={{ width: 32, height: 32 }}>
@@ -109,6 +127,7 @@ const ChatWidget = () => {
                   )}
                 </div>
                 <span>{user.nombre}</span>
+                {unread[user.id] && <span className="notification-dot ms-2"></span>}
               </li>
             ))}
           </ul>
@@ -137,9 +156,10 @@ const ChatWidget = () => {
           <div className="card-body overflow-auto">
             {messages.map((m, i) => (
               <div key={i} className={`d-flex ${m.remitente_id === myId ? 'justify-content-end' : 'justify-content-start'} mb-2`}>
-                <div className={`p-2 rounded-pill ${m.remitente_id === myId ? 'bg-primary text-white' : 'bg-light text-dark'}`}>{m.mensaje}</div>
+                <div className={`chat-message ${m.remitente_id === myId ? 'me' : 'other'}`}>{m.mensaje}</div>
               </div>
             ))}
+            <div ref={messagesEndRef}></div>
           </div>
           <div className="card-footer">
             <form onSubmit={e => { e.preventDefault(); handleSend(); }} className="d-flex">
