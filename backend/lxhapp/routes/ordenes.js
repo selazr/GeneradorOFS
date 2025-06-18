@@ -153,21 +153,50 @@ router.put('/:id', verificarToken, async (req, res) => {
 });
 // Eliminar una orden
 router.delete('/:id', verificarToken, async (req, res) => {
-    const { id } = req.params;
-    const usuario_id = req.usuario.id;
+  const { id } = req.params;
+  const usuario_id = req.usuario.id;
 
-    try {
-        const [result] = await pool.query('DELETE FROM ordenes WHERE id = ? AND usuario_id = ?', [id, usuario_id]);
-
-        if (result.affectedRows > 0) {
-            res.status(200).json({ mensaje: "Orden eliminada correctamente" });
-        } else {
-            res.status(404).json({ mensaje: "Orden no encontrada o sin permisos para eliminar" });
-        }
-    } catch (error) {
-        console.error("Error al eliminar la orden:", error);
-        res.status(500).json({ mensaje: "Error interno del servidor" });
+  try {
+    // 1️⃣ Obtener y borrar archivos de imagen
+    const [imgs] = await pool.query(
+      'SELECT ruta FROM imagenes WHERE orden_id = ?',
+      [id]
+    );
+    for (const img of imgs) {
+      const fileName = path.basename(img.ruta);
+      const filePath = path.join(
+        __dirname,
+        '..',
+        'uploads',
+        'ordenes',
+        String(id),
+        fileName
+      );
+      await fs.promises.rm(filePath, { force: true }).catch(() => {});
     }
+
+    // 2️⃣ Eliminar registros de imagenes y directorio
+    await pool.query('DELETE FROM imagenes WHERE orden_id = ?', [id]);
+    const dirPath = path.join(__dirname, '..', 'uploads', 'ordenes', String(id));
+    await fs.promises.rm(dirPath, { recursive: true, force: true }).catch(() => {});
+
+    // 3️⃣ Borrar la orden
+    const [result] = await pool.query(
+      'DELETE FROM ordenes WHERE id = ? AND usuario_id = ?',
+      [id, usuario_id]
+    );
+
+    if (result.affectedRows > 0) {
+      res.status(200).json({ mensaje: 'Orden eliminada correctamente' });
+    } else {
+      res
+        .status(404)
+        .json({ mensaje: 'Orden no encontrada o sin permisos para eliminar' });
+    }
+  } catch (error) {
+    console.error('Error al eliminar la orden:', error);
+    res.status(500).json({ mensaje: 'Error interno del servidor' });
+  }
 });
 
 

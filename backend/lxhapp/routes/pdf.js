@@ -53,19 +53,23 @@ router.post("/:id/pdf", async (req, res) => {
         [id]
       );
       const rutas = imgs.map((img) => img.ruta);
-      layoutSeleccionado = rutas.length;
-      imagenes = await Promise.all(
+      const archivos = await Promise.all(
         rutas.map(async (ruta) => {
           const abs = path.join(
             __dirname,
             '..',
             ruta.replace('/ordenes-img/', 'uploads/ordenes/')
           );
-          const data = await fs.promises.readFile(abs);
+          const data = await fs.promises
+            .readFile(abs)
+            .catch(() => null);
+          if (!data) return null;
           const ext = path.extname(ruta).substring(1);
           return `data:image/${ext};base64,${data.toString('base64')}`;
         })
       );
+      imagenes = archivos.filter(Boolean);
+      layoutSeleccionado = imagenes.length;
     } catch (e) {
       console.error('Error leyendo imágenes', e);
     }
