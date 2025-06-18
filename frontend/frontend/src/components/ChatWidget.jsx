@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { MessageCircle } from 'lucide-react';
+import { MessageCircle, SendHorizonal, ArrowLeft } from 'lucide-react';
 import { io } from 'socket.io-client';
 import axios from 'axios';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 const ChatWidget = () => {
   const [open, setOpen] = useState(false);
@@ -22,7 +23,7 @@ const ChatWidget = () => {
 
     axios
       .get('http://localhost:3000/usuarios/list', {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       })
       .then(res => setUsers(res.data))
       .catch(err => console.error(err));
@@ -42,37 +43,41 @@ const ChatWidget = () => {
   const openConversation = async (user) => {
     const token = localStorage.getItem('token');
     try {
-      const res = await axios.post('http://localhost:3000/conversaciones', { usuarioId: user.id }, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const res = await axios.post(
+        'http://localhost:3000/conversaciones',
+        { usuarioId: user.id },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
       setConversationId(res.data.id);
       setSelectedUser(user);
-      const resMsgs = await axios.get(`http://localhost:3000/conversaciones/${res.data.id}/mensajes`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const resMsgs = await axios.get(
+        `http://localhost:3000/conversaciones/${res.data.id}/mensajes`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
       setMessages(resMsgs.data);
     } catch (err) {
       console.error(err);
     }
   };
 
-  const handleSend = (e) => {
-    e.preventDefault();
+  const handleSend = () => {
     if (!socket || !message.trim() || !conversationId || !selectedUser) return;
     socket.emit('private message', {
       to: selectedUser.id,
       conversacionId: conversationId,
-      mensaje: message
+      mensaje: message,
     });
+    setMessages(prev => [
+      ...prev,
+      { remitente_id: myId, mensaje: message },
+    ]);
     setMessage('');
   };
-
-  const messagesToShow = messages;
 
   return (
     <>
       <button
-        className="fixed bottom-4 right-4 bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full shadow-lg"
+        className="btn btn-primary rounded-circle position-fixed bottom-0 end-0 m-4 shadow"
         onClick={() => {
           if (selectedUser) {
             setSelectedUser(null);
@@ -83,81 +88,73 @@ const ChatWidget = () => {
           }
         }}
       >
-        <MessageCircle className="w-6 h-6" />
+        <MessageCircle />
       </button>
 
       {open && !selectedUser && (
-        <div className="fixed bottom-20 right-4 bg-white w-64 rounded-lg shadow-lg overflow-hidden">
-          {users.map(u => (
-            <div
-              key={u.id}
-              className="flex items-center p-2 cursor-pointer hover:bg-gray-100"
-              onClick={() => {
-                openConversation(u);
-                setOpen(true);
-              }}
-            >
-              <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center mr-2 overflow-hidden">
-                {u.avatar ? (
-                  <img src={`http://localhost:3000${u.avatar}`} alt={u.nombre} className="w-full h-full object-cover" />
-                ) : (
-                  <span className="text-sm font-medium text-gray-700">{u.nombre.charAt(0)}</span>
-                )}
-              </div>
-              <span className="text-gray-800">{u.nombre}</span>
-            </div>
-          ))}
+        <div className="card position-fixed bottom-0 end-0 mb-5 me-4" style={{ width: '18rem', maxHeight: '400px', overflowY: 'auto' }}>
+          <div className="card-header bg-light fw-bold">Usuarios</div>
+          <ul className="list-group list-group-flush">
+            {users.map(user => (
+              <li
+                key={user.id}
+                className="list-group-item d-flex align-items-center hover-bg-light cursor-pointer"
+                onClick={() => openConversation(user)}
+              >
+                <div className="me-2 rounded-circle bg-secondary text-white d-flex justify-content-center align-items-center" style={{ width: 32, height: 32 }}>
+                  {user.avatar ? (
+                    <img src={`http://localhost:3000${user.avatar}`} alt={user.nombre} className="rounded-circle w-100 h-100" />
+                  ) : (
+                    <span>{user.nombre.charAt(0)}</span>
+                  )}
+                </div>
+                <span>{user.nombre}</span>
+              </li>
+            ))}
+          </ul>
         </div>
       )}
 
       {selectedUser && (
-        <div className="fixed bottom-20 right-4 bg-white w-72 sm:w-80 h-96 rounded-lg shadow-lg flex flex-col">
-          <div className="flex items-center border-b p-2">
-            <button
-              className="mr-2 text-sm text-gray-600"
-              onClick={() => {
-                setSelectedUser(null);
-                setConversationId(null);
-                setMessages([]);
-              }}>
-              &#8592;
+        <div className="card position-fixed bottom-0 end-0 mb-5 me-4" style={{ width: '22rem', height: '32rem' }}>
+          <div className="card-header d-flex align-items-center">
+            <button className="btn btn-sm btn-outline-secondary me-2" onClick={() => {
+              setSelectedUser(null);
+              setConversationId(null);
+              setMessages([]);
+            }}>
+              <ArrowLeft size={18} />
             </button>
-            <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center mr-2 overflow-hidden">
+            <div className="me-2 rounded-circle bg-secondary text-white d-flex justify-content-center align-items-center" style={{ width: 32, height: 32 }}>
               {selectedUser.avatar ? (
-                <img src={`http://localhost:3000${selectedUser.avatar}`} alt={selectedUser.nombre} className="w-full h-full object-cover" />
+                <img src={`http://localhost:3000${selectedUser.avatar}`} alt={selectedUser.nombre} className="rounded-circle w-100 h-100" />
               ) : (
-                <span className="text-sm font-medium text-gray-700">{selectedUser.nombre.charAt(0)}</span>
+                <span>{selectedUser.nombre.charAt(0)}</span>
               )}
             </div>
-            <span className="text-gray-800 font-medium">{selectedUser.nombre}</span>
+            <span className="fw-bold">{selectedUser.nombre}</span>
           </div>
-          <div className="flex-1 overflow-y-auto p-2 space-y-2">
-            {messagesToShow.map((m, i) => (
-              <div key={i} className={`flex ${m.remitente_id === myId ? 'justify-end' : ''}`}>
-                <div className={`${m.remitente_id === myId ? 'bg-blue-500 text-white' : 'bg-gray-200'} px-3 py-1 rounded-full text-sm`}>{m.mensaje}</div>
+          <div className="card-body overflow-auto">
+            {messages.map((m, i) => (
+              <div key={i} className={`d-flex ${m.remitente_id === myId ? 'justify-content-end' : 'justify-content-start'} mb-2`}>
+                <div className={`p-2 rounded-pill ${m.remitente_id === myId ? 'bg-primary text-white' : 'bg-light text-dark'}`}>{m.mensaje}</div>
               </div>
             ))}
           </div>
-          <form
-            onSubmit={e => {
-              e.preventDefault();
-              handleSend();
-            }}
-            className="flex p-2 border-t"
-          >
-            <input
-              className="flex-1 border rounded-l-full px-3 py-1 text-sm focus:outline-none"
-              value={message}
-              onChange={e => setMessage(e.target.value)}
-              placeholder="Escribe un mensaje"
-            />
-            <button
-              type="submit"
-              className="ml-2 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-full text-sm"
-            >
-              Enviar
-            </button>
-          </form>
+          <div className="card-footer">
+            <form onSubmit={e => { e.preventDefault(); handleSend(); }} className="d-flex">
+              <input
+                type="text"
+                className="form-control me-2"
+                value={message}
+                onChange={e => setMessage(e.target.value)}
+                placeholder="Escribe un mensaje..."
+              />
+              <button type="submit" className="btn btn-primary">
+                <SendHorizonal size={18} />
+              </button>
+            </form>
+          </div>
         </div>
       )}
     </>
