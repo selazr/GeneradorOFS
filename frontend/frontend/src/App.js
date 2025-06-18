@@ -4,7 +4,6 @@ import Login from "./components/Login";
 import Register from "./components/Register";
 import Dashboard from "./pages/Dashboard";
 import Ordenes from './apps/Ordenes';
-import Chat from './components/Chat';
 
 function App() {
   return (
@@ -16,7 +15,6 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/ordenes" element={<Ordenes />} />
-        <Route path="/chat" element={<Chat />} />
       </Routes>
     </Router>
   );

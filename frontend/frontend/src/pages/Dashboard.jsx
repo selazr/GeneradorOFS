@@ -9,6 +9,7 @@ import VerOFs from "../apps/VerOFs";
 import Estadisticas from "../apps/Estadisticas";
 import { Modal, Button } from "react-bootstrap";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import ChatWidget from "../components/ChatWidget";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -175,19 +176,6 @@ const Dashboard = () => {
         Ver OF's
       </button>
     </li>
-    <li className="nav-item">
-      <Link
-        to="/chat"
-        className="nav-link text-white btn btn-link w-100 text-center p-2"
-        style={{ transition: 'background-color 0.3s, transform 0.2s' }}
-        onMouseEnter={(e) => e.target.style.backgroundColor = '#575757'}
-        onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
-        onMouseDown={(e) => e.target.style.transform = 'scale(0.98)'}
-        onMouseUp={(e) => e.target.style.transform = 'scale(1)'}
-      >
-        Chat
-      </Link>
-    </li>
   </ul>
 </div>
 
@@ -276,6 +264,7 @@ const Dashboard = () => {
           </form>
         </Modal.Body>
       </Modal>
+      <ChatWidget />
     </div>
   );
 };
