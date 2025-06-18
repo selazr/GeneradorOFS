@@ -1,21 +1,24 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { MessageCircle } from 'lucide-react';
-
-const sampleUsers = [
-  { id: 1, name: 'Laia', avatar: null },
-  { id: 2, name: 'Jackeline', avatar: null },
-  { id: 3, name: 'Jordi', avatar: null },
-  { id: 4, name: 'Viviam', avatar: null },
-  { id: 5, name: 'Angelica', avatar: null },
-  { id: 6, name: 'Daniel', avatar: null },
-  { id: 7, name: 'Marialena', avatar: null }
-];
+import axios from 'axios';
 
 const ChatWidget = () => {
   const [open, setOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [chats, setChats] = useState({});
   const [message, setMessage] = useState('');
+  const [users, setUsers] = useState([]);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    axios
+      .get('http://localhost:3000/usuarios/list', {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      .then(res => setUsers(res.data))
+      .catch(err => console.error(err));
+  }, []);
 
   const handleSend = () => {
     if (!message.trim() || !selectedUser) return;
@@ -45,7 +48,7 @@ const ChatWidget = () => {
 
       {open && !selectedUser && (
         <div className="fixed bottom-20 right-4 bg-white w-64 rounded-lg shadow-lg overflow-hidden">
-          {sampleUsers.map(u => (
+          {users.map(u => (
             <div
               key={u.id}
               className="flex items-center p-2 cursor-pointer hover:bg-gray-100"
@@ -56,12 +59,12 @@ const ChatWidget = () => {
             >
               <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center mr-2 overflow-hidden">
                 {u.avatar ? (
-                  <img src={u.avatar} alt={u.name} className="w-full h-full object-cover" />
+                  <img src={`http://localhost:3000${u.avatar}`} alt={u.nombre} className="w-full h-full object-cover" />
                 ) : (
-                  <span className="text-sm font-medium text-gray-700">{u.name.charAt(0)}</span>
+                  <span className="text-sm font-medium text-gray-700">{u.nombre.charAt(0)}</span>
                 )}
               </div>
-              <span className="text-gray-800">{u.name}</span>
+              <span className="text-gray-800">{u.nombre}</span>
             </div>
           ))}
         </div>
@@ -75,12 +78,12 @@ const ChatWidget = () => {
             </button>
             <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center mr-2 overflow-hidden">
               {selectedUser.avatar ? (
-                <img src={selectedUser.avatar} alt={selectedUser.name} className="w-full h-full object-cover" />
+                <img src={`http://localhost:3000${selectedUser.avatar}`} alt={selectedUser.nombre} className="w-full h-full object-cover" />
               ) : (
-                <span className="text-sm font-medium text-gray-700">{selectedUser.name.charAt(0)}</span>
+                <span className="text-sm font-medium text-gray-700">{selectedUser.nombre.charAt(0)}</span>
               )}
             </div>
-            <span className="text-gray-800 font-medium">{selectedUser.name}</span>
+            <span className="text-gray-800 font-medium">{selectedUser.nombre}</span>
           </div>
           <div className="flex-1 overflow-y-auto p-2 space-y-2">
             {messages.map((m, i) => (

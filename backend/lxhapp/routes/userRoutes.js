@@ -10,7 +10,12 @@ const projectController = require('../controllers/project.controller');
 // Lista de usuarios (excepto el propio) para iniciar conversaciones
 router.get('/list', verificarToken, async (req, res) => {
     try {
-        const [rows] = await pool.query('SELECT id, nombre FROM usuarios WHERE id <> ?', [req.usuario.id]);
+        const [rows] = await pool.query('SELECT id, nombre, avatar FROM usuarios WHERE id <> ?', [req.usuario.id]);
+        rows.forEach(u => {
+            if (!u.avatar) {
+                u.avatar = '/avatars/default.jpg';
+            }
+        });
         res.json(rows);
     } catch (error) {
         console.error(error);
