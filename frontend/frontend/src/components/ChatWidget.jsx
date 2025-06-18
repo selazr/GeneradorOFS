@@ -138,13 +138,7 @@ const ChatWidget = () => {
               </div>
             ))}
           </div>
-          <form
-            onSubmit={e => {
-              e.preventDefault();
-              handleSend();
-            }}
-            className="flex p-2 border-t"
-          >
+          <form onSubmit={handleSend} className="flex p-2 border-t">
             <input
               className="flex-1 border rounded-l-full px-3 py-1 text-sm focus:outline-none"
               value={message}
