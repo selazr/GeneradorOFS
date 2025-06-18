@@ -31,10 +31,29 @@ const ChatWidget = () => {
       .then(res => setUsers(res.data))
       .catch(err => console.error(err));
 
+    axios
+      .get('http://localhost:3000/conversaciones/unread', {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then(res => {
+        const counts = {};
+        res.data.forEach(r => {
+          if (r.total > 0) counts[r.usuario_id] = true;
+        });
+        setUnread(counts);
+      })
+      .catch(err => console.error(err));
+
     const newSocket = io('http://localhost:3000', { auth: { token } });
     setSocket(newSocket);
 
-    newSocket.on('private message', msg => {
+    return () => newSocket.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!socket) return;
+
+    const handler = msg => {
       if (msg.remitente_id === myId) {
         if (msg.conversacion_id === conversationId) {
           setMessages(prev => [...prev, msg]);
@@ -46,10 +65,11 @@ const ChatWidget = () => {
       } else {
         setUnread(prev => ({ ...prev, [msg.remitente_id]: true }));
       }
-    });
+    };
 
-    return () => newSocket.disconnect();
-  }, [conversationId]);
+    socket.on('private message', handler);
+    return () => socket.off('private message', handler);
+  }, [socket, conversationId, myId]);
 
   useEffect(() => {
     if (messagesEndRef.current) {
@@ -73,6 +93,11 @@ const ChatWidget = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setMessages(resMsgs.data);
+      await axios.put(
+        `http://localhost:3000/conversaciones/${res.data.id}/read`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
     } catch (err) {
       console.error(err);
     }

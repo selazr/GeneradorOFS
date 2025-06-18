@@ -83,11 +83,46 @@ app.get('/conversaciones/:id/mensajes', verificarToken, async (req, res) => {
     try {
         const [conv] = await pool.query('SELECT * FROM conversaciones WHERE id=? AND (usuario_a=? OR usuario_b=?)', [convId, miId, miId]);
         if (conv.length === 0) return res.status(403).json({ mensaje: 'Acceso denegado' });
-        const [rows] = await pool.query('SELECT mensaje, remitente_id FROM mensajes_privados WHERE conversacion_id=? ORDER BY id ASC', [convId]);
+        const [rows] = await pool.query('SELECT mensaje, remitente_id, leido FROM mensajes_privados WHERE conversacion_id=? ORDER BY id ASC', [convId]);
         res.json(rows);
     } catch (error) {
         console.error(error);
         res.status(500).json({ mensaje: 'Error al obtener mensajes' });
+    }
+});
+
+// Marcar mensajes como leídos en una conversación
+app.put('/conversaciones/:id/read', verificarToken, async (req, res) => {
+    const convId = req.params.id;
+    const userId = req.usuario.id;
+    try {
+        await pool.query('UPDATE mensajes_privados SET leido=1, read_at=NOW() WHERE conversacion_id=? AND remitente_id<>? AND leido=0', [convId, userId]);
+        res.json({ mensaje: 'Mensajes marcados como leídos' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ mensaje: 'Error al marcar mensajes' });
+    }
+});
+
+// Obtener conteo de mensajes no leídos por remitente
+app.get('/conversaciones/unread', verificarToken, async (req, res) => {
+    const userId = req.usuario.id;
+    try {
+        const [rows] = await pool.query(
+            `SELECT CASE WHEN c.usuario_a=? THEN c.usuario_b ELSE c.usuario_a END AS usuario_id,
+                    COUNT(mp.id) AS total
+             FROM mensajes_privados mp
+             JOIN conversaciones c ON mp.conversacion_id=c.id
+             WHERE (c.usuario_a=? OR c.usuario_b=?)
+               AND mp.remitente_id<>?
+               AND mp.leido=0
+             GROUP BY usuario_id`,
+            [userId, userId, userId, userId]
+        );
+        res.json(rows);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ mensaje: 'Error al obtener no leídos' });
     }
 });
 
@@ -122,7 +157,7 @@ io.on('connection', (socket) => {
         const payload = { conversacion_id: conversacionId, remitente_id: socket.user.id, mensaje };
         io.to(`user:${to}`).to(`user:${socket.user.id}`).emit('private message', payload);
         try {
-            await pool.query('INSERT INTO mensajes_privados (conversacion_id, remitente_id, mensaje) VALUES (?, ?, ?)', [conversacionId, socket.user.id, mensaje]);
+            await pool.query('INSERT INTO mensajes_privados (conversacion_id, remitente_id, mensaje, leido) VALUES (?, ?, ?, 0)', [conversacionId, socket.user.id, mensaje]);
         } catch (err) {
             console.error('Error guardando mensaje privado:', err);
         }
