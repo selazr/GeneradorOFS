@@ -152,7 +152,7 @@ router.post("/:id/pdf", async (req, res) => {
 
     // **Iniciar Puppeteer**
     const browser = await puppeteer.launch({
-      executablePath: "/usr/bin/chromium-browser",
+      executablePath: process.env.CHROME_PATH || puppeteer.executablePath(),
       headless: true,
       args: ["--no-sandbox", "--disable-setuid-sandbox"],
     });
