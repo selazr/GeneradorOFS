@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { API_URL } from '../api';
 
 const OrdenesExternas = () => {
   const [form, setForm] = useState({ cliente: '', proyecto: '', figura: '' });
@@ -27,7 +28,7 @@ const OrdenesExternas = () => {
     data.append('figura', form.figura);
 
     try {
-      await axios.post('http://localhost:3000/ordenes-externas', data, {
+      await axios.post(`${API_URL}/ordenes-externas`, data, {
         headers: { Authorization: `Bearer ${token}` },
       });
       alert('Orden externa guardada');
