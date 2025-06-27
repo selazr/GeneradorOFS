@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
+import { API_URL } from "../api";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/Dashboard.css";
 import Ordenes from "../apps/Ordenes";
@@ -33,7 +34,7 @@ const Dashboard = () => {
     }
 
     axios
-      .get(`http://localhost:3000/usuarios/${nombreUsuario}`, {
+      .get(`${API_URL}/usuarios/${nombreUsuario}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((response) => {
@@ -76,10 +77,10 @@ const Dashboard = () => {
     e.preventDefault();
     const token = localStorage.getItem("token");
     try {
-      await axios.put(`http://localhost:3000/usuarios/${perfil.nombre}`, editData, {
+      await axios.put(`${API_URL}/usuarios/${perfil.nombre}`, editData, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      const res = await axios.get(`http://localhost:3000/usuarios/${editData.nombre}`, {
+      const res = await axios.get(`${API_URL}/usuarios/${editData.nombre}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setPerfil(res.data);
@@ -192,7 +193,7 @@ const Dashboard = () => {
           </div>
           <div className="dropdown" ref={dropdownRef}>
             <img
-              src={perfil?.avatar ? `http://localhost:3000${perfil.avatar}` : "/silueta.jpg"}
+              src={perfil?.avatar ? `${API_URL}${perfil.avatar}` : "/silueta.jpg"}
               alt=""
               className="perfil-img dropdown-toggle"
               onClick={() => setMenuAbierto(!menuAbierto)}
@@ -226,7 +227,7 @@ const Dashboard = () => {
           {perfil && (
             <>
               <img
-                src={perfil.avatar ? `http://localhost:3000${perfil.avatar}` : "/silueta.jpg"}
+                src={perfil.avatar ? `${API_URL}${perfil.avatar}` : "/silueta.jpg"}
                 alt="avatar"
                 className="rounded-circle mb-3"
                 style={{ width: "100px", height: "100px", objectFit: "cover" }}
