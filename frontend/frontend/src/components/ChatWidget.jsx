@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { MessageCircle, SendHorizonal, ArrowLeft } from 'lucide-react';
 import { io } from 'socket.io-client';
 import axios from 'axios';
+import { API_URL } from '../api';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../styles/ChatWidget.css';
 
@@ -25,14 +26,14 @@ const ChatWidget = () => {
     setMyId(payload.id);
 
     axios
-      .get('http://localhost:3000/usuarios/list', {
+      .get(`${API_URL}/usuarios/list`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then(res => setUsers(res.data))
       .catch(err => console.error(err));
 
     axios
-      .get('http://localhost:3000/conversaciones/unread', {
+      .get(`${API_URL}/conversaciones/unread`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then(res => {
@@ -44,7 +45,7 @@ const ChatWidget = () => {
       })
       .catch(err => console.error(err));
 
-    const newSocket = io('http://localhost:3000', { auth: { token } });
+    const newSocket = io(API_URL, { auth: { token } });
     setSocket(newSocket);
 
     return () => newSocket.disconnect();
@@ -81,7 +82,7 @@ const ChatWidget = () => {
     const token = localStorage.getItem('token');
     try {
       const res = await axios.post(
-        'http://localhost:3000/conversaciones',
+        `${API_URL}/conversaciones`,
         { usuarioId: user.id },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -89,12 +90,12 @@ const ChatWidget = () => {
       setSelectedUser(user);
       setUnread(prev => ({ ...prev, [user.id]: false }));
       const resMsgs = await axios.get(
-        `http://localhost:3000/conversaciones/${res.data.id}/mensajes`,
+        `${API_URL}/conversaciones/${res.data.id}/mensajes`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setMessages(resMsgs.data);
       await axios.put(
-        `http://localhost:3000/conversaciones/${res.data.id}/read`,
+        `${API_URL}/conversaciones/${res.data.id}/read`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -146,7 +147,7 @@ const ChatWidget = () => {
               >
                 <div className="me-2 rounded-circle bg-secondary text-white d-flex justify-content-center align-items-center" style={{ width: 32, height: 32 }}>
                   {user.avatar ? (
-                    <img src={`http://localhost:3000${user.avatar}`} alt={user.nombre} className="rounded-circle w-100 h-100" />
+                    <img src={`${API_URL}${user.avatar}`} alt={user.nombre} className="rounded-circle w-100 h-100" />
                   ) : (
                     <span>{user.nombre.charAt(0)}</span>
                   )}
@@ -171,7 +172,7 @@ const ChatWidget = () => {
             </button>
             <div className="me-2 rounded-circle bg-secondary text-white d-flex justify-content-center align-items-center" style={{ width: 32, height: 32 }}>
               {selectedUser.avatar ? (
-                <img src={`http://localhost:3000${selectedUser.avatar}`} alt={selectedUser.nombre} className="rounded-circle w-100 h-100" />
+                <img src={`${API_URL}${selectedUser.avatar}`} alt={selectedUser.nombre} className="rounded-circle w-100 h-100" />
               ) : (
                 <span>{selectedUser.nombre.charAt(0)}</span>
               )}
