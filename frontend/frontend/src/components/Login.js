@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { API_URL } from "../api";
 import { useNavigate } from "react-router-dom";
 import "../styles/Auth.css";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
@@ -19,7 +18,7 @@ const Login = () => {
     e.preventDefault();
     setError("");
     try {
-      const response = await axios.post(`${API_URL}/login`, form);
+      const response = await axios.post("http://localhost:3000/login", form);
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("rol", response.data.rol);
       localStorage.setItem("username", response.data.nombre);

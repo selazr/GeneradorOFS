@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { API_URL } from "../api";
 import { useNavigate } from "react-router-dom";
 import "../styles/Auth.css";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
@@ -38,7 +37,7 @@ const Register = () => {
     }
 
     try {
-      await axios.post(`${API_URL}/register`, form);
+      await axios.post("http://localhost:3000/register", form);
       alert("Usuario registrado con éxito");
       navigate("/login");
     } catch (error) {
