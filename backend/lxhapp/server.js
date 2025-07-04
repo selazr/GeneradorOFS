@@ -16,9 +16,10 @@ const { verificarToken, verificarRol } = require('./middlewares/auth');
 
 const app = express();
 const httpServer = http.createServer(app);
+const allowedOrigin = 'https://lxhwork.com';
 const io = new Server(httpServer, {
     cors: {
-        origin: '*'
+        origin: allowedOrigin
     }
 });
 
@@ -27,7 +28,7 @@ app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
 
 app.use(express.json());
-app.use(cors()); // CORS habilitado antes de rutas
+app.use(cors({ origin: allowedOrigin })); // CORS habilitado antes de rutas
 app.use('/avatars', express.static(path.join(__dirname, 'uploads', 'avatars')));
 // Carpeta para imágenes de órdenes
 app.use('/ordenes-img', express.static(path.join(__dirname, 'uploads', 'ordenes')));
@@ -227,5 +228,5 @@ app.get('/admin', verificarToken, verificarRol(['admin']), (req, res) => {
 const PORT = process.env.PORT || 3000;
 httpServer.listen(PORT, () => {
     console.log('✅ Hola LXH, el backend funciona correctamente');
-    console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
+    console.log(`🚀 Servidor corriendo en https://lxhwork.com`);
 });
