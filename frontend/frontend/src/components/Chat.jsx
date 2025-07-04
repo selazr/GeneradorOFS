@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
 import axios from 'axios';
+import { API_BASE_URL } from '../api';
 
 const Chat = () => {
   const [socket, setSocket] = useState(null);
@@ -18,13 +19,13 @@ const Chat = () => {
     setMyId(payload.id);
 
     axios
-      .get('http://localhost:3000/usuarios/list', {
+      .get(`${API_BASE_URL}/usuarios/list`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       .then(res => setUsers(res.data))
       .catch(err => console.error(err));
 
-    const newSocket = io('http://localhost:3000', { auth: { token } });
+    const newSocket = io(API_BASE_URL, { auth: { token } });
     setSocket(newSocket);
 
     newSocket.on('private message', (msg) => {
@@ -39,12 +40,12 @@ const Chat = () => {
   const openConversation = async (userId) => {
     const token = localStorage.getItem('token');
     try {
-      const res = await axios.post('http://localhost:3000/conversaciones', { usuarioId: userId }, {
+      const res = await axios.post(`${API_BASE_URL}/conversaciones`, { usuarioId: userId }, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setConversationId(res.data.id);
       setSelectedUser(userId);
-      const resMsgs = await axios.get(`http://localhost:3000/conversaciones/${res.data.id}/mensajes`, {
+      const resMsgs = await axios.get(`${API_BASE_URL}/conversaciones/${res.data.id}/mensajes`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setMessages(resMsgs.data);
