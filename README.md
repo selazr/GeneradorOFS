@@ -26,4 +26,9 @@ Copia `backend/lxhapp/.env.example` a `backend/lxhapp/.env` y completa los valor
 - `DB_PASSWORD`
 - `DB_NAME`
 - `JWT_SECRET`
+- `CHROME_PATH` (opcional, ruta al ejecutable de Chrome/Chromium para Puppeteer)
+
+Si tu sistema no utiliza la ruta predeterminada, asigna `CHROME_PATH` con la ruta
+al ejecutable de Chrome o Chromium para que Puppeteer lo utilice al generar los
+PDF.
 
