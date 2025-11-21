@@ -16,10 +16,24 @@ const { verificarToken, verificarRol } = require('./middlewares/auth');
 
 const app = express();
 const httpServer = http.createServer(app);
-const allowedOrigin = 'https://lxhwork.com';
+
+// Permitir múltiples orígenes (producción y desarrollo local)
+const allowedOrigins = process.env.ALLOWED_ORIGINS
+    ? process.env.ALLOWED_ORIGINS.split(',').map(origin => origin.trim())
+    : ['https://lxhwork.com', 'http://localhost:3000'];
+
+const corsOptions = {
+    origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin)) {
+            return callback(null, true);
+        }
+        return callback(new Error('Not allowed by CORS'));
+    }
+};
+
 const io = new Server(httpServer, {
     cors: {
-        origin: allowedOrigin
+        origin: allowedOrigins
     }
 });
 
@@ -28,7 +42,7 @@ app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
 
 app.use(express.json());
-app.use(cors({ origin: allowedOrigin })); // CORS habilitado antes de rutas
+app.use(cors(corsOptions)); // CORS habilitado antes de rutas
 app.use('/avatars', express.static(path.join(__dirname, 'uploads', 'avatars')));
 // Carpeta para imágenes de órdenes
 app.use('/ordenes-img', express.static(path.join(__dirname, 'uploads', 'ordenes')));
