@@ -22,9 +22,18 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS
     ? process.env.ALLOWED_ORIGINS.split(',').map(origin => origin.trim())
     : ['https://lxhwork.com', 'http://localhost:3000'];
 
+const isLocalOrigin = (origin) => {
+    try {
+        const { hostname } = new URL(origin);
+        return hostname === 'localhost' || hostname === '127.0.0.1';
+    } catch (error) {
+        return false;
+    }
+};
+
 const corsOptions = {
     origin: (origin, callback) => {
-        if (!origin || allowedOrigins.includes(origin)) {
+        if (!origin || allowedOrigins.includes(origin) || isLocalOrigin(origin)) {
             return callback(null, true);
         }
         return callback(new Error('Not allowed by CORS'));
@@ -33,7 +42,12 @@ const corsOptions = {
 
 const io = new Server(httpServer, {
     cors: {
-        origin: allowedOrigins
+        origin: (origin, callback) => {
+            if (!origin || allowedOrigins.includes(origin) || isLocalOrigin(origin)) {
+                return callback(null, true);
+            }
+            return callback(new Error('Not allowed by CORS'));
+        }
     }
 });
 
