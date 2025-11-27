@@ -162,7 +162,7 @@ const Dashboard = () => {
                 onClick={() => setAppSeleccionada("verofs")}
               >
                 <ActivitySquare size={18} />
-                <span>Ver OF's</span>
+                <span>Registro</span>
               </button>
             </li>
           </ul>

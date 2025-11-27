@@ -70,6 +70,7 @@ const VerOFs = () => {
   const [loadingPDF, setLoadingPDF] = useState(false);
   const [paginaInternas, setPaginaInternas] = useState(1);
   const [paginaExternas, setPaginaExternas] = useState(1);
+  const [themeSignature, setThemeSignature] = useState(document.body.className);
 
   const itemsPorPagina = 5;
 
@@ -111,6 +112,12 @@ const VerOFs = () => {
   useEffect(() => {
     setPaginaExternas(1);
   }, [busquedaExternas, externas]);
+
+  useEffect(() => {
+    const observer = new MutationObserver(() => setThemeSignature(document.body.className));
+    observer.observe(document.body, { attributes: true, attributeFilter: ["class"] });
+    return () => observer.disconnect();
+  }, []);
 
   const paginadas = filtradas.slice(
     (paginaInternas - 1) * itemsPorPagina,
@@ -238,6 +245,35 @@ const VerOFs = () => {
     };
   }, [ordenes, externas, rango]);
 
+  const chartOptions = useMemo(() => {
+    const styles = getComputedStyle(document.body);
+    const textColor = styles.getPropertyValue("--text-primary").trim() || "#0f172a";
+    const secondary = styles.getPropertyValue("--text-secondary").trim() || "#475569";
+    const grid = styles.getPropertyValue("--border-color").trim() || "#e2e8f0";
+
+    return {
+      responsive: true,
+      plugins: {
+        legend: {
+          labels: {
+            color: textColor,
+            font: { size: 12 },
+          },
+        },
+      },
+      scales: {
+        x: {
+          ticks: { color: secondary },
+          grid: { color: grid },
+        },
+        y: {
+          ticks: { color: secondary },
+          grid: { color: grid, borderDash: [4, 4] },
+        },
+      },
+    };
+  }, [themeSignature]);
+
   const handleDownloadPDF = async (id) => {
     if (!id || !token) return;
     try {
@@ -267,7 +303,15 @@ const VerOFs = () => {
   };
 
   return (
-    <div className="container mt-4">
+    <div className="container mt-4 registro-wrapper">
+      <div className="registro-header d-flex flex-wrap justify-content-between align-items-start mb-4">
+        <div>
+          <p className="navbar-eyebrow mb-1 text-uppercase">Registro</p>
+          <h3 className="mb-1">Seguimiento de órdenes internas y externas</h3>
+          <p className="text-muted mb-0">Visualiza el historial y el detalle con colores listos para el modo oscuro.</p>
+        </div>
+        <div className="registro-chip">Panel actualizado</div>
+      </div>
       <div className="row g-3 mb-4">
         <div className="col-sm-6 col-lg-3">
           <div className="card h-100 text-center stat-card">
@@ -572,7 +616,7 @@ const VerOFs = () => {
               </button>
             </div>
           </div>
-          <Line data={chartData} />
+          <Line data={chartData} options={chartOptions} />
         </div>
       </div>
 
