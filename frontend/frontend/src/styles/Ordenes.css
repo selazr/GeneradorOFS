@@ -5,8 +5,8 @@
 }
 
 .ordenes-sidebar {
-  background: linear-gradient(135deg, #007bff, #6610f2);
-  color: #fff;
+  background: var(--sidebar-bg);
+  color: var(--sidebar-text);
   max-height: 80vh;
   overflow-y: auto;
   border-radius: 0.5rem;
@@ -16,17 +16,17 @@
 
 
 .ordenes-sidebar .accordion-button {
-  background-color: rgba(255, 255, 255, 0.15);
-  color: #fff;
+  background-color: rgba(255, 255, 255, 0.12);
+  color: var(--text-primary);
 }
 
 .ordenes-sidebar .accordion-button.collapsed {
-  background-color: rgba(255, 255, 255, 0.15);
-  color: #fff;
+  background-color: rgba(255, 255, 255, 0.12);
+  color: var(--text-primary);
 }
 
 .ordenes-sidebar .accordion-button:not(.collapsed) {
-  background-color: rgba(255, 255, 255, 0.25);
+  background-color: rgba(255, 255, 255, 0.2);
 }
 
 .ordenes-sidebar .accordion-button:focus {
@@ -34,11 +34,11 @@
 }
 
 .ordenes-sidebar .list-group-item {
-  background-color: rgba(255, 255, 255, 0.05);
+  background-color: rgba(255, 255, 255, 0.06);
 }
 
 .ordenes-sidebar .list-group-item:hover {
-  background-color: rgba(255, 255, 255, 0.15);
+  background-color: rgba(255, 255, 255, 0.12);
 }
 
 .ordenes-sidebar .accordion-item,
