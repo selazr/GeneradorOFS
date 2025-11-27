@@ -69,7 +69,7 @@ const Estadisticas = () => {
     {
       label: "Usuario líder",
       value: topUsuario.usuario,
-      helper: `${topUsuario.total || 0} órdenes gestionadas",
+      helper: `${topUsuario.total || 0} órdenes gestionadas`,
       icon: <Users size={18} />,
       tone: "warning",
     },
