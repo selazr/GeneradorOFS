@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useMemo, useState, useCallback } from "react";
 import axios from "axios";
 import { API_BASE_URL } from '../api';
 import { Modal, Button } from "react-bootstrap";
@@ -11,7 +11,7 @@ import {
   Search,
 } from "lucide-react";
 import { Line } from "react-chartjs-2";
-import Chart from "chart.js/auto";
+import "chart.js/auto";
 import "../styles/VerOFs.css";
 
 const getStatus = (orden) => {
@@ -162,7 +162,7 @@ const VerOFs = () => {
         : null;
   };
 
-  const contarPorDia = (lista, dias, esExterna = false) => {
+  const contarPorDia = useCallback((lista, dias, esExterna = false) => {
     const ahora = new Date();
     const counts = Array(dias).fill(0);
     lista.forEach((o) => {
@@ -172,9 +172,9 @@ const VerOFs = () => {
       if (diff < dias && diff >= 0) counts[dias - diff - 1]++;
     });
     return counts;
-  };
+  }, []);
 
-  const contarPorMes = (lista, esExterna = false) => {
+  const contarPorMes = useCallback((lista, esExterna = false) => {
     const ahora = new Date();
     const counts = Array(12).fill(0);
     lista.forEach((o) => {
@@ -186,7 +186,7 @@ const VerOFs = () => {
       if (diff < 12 && diff >= 0) counts[11 - diff]++;
     });
     return counts;
-  };
+  }, []);
 
   const [rango, setRango] = useState("7d");
 
@@ -243,9 +243,10 @@ const VerOFs = () => {
         },
       ],
     };
-  }, [ordenes, externas, rango]);
+  }, [ordenes, externas, rango, contarPorDia, contarPorMes]);
 
   const chartOptions = useMemo(() => {
+    void themeSignature; // re-evaluate when the theme toggles
     const styles = getComputedStyle(document.body);
     const textColor = styles.getPropertyValue("--text-primary").trim() || "#0f172a";
     const secondary = styles.getPropertyValue("--text-secondary").trim() || "#475569";
@@ -591,11 +592,11 @@ const VerOFs = () => {
         </div>
       </div>
 
-      <div className="card">
+      <div className="card chart-card">
         <div className="card-body">
           <div className="d-flex justify-content-between align-items-center mb-3">
             <h6 className="mb-0">Órdenes creadas</h6>
-            <div className="btn-group btn-group-sm">
+            <div className="btn-group btn-group-sm chart-range-toggle">
               <button
                 className={`btn btn-outline-secondary ${rango === '7d' ? 'active' : ''}`}
                 onClick={() => setRango('7d')}

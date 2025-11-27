@@ -2,7 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import axios from 'axios';
 import { API_BASE_URL } from '../api';
 import { Bar, Line } from 'react-chartjs-2';
-import Chart from 'chart.js/auto';
+import 'chart.js/auto';
 import { Activity, CalendarClock, ClipboardList, TrendingUp, Users, Weight } from 'lucide-react';
 import "../styles/Estadisticas.css";
 
