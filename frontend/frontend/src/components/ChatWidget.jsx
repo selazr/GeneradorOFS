@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { MessageCircle, SendHorizonal, ArrowLeft } from 'lucide-react';
+import React, { useEffect, useState, useRef, useMemo } from 'react';
+import { MessageCircle, SendHorizonal, ArrowLeft, WifiOff } from 'lucide-react';
 import { io } from 'socket.io-client';
 import axios from 'axios';
 import { API_BASE_URL } from '../api';
@@ -16,13 +16,33 @@ const ChatWidget = () => {
   const [users, setUsers] = useState([]);
   const [myId, setMyId] = useState(null);
   const [unread, setUnread] = useState({});
+  const [connectionError, setConnectionError] = useState(null);
   const messagesEndRef = useRef(null);
+
+  const socketUrl = useMemo(() => {
+    if (process.env.REACT_APP_SOCKET_URL) return process.env.REACT_APP_SOCKET_URL;
+    if (API_BASE_URL?.startsWith('http')) return API_BASE_URL;
+    return window.location.origin;
+  }, []);
+
+  const decodeToken = (token) => {
+    try {
+      const payload = token.split('.')[1];
+      const normalized = payload.replace(/-/g, '+').replace(/_/g, '/');
+      const decoded = atob(normalized);
+      return JSON.parse(decoded);
+    } catch (error) {
+      console.error('No se pudo decodificar el token', error);
+      return null;
+    }
+  };
 
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) return;
 
-    const payload = JSON.parse(atob(token.split('.')[1]));
+    const payload = decodeToken(token);
+    if (!payload?.id) return;
     setMyId(payload.id);
 
     axios
@@ -45,11 +65,30 @@ const ChatWidget = () => {
       })
       .catch(err => console.error(err));
 
-    const newSocket = io(API_BASE_URL, { auth: { token } });
+    const newSocket = io(socketUrl, {
+      auth: { token },
+      transports: ['websocket', 'polling'],
+      path: '/socket.io',
+      reconnectionAttempts: 5,
+    });
     setSocket(newSocket);
 
-    return () => newSocket.disconnect();
-  }, []);
+    const handleError = (err) => {
+      console.error('Error de socket', err);
+      setConnectionError('Sin conexión al chat');
+    };
+
+    newSocket.on('connect', () => setConnectionError(null));
+    newSocket.on('connect_error', handleError);
+    newSocket.on('error', handleError);
+
+    return () => {
+      newSocket.off('connect', handleError);
+      newSocket.off('connect_error', handleError);
+      newSocket.off('error', handleError);
+      newSocket.disconnect();
+    };
+  }, [socketUrl]);
 
   useEffect(() => {
     if (!socket) return;
@@ -111,14 +150,13 @@ const ChatWidget = () => {
       conversacionId: conversationId,
       mensaje: message,
     });
-    // The server will emit the message back to this user
     setMessage('');
   };
 
   return (
     <>
       <button
-        className="btn btn-primary rounded-circle position-fixed bottom-0 end-0 m-4 shadow position-relative"
+        className="chat-launcher"
         onClick={() => {
           if (selectedUser) {
             setSelectedUser(null);
@@ -136,71 +174,94 @@ const ChatWidget = () => {
       </button>
 
       {open && !selectedUser && (
-        <div className="card position-fixed bottom-0 end-0 mb-5 me-4" style={{ width: '18rem', maxHeight: '400px', overflowY: 'auto' }}>
-          <div className="card-header bg-light fw-bold">Usuarios</div>
-          <ul className="list-group list-group-flush">
+        <div className="chat-panel">
+          <div className="chat-panel__header">
+            <div>
+              <p className="chat-panel__title">Chat interno</p>
+              <span className={`chat-status ${connectionError ? 'offline' : 'online'}`}>
+                {connectionError ? 'Desconectado' : 'En línea'}
+              </span>
+            </div>
+            {connectionError && <WifiOff size={18} className="text-danger" />}
+          </div>
+          <div className="chat-panel__body">
             {users.map(user => (
-              <li
+              <button
                 key={user.id}
-                className="list-group-item d-flex align-items-center hover-bg-light cursor-pointer position-relative"
+                className="chat-user"
                 onClick={() => openConversation(user)}
               >
-                <div className="me-2 rounded-circle bg-secondary text-white d-flex justify-content-center align-items-center" style={{ width: 32, height: 32 }}>
+                <div className="chat-user__avatar">
                   {user.avatar ? (
-                    <img src={`${API_BASE_URL}${user.avatar}`} alt={user.nombre} className="rounded-circle w-100 h-100" />
+                    <img src={`${API_BASE_URL}${user.avatar}`} alt={user.nombre} />
                   ) : (
                     <span>{user.nombre.charAt(0)}</span>
                   )}
                 </div>
-                <span>{user.nombre}</span>
-                {unread[user.id] && <span className="notification-dot ms-2"></span>}
-              </li>
+                <div className="chat-user__info">
+                  <span className="chat-user__name">{user.nombre}</span>
+                  <span className="chat-user__badge">Disponible</span>
+                </div>
+                {unread[user.id] && <span className="notification-dot"></span>}
+              </button>
             ))}
-          </ul>
+          </div>
         </div>
       )}
 
       {selectedUser && (
-        <div className="card position-fixed bottom-0 end-0 mb-5 me-4" style={{ width: '22rem', height: '32rem' }}>
-          <div className="card-header d-flex align-items-center">
-            <button className="btn btn-sm btn-outline-secondary me-2" onClick={() => {
-              setSelectedUser(null);
-              setConversationId(null);
-              setMessages([]);
-            }}>
+        <div className="chat-conversation">
+          <div className="chat-conversation__header">
+            <button
+              className="chat-icon-btn"
+              onClick={() => {
+                setSelectedUser(null);
+                setConversationId(null);
+                setMessages([]);
+              }}
+              aria-label="Volver"
+            >
               <ArrowLeft size={18} />
             </button>
-            <div className="me-2 rounded-circle bg-secondary text-white d-flex justify-content-center align-items-center" style={{ width: 32, height: 32 }}>
-              {selectedUser.avatar ? (
-                <img src={`${API_BASE_URL}${selectedUser.avatar}`} alt={selectedUser.nombre} className="rounded-circle w-100 h-100" />
-              ) : (
-                <span>{selectedUser.nombre.charAt(0)}</span>
-              )}
+            <div className="chat-conversation__user">
+              <div className="chat-user__avatar">
+                {selectedUser.avatar ? (
+                  <img src={`${API_BASE_URL}${selectedUser.avatar}`} alt={selectedUser.nombre} />
+                ) : (
+                  <span>{selectedUser.nombre.charAt(0)}</span>
+                )}
+              </div>
+              <div>
+                <p className="chat-user__name mb-0">{selectedUser.nombre}</p>
+                <small className="text-muted">Conversación segura</small>
+              </div>
             </div>
-            <span className="fw-bold">{selectedUser.nombre}</span>
           </div>
-          <div className="card-body overflow-auto">
+          <div className="chat-conversation__body">
             {messages.map((m, i) => (
-              <div key={i} className={`d-flex ${m.remitente_id === myId ? 'justify-content-end' : 'justify-content-start'} mb-2`}>
+              <div key={i} className={`chat-bubble-row ${m.remitente_id === myId ? 'me' : 'other'}`}>
                 <div className={`chat-message ${m.remitente_id === myId ? 'me' : 'other'}`}>{m.mensaje}</div>
               </div>
             ))}
             <div ref={messagesEndRef}></div>
           </div>
-          <div className="card-footer">
-            <form onSubmit={e => { e.preventDefault(); handleSend(); }} className="d-flex">
-              <input
-                type="text"
-                className="form-control me-2"
-                value={message}
-                onChange={e => setMessage(e.target.value)}
-                placeholder="Escribe un mensaje..."
-              />
-              <button type="submit" className="btn btn-primary">
-                <SendHorizonal size={18} />
-              </button>
-            </form>
-          </div>
+          <form
+            onSubmit={e => {
+              e.preventDefault();
+              handleSend();
+            }}
+            className="chat-conversation__footer"
+          >
+            <input
+              type="text"
+              value={message}
+              onChange={e => setMessage(e.target.value)}
+              placeholder="Escribe un mensaje..."
+            />
+            <button type="submit" className="chat-icon-btn primary" aria-label="Enviar mensaje">
+              <SendHorizonal size={18} />
+            </button>
+          </form>
         </div>
       )}
     </>
