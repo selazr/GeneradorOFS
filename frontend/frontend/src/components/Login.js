@@ -1,15 +1,18 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import axios from "axios";
 import { API_BASE_URL } from '../api';
 import { useNavigate } from "react-router-dom";
 import "../styles/Auth.css";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import ThemeContext from "../ThemeContext";
+import ThemeToggle from "./ThemeToggle";
 
 const Login = () => {
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
+  const { theme } = useContext(ThemeContext);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -39,22 +42,30 @@ const Login = () => {
       </video>
 
       <div className="auth-container">
-        {/* Logo en lugar de h2 */}
-        <img src="/logo.png" alt="Log" className="logo-lxh" />
+        <div className="auth-header">
+          <img src="/logo.png" alt="Log" className="logo-lxh" />
+          <ThemeToggle />
+        </div>
+
+        <div className="auth-title">
+          <p className="badge-theme">{theme === "dark" ? "Modo oscuro" : "Modo claro"}</p>
+          <h2>Bienvenido de nuevo</h2>
+          <p className="subtitle">Inicia sesión para continuar gestionando las órdenes.</p>
+        </div>
 
         {error && <p className="error-message">{error}</p>}
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className="auth-form">
           <input type="email" name="email" placeholder="Correo" onChange={handleChange} required />
           <div className="password-container">
-            <input 
-              type={showPassword ? "text" : "password"} 
-              name="password" 
-              placeholder="Contraseña" 
-              onChange={handleChange} 
-              required 
+            <input
+              type={showPassword ? "text" : "password"}
+              name="password"
+              placeholder="Contraseña"
+              onChange={handleChange}
+              required
             />
-            <button 
+            <button
               type="button"
               className="toggle-password"
               onClick={() => setShowPassword(!showPassword)}
@@ -65,7 +76,7 @@ const Login = () => {
           <button type="submit">Ingresar</button>
         </form>
 
-        <p>¿No tienes cuenta? <b><a href="/register">Regístrate aquí</a></b></p>
+        <p className="auth-footer">¿No tienes cuenta? <b><a href="/register">Regístrate aquí</a></b></p>
       </div>
     </div>
   );

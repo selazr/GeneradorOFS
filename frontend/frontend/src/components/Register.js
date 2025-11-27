@@ -1,16 +1,18 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import axios from "axios";
 import { API_BASE_URL } from '../api';
 import { useNavigate } from "react-router-dom";
 import "../styles/Auth.css";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-
+import ThemeContext from "../ThemeContext";
+import ThemeToggle from "./ThemeToggle";
 
 const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [form, setForm] = useState({ nombre: "", email: "", password: "", rol: "usuario" });
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const { theme } = useContext(ThemeContext);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -54,14 +56,22 @@ const Register = () => {
         Tu navegador no soporta videos HTML5.
       </video>
       <div className="auth-container">
-        <h2>Registro</h2>
+        <div className="auth-header">
+          <h2>Registro</h2>
+          <ThemeToggle />
+        </div>
+
+        <div className="auth-title">
+          <p className="badge-theme">{theme === "dark" ? "Modo oscuro" : "Modo claro"}</p>
+          <p className="subtitle">Crea tu cuenta para comenzar a trabajar en tus proyectos.</p>
+        </div>
 
         {error && <p className="error-message">{error}</p>}
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className="auth-form">
           <input type="text" name="nombre" placeholder="Nombre" onChange={handleChange} required />
           <input type="email" name="email" placeholder="Correo" onChange={handleChange} required />
-          
+
           <div className="password-container">
             <input
               type={showPassword ? "text" : "password"}
@@ -86,7 +96,7 @@ const Register = () => {
           <button type="submit">Registrarse</button>
         </form>
 
-        <p>¿Ya tienes cuenta? <b><a href="/login">Inicia sesión aquí</a></b></p>
+        <p className="auth-footer">¿Ya tienes cuenta? <b><a href="/login">Inicia sesión aquí</a></b></p>
       </div>
     </div>
   );

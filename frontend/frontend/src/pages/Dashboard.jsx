@@ -11,6 +11,7 @@ import Estadisticas from "../apps/Estadisticas";
 import { Modal, Button } from "react-bootstrap";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import ChatWidget from "../components/ChatWidget";
+import ThemeToggle from "../components/ThemeToggle";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -112,82 +113,46 @@ const Dashboard = () => {
   return (
     <div className="d-flex dashboard-shell">
       {/* Sidebar (barra lateral) */}
-      <div className={`sidebar bg-dark text-white p-4 ${sidebarOpen ? '' : 'collapsed'}`} style={{ minHeight: '100vh' }}>
-  <div className="text-center">
-    <img src="/logo.png" alt="LXH" className="logo" style={{ maxWidth: '80%' }} />
-  </div>
-  <h4 className="mt-4 text-center">Aplicaciones</h4>
-  <ul className="nav flex-column align-items-center">
-    <li className="nav-item">
-      <button
-        className={`nav-link text-white btn btn-link w-100 text-center p-2 ${appSeleccionada === 'estadisticas' ? 'active' : ''}`}
-        onClick={() => setAppSeleccionada('estadisticas')}
-        style={{
-          transition: 'background-color 0.3s, transform 0.2s',
-          border: 'none',
-          textAlign: 'center',
-        }}
-        onMouseEnter={(e) => e.target.style.backgroundColor = '#575757'}
-        onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
-        onMouseDown={(e) => e.target.style.transform = 'scale(0.98)'}
-        onMouseUp={(e) => e.target.style.transform = 'scale(1)'}
-      >
-        Estadísticas
-      </button>
-    </li>
-    <li className="nav-item">
-      <button
-        className={`nav-link text-white btn btn-link w-100 text-center p-2 ${appSeleccionada === 'ordenes' ? 'active' : ''}`}
-        onClick={() => setAppSeleccionada("ordenes")}
-        style={{
-          transition: 'background-color 0.3s, transform 0.2s',
-          border: 'none',
-          textAlign: 'center',
-        }}
-        onMouseEnter={(e) => e.target.style.backgroundColor = '#575757'}
-        onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
-        onMouseDown={(e) => e.target.style.transform = 'scale(0.98)'}
-        onMouseUp={(e) => e.target.style.transform = 'scale(1)'}
-      >
-        Ordenes Internas
-      </button>
-    </li>
-    <li className="nav-item">
-      <button
-        className={`nav-link text-white btn btn-link w-100 text-center p-2 ${appSeleccionada === 'externas' ? 'active' : ''}`}
-        onClick={() => setAppSeleccionada("externas")}
-        style={{
-          transition: 'background-color 0.3s, transform 0.2s',
-          border: 'none',
-          textAlign: 'center',
-        }}
-        onMouseEnter={(e) => e.target.style.backgroundColor = '#575757'}
-        onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
-        onMouseDown={(e) => e.target.style.transform = 'scale(0.98)'}
-        onMouseUp={(e) => e.target.style.transform = 'scale(1)'}
-      >
-        Ordenes Externas
-      </button>
-    </li>
-    <li className="nav-item">
-      <button
-        className={`nav-link text-white btn btn-link w-100 text-center p-2 ${appSeleccionada === 'verofs' ? 'active' : ''}`}
-        onClick={() => setAppSeleccionada("verofs")}
-        style={{
-          transition: 'background-color 0.3s, transform 0.2s',
-          border: 'none',
-          textAlign: 'center',
-        }}
-        onMouseEnter={(e) => e.target.style.backgroundColor = '#575757'}
-        onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
-        onMouseDown={(e) => e.target.style.transform = 'scale(0.98)'}
-        onMouseUp={(e) => e.target.style.transform = 'scale(1)'}
-      >
-        Ver OF's
-      </button>
-    </li>
-  </ul>
-</div>
+      <div className={`sidebar p-4 ${sidebarOpen ? '' : 'collapsed'}`} style={{ minHeight: '100vh' }}>
+        <div className="text-center">
+          <img src="/logo.png" alt="LXH" className="logo" style={{ maxWidth: '80%' }} />
+        </div>
+        <h4 className="mt-4 text-center">Aplicaciones</h4>
+        <ul className="nav flex-column align-items-center">
+          <li className="nav-item">
+            <button
+              className={`nav-link btn btn-link w-100 text-center p-2 ${appSeleccionada === 'estadisticas' ? 'active' : ''}`}
+              onClick={() => setAppSeleccionada('estadisticas')}
+            >
+              Estadísticas
+            </button>
+          </li>
+          <li className="nav-item">
+            <button
+              className={`nav-link btn btn-link w-100 text-center p-2 ${appSeleccionada === 'ordenes' ? 'active' : ''}`}
+              onClick={() => setAppSeleccionada("ordenes")}
+            >
+              Ordenes Internas
+            </button>
+          </li>
+          <li className="nav-item">
+            <button
+              className={`nav-link btn btn-link w-100 text-center p-2 ${appSeleccionada === 'externas' ? 'active' : ''}`}
+              onClick={() => setAppSeleccionada("externas")}
+            >
+              Ordenes Externas
+            </button>
+          </li>
+          <li className="nav-item">
+            <button
+              className={`nav-link btn btn-link w-100 text-center p-2 ${appSeleccionada === 'verofs' ? 'active' : ''}`}
+              onClick={() => setAppSeleccionada("verofs")}
+            >
+              Ver OF's
+            </button>
+          </li>
+        </ul>
+      </div>
 
 
       {sidebarOpen && <div className="sidebar-overlay d-lg-none" onClick={() => setSidebarOpen(false)} />}
@@ -196,27 +161,33 @@ const Dashboard = () => {
       {/* Contenido principal */}
       <div className={`main-content flex-grow-1 ${sidebarOpen ? 'expanded' : 'collapsed'}`}>
         {/* Navbar (barra superior) */}
-        <nav className="navbar navbar-light bg-light p-3 d-flex justify-content-between">
-          <div className="d-flex align-items-center">
+        <nav className="navbar dashboard-navbar p-3 d-flex justify-content-between">
+          <div className="d-flex align-items-center gap-2">
             <button className="btn btn-outline-secondary me-2 sidebar-toggle" onClick={() => setSidebarOpen(!sidebarOpen)}>
               {sidebarOpen ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
             </button>
-            <span>{mensaje}</span>
+            <div>
+              <p className="navbar-eyebrow mb-0">Panel principal</p>
+              <span className="fw-semibold">{mensaje}</span>
+            </div>
           </div>
-          <div className="dropdown" ref={dropdownRef}>
-            <img
-              src={perfil?.avatar ? `${API_BASE_URL}${perfil.avatar}` : "/silueta.jpg"}
-              alt=""
-              className="perfil-img dropdown-toggle"
-              onClick={() => setMenuAbierto(!menuAbierto)}
-            />
-            {menuAbierto && (
-              <div className="dropdown-menu show position-absolute end-0 mt-2" style={{ right: 0 }}>
-                <button className="dropdown-item" onClick={() => setShowPerfil(true)}>Ver Perfil</button>
-                <button className="dropdown-item" onClick={() => setShowEditar(true)}>Editar Perfil</button>
-                <button className="dropdown-item text-danger" onClick={cerrarSesion}>Cerrar Sesión</button>
-              </div>
-            )}
+          <div className="d-flex align-items-center gap-3">
+            <ThemeToggle />
+            <div className="dropdown" ref={dropdownRef}>
+              <img
+                src={perfil?.avatar ? `${API_BASE_URL}${perfil.avatar}` : "/silueta.jpg"}
+                alt=""
+                className="perfil-img dropdown-toggle"
+                onClick={() => setMenuAbierto(!menuAbierto)}
+              />
+              {menuAbierto && (
+                <div className="dropdown-menu show position-absolute end-0 mt-2" style={{ right: 0 }}>
+                  <button className="dropdown-item" onClick={() => setShowPerfil(true)}>Ver Perfil</button>
+                  <button className="dropdown-item" onClick={() => setShowEditar(true)}>Editar Perfil</button>
+                  <button className="dropdown-item text-danger" onClick={cerrarSesion}>Cerrar Sesión</button>
+                </div>
+              )}
+            </div>
           </div>
         </nav>
 
