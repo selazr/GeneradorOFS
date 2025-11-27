@@ -1,8 +1,13 @@
 /* ========== Dashboard.css mejorado ========== */
 
 /* Sidebar */
+.dashboard-shell {
+  position: relative;
+  width: 100%;
+}
+
 .sidebar {
-  width: 240px;
+  width: 260px;
   background: linear-gradient(135deg, #007bff, #6610f2);
   color: #fff;
   height: 100vh;
@@ -15,21 +20,13 @@
   align-items: center;
   font-family: 'Segoe UI', sans-serif;
   box-shadow: 4px 0 10px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
-  transition: width 0.3s ease, padding 0.3s ease;
+  z-index: 1050;
+  transition: transform 0.3s ease, opacity 0.3s ease;
 }
 
 .sidebar.collapsed {
-  width: 0;
-  padding: 0;
-  overflow: hidden;
-  display: none;
-}
-
-.sidebar.collapsed .logo,
-.sidebar.collapsed h4,
-.sidebar.collapsed ul {
-  display: none;
+  transform: translateX(-100%);
+  opacity: 0;
 }
 
 .sidebar .logo {
@@ -63,9 +60,16 @@
   font-weight: 700;
 }
 
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 1040;
+}
+
 /* Main Content */
 .main-content {
-  margin-left: 240px;
+  margin-left: 260px;
   background: #f4f6f9;
   min-height: 100vh;
   font-family: 'Segoe UI', sans-serif;
@@ -77,7 +81,7 @@
 }
 
 .main-content.expanded {
-  margin-left: 240px;
+  margin-left: 260px;
 }
 
 /* Navbar */
@@ -88,6 +92,15 @@
   position: sticky;
   top: 0;
   z-index: 999;
+}
+
+.sidebar-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
 }
 
 .perfil-img {
@@ -174,28 +187,62 @@
 }
 
 /* Responsive */
-@media (max-width: 768px) {
+@media (max-width: 991px) {
   .sidebar {
+    width: 260px;
+    height: 100vh;
+    position: fixed;
+    padding-top: 30px;
+  }
+
+  .sidebar .nav {
     width: 100%;
-    height: auto;
-    position: relative;
-    flex-direction: row;
-    justify-content: space-around;
-    padding: 10px 0;
   }
 
   .main-content {
     margin-left: 0;
+    padding-bottom: 3rem;
   }
 
   .navbar {
-    flex-direction: column;
-    align-items: flex-start;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .navbar .d-flex.align-items-center {
+    gap: 0.75rem;
   }
 
   .dropdown-menu {
     position: absolute !important;
     top: 60px;
-    right: 15px;
+    right: 0;
+  }
+
+  .main-content .p-4 {
+    padding: 1.25rem !important;
+  }
+}
+
+@media (max-width: 575px) {
+  .navbar {
+    padding: 0.75rem 1rem;
+  }
+
+  .main-content .p-4 {
+    padding: 1rem !important;
+  }
+
+  .sidebar {
+    width: 240px;
+  }
+
+  .stats-panel {
+    padding: 16px;
+  }
+
+  .chart-container {
+    height: 320px;
   }
 }
