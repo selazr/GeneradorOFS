@@ -9,7 +9,14 @@ import OrdenesExternas from "../apps/OrdenesExternas";
 import VerOFs from "../apps/VerOFs";
 import Estadisticas from "../apps/Estadisticas";
 import { Modal, Button } from "react-bootstrap";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  ActivitySquare,
+  BarChart3,
+  Boxes,
+  ClipboardList,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import ChatWidget from "../components/ChatWidget";
 import ThemeToggle from "../components/ThemeToggle";
 
@@ -114,44 +121,55 @@ const Dashboard = () => {
     <div className="d-flex dashboard-shell">
       {/* Sidebar (barra lateral) */}
       <div className={`sidebar p-4 ${sidebarOpen ? '' : 'collapsed'}`} style={{ minHeight: '100vh' }}>
-        <div className="text-center">
+        <div className="sidebar-brand">
           <img src="/logo.png" alt="LXH" className="logo" style={{ maxWidth: '80%' }} />
+          <p className="tagline mb-0">Organiza y supervisa tus flujos</p>
         </div>
-        <h4 className="mt-4 text-center">Aplicaciones</h4>
-        <ul className="nav flex-column align-items-center">
-          <li className="nav-item">
-            <button
-              className={`nav-link btn btn-link w-100 text-center p-2 ${appSeleccionada === 'estadisticas' ? 'active' : ''}`}
-              onClick={() => setAppSeleccionada('estadisticas')}
-            >
-              Estadísticas
-            </button>
-          </li>
-          <li className="nav-item">
-            <button
-              className={`nav-link btn btn-link w-100 text-center p-2 ${appSeleccionada === 'ordenes' ? 'active' : ''}`}
-              onClick={() => setAppSeleccionada("ordenes")}
-            >
-              Ordenes Internas
-            </button>
-          </li>
-          <li className="nav-item">
-            <button
-              className={`nav-link btn btn-link w-100 text-center p-2 ${appSeleccionada === 'externas' ? 'active' : ''}`}
-              onClick={() => setAppSeleccionada("externas")}
-            >
-              Ordenes Externas
-            </button>
-          </li>
-          <li className="nav-item">
-            <button
-              className={`nav-link btn btn-link w-100 text-center p-2 ${appSeleccionada === 'verofs' ? 'active' : ''}`}
-              onClick={() => setAppSeleccionada("verofs")}
-            >
-              Ver OF's
-            </button>
-          </li>
-        </ul>
+        <div className="sidebar-card mt-4">
+          <p className="sidebar-label">Aplicaciones</p>
+          <ul className="nav flex-column">
+            <li className="nav-item">
+              <button
+                className={`nav-link btn btn-link ${appSeleccionada === 'estadisticas' ? 'active' : ''}`}
+                onClick={() => setAppSeleccionada('estadisticas')}
+              >
+                <BarChart3 size={18} />
+                <span>Estadísticas</span>
+              </button>
+            </li>
+            <li className="nav-item">
+              <button
+                className={`nav-link btn btn-link ${appSeleccionada === 'ordenes' ? 'active' : ''}`}
+                onClick={() => setAppSeleccionada("ordenes")}
+              >
+                <ClipboardList size={18} />
+                <span>Órdenes Internas</span>
+                <span className="pill">OF</span>
+              </button>
+            </li>
+            <li className="nav-item">
+              <button
+                className={`nav-link btn btn-link ${appSeleccionada === 'externas' ? 'active' : ''}`}
+                onClick={() => setAppSeleccionada("externas")}
+              >
+                <Boxes size={18} />
+                <span>Órdenes Externas</span>
+              </button>
+            </li>
+            <li className="nav-item">
+              <button
+                className={`nav-link btn btn-link ${appSeleccionada === 'verofs' ? 'active' : ''}`}
+                onClick={() => setAppSeleccionada("verofs")}
+              >
+                <ActivitySquare size={18} />
+                <span>Ver OF's</span>
+              </button>
+            </li>
+          </ul>
+          <div className="sidebar-tip mt-3">
+            Revisa el detalle de cada orden y mantén la trazabilidad sin salir del panel.
+          </div>
+        </div>
       </div>
 
 
