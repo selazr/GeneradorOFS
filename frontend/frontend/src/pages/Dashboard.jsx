@@ -21,8 +21,17 @@ const Dashboard = () => {
   const [editData, setEditData] = useState({ nombre: "", email: "", password: "", avatar: null });
   const [appSeleccionada, setAppSeleccionada] = useState("estadisticas");
   const [menuAbierto, setMenuAbierto] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(() => window.innerWidth >= 992);
   const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setSidebarOpen(window.innerWidth >= 992);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -101,7 +110,7 @@ const Dashboard = () => {
   }, []);
 
   return (
-    <div className="d-flex">
+    <div className="d-flex dashboard-shell">
       {/* Sidebar (barra lateral) */}
       <div className={`sidebar bg-dark text-white p-4 ${sidebarOpen ? '' : 'collapsed'}`} style={{ minHeight: '100vh' }}>
   <div className="text-center">
@@ -181,12 +190,15 @@ const Dashboard = () => {
 </div>
 
 
+      {sidebarOpen && <div className="sidebar-overlay d-lg-none" onClick={() => setSidebarOpen(false)} />}
+
+
       {/* Contenido principal */}
       <div className={`main-content flex-grow-1 ${sidebarOpen ? 'expanded' : 'collapsed'}`}>
         {/* Navbar (barra superior) */}
         <nav className="navbar navbar-light bg-light p-3 d-flex justify-content-between">
           <div className="d-flex align-items-center">
-            <button className="btn btn-outline-secondary me-2" onClick={() => setSidebarOpen(!sidebarOpen)}>
+            <button className="btn btn-outline-secondary me-2 sidebar-toggle" onClick={() => setSidebarOpen(!sidebarOpen)}>
               {sidebarOpen ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
             </button>
             <span>{mensaje}</span>
