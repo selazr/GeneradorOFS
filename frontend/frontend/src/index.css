@@ -14,6 +14,11 @@ body {
   transition: background 0.25s ease, color 0.25s ease;
 }
 
+.text-muted {
+  color: var(--text-secondary) !important;
+  opacity: 0.9;
+}
+
 body.theme-light {
   --background-color: #f4f6f9;
   --card-bg: #ffffff;

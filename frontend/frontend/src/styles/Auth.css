@@ -139,6 +139,12 @@
   min-height: 48px;
   transition: border 0.2s ease, box-shadow 0.2s ease;
 }
+
+.auth-container input::placeholder,
+.auth-container select::placeholder {
+  color: var(--text-secondary);
+  opacity: 0.9;
+}
 .auth-container input:focus,
 .auth-container select:focus {
   outline: none;
