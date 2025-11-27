@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { Line } from "react-chartjs-2";
 import Chart from "chart.js/auto";
+import "../styles/VerOFs.css";
 
 const getStatus = (orden) => {
   if (orden.fecha_fin) return "completed";
@@ -269,7 +270,7 @@ const VerOFs = () => {
     <div className="container mt-4">
       <div className="row g-3 mb-4">
         <div className="col-sm-6 col-lg-3">
-          <div className="card h-100 text-center">
+          <div className="card h-100 text-center stat-card">
             <div className="card-body">
               <Package className="mb-2" />
               <div className="text-muted small">Total Órdenes</div>
@@ -282,7 +283,7 @@ const VerOFs = () => {
           </div>
         </div>
         <div className="col-sm-6 col-lg-3">
-          <div className="card h-100 text-center">
+          <div className="card h-100 text-center stat-card">
             <div className="card-body">
               <CheckCircle2 className="mb-2 text-success" />
               <div className="text-muted small">Completadas</div>
@@ -291,7 +292,7 @@ const VerOFs = () => {
           </div>
         </div>
         <div className="col-sm-6 col-lg-3">
-          <div className="card h-100 text-center">
+          <div className="card h-100 text-center stat-card">
             <div className="card-body">
               <Clock className="mb-2 text-warning" />
               <div className="text-muted small">En progreso</div>
@@ -300,7 +301,7 @@ const VerOFs = () => {
           </div>
         </div>
         <div className="col-sm-6 col-lg-3">
-          <div className="card h-100 text-center">
+          <div className="card h-100 text-center stat-card">
             <div className="card-body">
               <AlertCircle className="mb-2 text-primary" />
               <div className="text-muted small">Pendientes</div>
@@ -310,7 +311,7 @@ const VerOFs = () => {
         </div>
       </div>
 
-      <div className="card mb-4">
+      <div className="card mb-4 table-card">
         <div className="card-body">
           <div className="d-flex justify-content-between align-items-center mb-3">
             <h5 className="mb-0">Órdenes Recientes</h5>
@@ -575,48 +576,70 @@ const VerOFs = () => {
         </div>
       </div>
 
-      <Modal show={showModal} onHide={() => setShowModal(false)}>
+      <Modal show={showModal} onHide={() => setShowModal(false)} className="detail-modal">
         <Modal.Header closeButton>
           <Modal.Title>Detalle de OF</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           {seleccionada && (
-            <div>
-              <p>
-                <strong>Figura:</strong> {seleccionada.figura}
-              </p>
-              <p>
-                <strong>Cliente:</strong> {seleccionada.nombre_cliente}
-              </p>
-              <p>
-                <strong>Proyecto:</strong> {seleccionada.nombre_proyecto}
-              </p>
-              <p>
-                <strong>Código:</strong> {seleccionada.codigo_proyecto}
-              </p>
-              <p>
-                <strong>Responsable:</strong> {seleccionada.responsable}
-              </p>
-              <p>
-                <strong>Inicio:</strong>{" "}
-                {seleccionada.fecha_inicio
-                  ? new Date(seleccionada.fecha_inicio).toLocaleDateString()
-                  : "N/A"}
-              </p>
-              <p>
-                <strong>Fin:</strong>{" "}
-                {seleccionada.fecha_fin
-                  ? new Date(seleccionada.fecha_fin).toLocaleDateString()
-                  : "N/A"}
-              </p>
-              <p>
-                <strong>Creada:</strong>{" "}
-                {new Date(seleccionada.fecha_creacion).toLocaleString()}
-              </p>
-              <p>
-                <strong>Creada por:</strong> {seleccionada.creador}
-              </p>
-            </div>
+            <>
+              <div className="detail-header">
+                <div>
+                  <p className="navbar-eyebrow mb-1">Proyecto</p>
+                  <h5 className="mb-1">{seleccionada.nombre_proyecto}</h5>
+                  <span className="pill">#{seleccionada.codigo_proyecto}</span>
+                </div>
+                <span className={`status-chip ${getStatus(seleccionada)}`}>
+                  {getStatusIcon(getStatus(seleccionada))}
+                  {getStatusText(getStatus(seleccionada))}
+                </span>
+              </div>
+
+              <div className="detail-grid">
+                <div className="detail-tile">
+                  <p className="detail-label">Figura</p>
+                  <div className="detail-value">{seleccionada.figura}</div>
+                </div>
+                <div className="detail-tile">
+                  <p className="detail-label">Cliente</p>
+                  <div className="detail-value">{seleccionada.nombre_cliente}</div>
+                </div>
+                <div className="detail-tile">
+                  <p className="detail-label">Responsable</p>
+                  <div className="detail-value">{seleccionada.responsable || "Sin asignar"}</div>
+                </div>
+                <div className="detail-tile">
+                  <p className="detail-label">Creada por</p>
+                  <div className="detail-value">{seleccionada.creador}</div>
+                </div>
+              </div>
+
+              <p className="section-title">Fechas</p>
+              <div className="detail-grid">
+                <div className="detail-tile">
+                  <p className="detail-label">Inicio</p>
+                  <div className="detail-value">
+                    {seleccionada.fecha_inicio
+                      ? new Date(seleccionada.fecha_inicio).toLocaleDateString()
+                      : "N/A"}
+                  </div>
+                </div>
+                <div className="detail-tile">
+                  <p className="detail-label">Fin</p>
+                  <div className="detail-value">
+                    {seleccionada.fecha_fin
+                      ? new Date(seleccionada.fecha_fin).toLocaleDateString()
+                      : "N/A"}
+                  </div>
+                </div>
+                <div className="detail-tile">
+                  <p className="detail-label">Creada</p>
+                  <div className="detail-value">
+                    {new Date(seleccionada.fecha_creacion).toLocaleString()}
+                  </div>
+                </div>
+              </div>
+            </>
           )}
         </Modal.Body>
         <Modal.Footer>

@@ -19,7 +19,7 @@
   flex-direction: column;
   align-items: center;
   font-family: 'Segoe UI', sans-serif;
-  box-shadow: 4px 0 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 4px 0 10px rgba(0, 0, 0, 0.15);
   z-index: 1050;
   transition: transform 0.3s ease, opacity 0.3s ease;
 }
@@ -34,30 +34,92 @@
   margin-bottom: 30px;
 }
 
+.sidebar .sidebar-brand {
+  width: 100%;
+  text-align: center;
+}
+
+.sidebar .sidebar-brand .tagline {
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 0.9rem;
+  margin-top: 6px;
+}
+
 .sidebar h4 {
-  margin-bottom: 20px;
+  margin-bottom: 12px;
   font-size: 1.3rem;
   font-weight: 600;
 }
 
+.sidebar-card {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  padding: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar .sidebar-label {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 10px;
+}
+
+.sidebar .nav {
+  width: 100%;
+}
+
+.sidebar .nav .nav-item {
+  width: 100%;
+  margin-bottom: 8px;
+}
+
 .sidebar .nav .nav-item .nav-link {
   width: 100%;
-  text-align: center;
+  text-align: left;
   color: var(--sidebar-text);
-  padding: 10px 0;
-  font-weight: 500;
-  border-radius: 8px;
+  padding: 12px 14px;
+  font-weight: 600;
+  border-radius: 10px;
   transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.sidebar .nav .nav-item .nav-link .pill {
+  font-size: 0.78rem;
+  padding: 4px 8px;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 20px;
 }
 
 .sidebar .nav .nav-item .nav-link:hover {
-  background: rgba(255, 255, 255, 0.08);
-  transform: scale(1.03);
+  background: rgba(255, 255, 255, 0.12);
+  transform: translateX(6px);
 }
 
 .sidebar .nav .nav-item .nav-link.active {
   background: rgba(255, 255, 255, 0.18);
   font-weight: 700;
+  border-color: rgba(255, 255, 255, 0.28);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+}
+
+.sidebar .sidebar-tip {
+  width: 100%;
+  margin-top: 16px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.18);
+  color: #e0f2fe;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  font-size: 0.9rem;
 }
 
 .sidebar-overlay {

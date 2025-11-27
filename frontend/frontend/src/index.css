@@ -28,6 +28,8 @@ body.theme-light {
   --sidebar-bg: linear-gradient(135deg, #2563eb, #7c3aed);
   --badge-color: #0ea5e9;
   --sidebar-text: #f8fafc;
+  --muted-surface: #f8fafc;
+  --surface-hover: rgba(37, 99, 235, 0.08);
 }
 
 body.theme-dark {
@@ -45,6 +47,52 @@ body.theme-dark {
   --sidebar-bg: linear-gradient(135deg, #0f172a, #1f2937);
   --badge-color: #fbbf24;
   --sidebar-text: #e5e7eb;
+  --muted-surface: #0f172a;
+  --surface-hover: rgba(56, 189, 248, 0.08);
+}
+
+.card {
+  background: var(--card-bg);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-soft);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.25s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.08);
+}
+
+.card .card-footer {
+  background: var(--card-bg);
+  border-top: 1px solid var(--border-color);
+}
+
+.table {
+  color: var(--text-primary);
+  border-color: var(--border-color) !important;
+}
+
+.table thead th {
+  color: var(--text-secondary);
+  border-color: var(--border-color) !important;
+  background: var(--card-bg);
+}
+
+.table tbody tr {
+  border-color: var(--border-color) !important;
+}
+
+.table-hover tbody tr:hover {
+  background: var(--surface-hover);
+}
+
+.modal-content {
+  background: var(--card-bg);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-soft);
 }
 
 code {
