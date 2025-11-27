@@ -1,0 +1,104 @@
+.stats-panel {
+  color: var(--text-primary);
+}
+
+.gradient-card {
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.12), rgba(14, 165, 233, 0.18)), var(--card-bg);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-soft);
+}
+
+.stats-summary .stat-chip {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  min-width: 180px;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+}
+
+.stat-chip .icon-wrapper {
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: var(--surface-hover);
+  color: var(--accent-color);
+}
+
+.stat-chip.primary .icon-wrapper { background: rgba(37, 99, 235, 0.15); color: #2563eb; }
+.stat-chip.info .icon-wrapper { background: rgba(14, 165, 233, 0.15); color: #0ea5e9; }
+.stat-chip.success .icon-wrapper { background: rgba(34, 197, 94, 0.15); color: #22c55e; }
+.stat-chip.warning .icon-wrapper { background: rgba(234, 179, 8, 0.15); color: #eab308; }
+
+.chip-label {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}
+
+.chip-value {
+  font-weight: 700;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 18px;
+}
+
+.stat-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 18px;
+  padding: 16px;
+  box-shadow: var(--shadow-soft);
+  min-height: 320px;
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-card .badge.bg-soft {
+  background: var(--surface-hover);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+}
+
+.icon-circle {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-primary);
+}
+
+.icon-circle.info { background: rgba(56, 189, 248, 0.12); color: #0ea5e9; }
+.icon-circle.success { background: rgba(34, 197, 94, 0.12); color: #22c55e; }
+.icon-circle.warning { background: rgba(234, 179, 8, 0.12); color: #d97706; }
+.icon-circle.primary { background: rgba(37, 99, 235, 0.12); color: #2563eb; }
+
+.chart-wrapper {
+  flex: 1;
+  min-height: 220px;
+}
+
+.chart-wrapper canvas {
+  width: 100% !important;
+}
+
+@media (max-width: 768px) {
+  .stats-summary {
+    width: 100%;
+    justify-content: flex-start !important;
+  }
+
+  .stats-summary .stat-chip {
+    width: 100%;
+  }
+}

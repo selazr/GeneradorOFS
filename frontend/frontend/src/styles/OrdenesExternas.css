@@ -2,6 +2,11 @@
   color: var(--text-primary);
 }
 
+.ordenes-externas .form-label,
+.ordenes-externas .navbar-eyebrow {
+  color: var(--text-secondary);
+}
+
 .oe-header .navbar-eyebrow,
 .oe-form .navbar-eyebrow {
   color: var(--text-secondary);
@@ -70,6 +75,11 @@
 .modern-input:focus {
   border-color: var(--accent-color);
   box-shadow: 0 0 0 0.15rem rgba(37, 99, 235, 0.25);
+}
+
+.modern-input::placeholder {
+  color: var(--text-secondary);
+  opacity: 0.9;
 }
 
 .upload-tile {

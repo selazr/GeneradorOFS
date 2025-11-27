@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { Modal, Button, Spinner } from "react-bootstrap";
 import { useDropzone } from "react-dropzone";
 import "../styles/Ordenes.css";
-import { FolderOpen, User, Folder, FileText } from "lucide-react";
+import { FolderOpen, User, Folder, FileText, ClipboardList, Users, Layers } from "lucide-react";
 
 
 
@@ -187,6 +187,45 @@ const Ordenes = () => {
         .filter((p) => p.ordenes.length > 0),
     }))
     .filter((c) => c.proyectos.length > 0);
+
+  const totalClientes = ordenesTree.length;
+  const totalProyectos = ordenesTree.reduce((sum, cliente) => sum + cliente.proyectos.length, 0);
+  const totalOrdenesInternas = ordenesTree.reduce(
+    (sum, cliente) =>
+      sum +
+      cliente.proyectos.reduce((proyectoSum, proyecto) => proyectoSum + proyecto.ordenes.length, 0),
+    0
+  );
+
+  const clientesFiltrados = filteredOrdenesTree.length;
+  const proyectosFiltrados = filteredOrdenesTree.reduce(
+    (sum, cliente) => sum + cliente.proyectos.length,
+    0
+  );
+
+  const resumenInternas = [
+    {
+      label: "Órdenes registradas",
+      value: totalOrdenesInternas,
+      helper: `${clientesFiltrados} clientes visibles`,
+      icon: <ClipboardList size={18} />,
+      tone: "primary",
+    },
+    {
+      label: "Proyectos",
+      value: totalProyectos,
+      helper: `${proyectosFiltrados} en vista filtrada`,
+      icon: <Layers size={18} />,
+      tone: "info",
+    },
+    {
+      label: "Clientes",
+      value: totalClientes,
+      helper: "Árbol con agrupación por cliente",
+      icon: <Users size={18} />,
+      tone: "success",
+    },
+  ];
 
   const handlePreviewPDF = useCallback(async (id) => {
     if (!id || !token) return;
@@ -441,6 +480,27 @@ const Ordenes = () => {
   return (
 
     <div className="ordenes-wrapper container-fluid">
+      <div className="card ordenes-hero gradient-card mb-4 p-4">
+        <div className="d-flex flex-wrap justify-content-between align-items-start gap-3">
+          <div>
+            <p className="navbar-eyebrow mb-2">Órdenes internas</p>
+            <h3 className="mb-1">Gestor de producción</h3>
+            <p className="text-muted mb-0">Crea, edita y revisa órdenes agrupadas por cliente y proyecto.</p>
+          </div>
+          <div className="d-flex flex-wrap gap-3 ordenes-stats">
+            {resumenInternas.map((item, idx) => (
+              <div key={idx} className={`ordenes-chip ${item.tone}`}>
+                <div className="icon-wrapper">{item.icon}</div>
+                <div>
+                  <p className="mb-0 chip-label">{item.label}</p>
+                  <h5 className="mb-0 chip-value">{item.value}</h5>
+                  <small className="text-muted">{item.helper}</small>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
       <div className="row">
         {/* Sidebar */}
         <div className="col-md-3 ordenes-sidebar">
